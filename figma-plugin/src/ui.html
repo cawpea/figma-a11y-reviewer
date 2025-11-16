@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 12px;
+      padding: 16px;
+      color: #333;
+      background: #fff;
+    }
+
+    .header {
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .description {
+      color: #666;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .button-container {
+      margin-bottom: 20px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 16px;
+      background: #18A0FB;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #0D8DE5;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #18A0FB;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      color: #DC2626;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      margin-bottom: 16px;
+    }
+
+    .results {
+      display: none;
+    }
+
+    .results.visible {
+      display: block;
+    }
+
+    .score-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .score-value {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .score-label {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .category {
+      background: #f9fafb;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .category-name {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .category-score {
+      font-weight: 600;
+      font-size: 12px;
+      color: #18A0FB;
+    }
+
+    .issue {
+      background: white;
+      border-left: 3px solid #fbbf24;
+      padding: 8px 10px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border-radius: 3px;
+    }
+
+    .issue.high {
+      border-left-color: #ef4444;
+    }
+
+    .issue.medium {
+      border-left-color: #f59e0b;
+    }
+
+    .issue.low {
+      border-left-color: #10b981;
+    }
+
+    .issue-severity {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .issue-severity.high {
+      background: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .issue-severity.medium {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+
+    .issue-severity.low {
+      background: #D1FAE5;
+      color: #059669;
+    }
+
+    .positives {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .positive-item {
+      color: #059669;
+      font-size: 11px;
+      margin-bottom: 4px;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .positive-item:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      font-weight: 700;
+    }
+
+    .metadata {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 10px;
+      color: #666;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>UI Reviewer</h1>
+    <p class="description">
+      フレームまたはコンポーネントを選択して、デザイン品質を評価します。
+    </p>
+  </div>
+
+  <div class="button-container">
+    <button id="evaluate-btn">評価を開始</button>
+  </div>
+
+  <div id="error-container"></div>
+  <div id="loading-container"></div>
+  <div id="results-container" class="results"></div>
+
+  <script>
+    const evaluateBtn = document.getElementById('evaluate-btn');
+    const errorContainer = document.getElementById('error-container');
+    const loadingContainer = document.getElementById('loading-container');
+    const resultsContainer = document.getElementById('results-container');
+
+    // 評価開始ボタン
+    evaluateBtn.addEventListener('click', () => {
+      parent.postMessage({ 
+        pluginMessage: { type: 'evaluate-selection' } 
+      }, '*');
+    });
+
+    // プラグインからのメッセージを受信
+    window.onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+
+      if (msg.type === 'error') {
+        showError(msg.message);
+        hideLoading();
+        hideResults();
+      } else if (msg.type === 'evaluation-started') {
+        showLoading();
+        hideError();
+        hideResults();
+      } else if (msg.type === 'evaluation-complete') {
+        hideLoading();
+        hideError();
+        showResults(msg.result);
+      }
+    };
+
+    function showError(message) {
+      errorContainer.innerHTML = `
+        <div class="error">${message}</div>
+      `;
+    }
+
+    function hideError() {
+      errorContainer.innerHTML = '';
+    }
+
+    function showLoading() {
+      evaluateBtn.disabled = true;
+      loadingContainer.innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>評価中...</div>
+        </div>
+      `;
+    }
+
+    function hideLoading() {
+      evaluateBtn.disabled = false;
+      loadingContainer.innerHTML = '';
+    }
+
+    function hideResults() {
+      resultsContainer.classList.remove('visible');
+    }
+
+    function showResults(result) {
+      const categoriesHtml = Object.entries(result.categories)
+        .map(([key, category]) => {
+          const issuesHtml = category.issues
+            .map(issue => `
+              <div class="issue ${issue.severity}">
+                <span class="issue-severity ${issue.severity}">
+                  ${issue.severity.toUpperCase()}
+                </span>
+                ${issue.message}
+              </div>
+            `).join('');
+
+          const positivesHtml = category.positives && category.positives.length > 0
+            ? `
+              <div class="positives">
+                ${category.positives.map(p => `
+                  <div class="positive-item">${p}</div>
+                `).join('')}
+              </div>
+            `
+            : '';
+
+          return `
+            <div class="category">
+              <div class="category-header">
+                <span class="category-name">${getCategoryLabel(key)}</span>
+                <span class="category-score">${category.score}点</span>
+              </div>
+              ${issuesHtml}
+              ${positivesHtml}
+            </div>
+          `;
+        }).join('');
+
+      resultsContainer.innerHTML = `
+        <div class="score-card">
+          <div class="score-value">${result.overallScore}</div>
+          <div class="score-label">総合スコア</div>
+        </div>
+        ${categoriesHtml}
+        <div class="metadata">
+          評価完了: ${new Date(result.metadata.evaluatedAt).toLocaleString('ja-JP')}
+          <br>
+          処理時間: ${(result.metadata.duration / 1000).toFixed(1)}秒
+        </div>
+      `;
+      resultsContainer.classList.add('visible');
+    }
+
+    function getCategoryLabel(key) {
+      const labels = {
+        accessibility: 'アクセシビリティ',
+        designSystem: 'デザインシステム',
+        layout: 'レイアウト',
+        naming: '命名規則',
+      };
+      return labels[key] || key;
+    }
+  </script>
+</body>
+</html>
