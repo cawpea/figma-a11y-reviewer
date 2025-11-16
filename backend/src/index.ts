@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import evaluationRoutes from './routes/evaluation';
 import { errorHandler } from './middleware/error-handler';
+import { cleanupOldDebugFiles } from './utils/debug';
 
 // 環境変数を読み込む
 dotenv.config();
@@ -41,3 +42,5 @@ app.listen(PORT, () => {
   console.log(`📊 API endpoint: http://localhost:${PORT}/api/evaluate`);
   console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
 });
+
+cleanupOldDebugFiles();

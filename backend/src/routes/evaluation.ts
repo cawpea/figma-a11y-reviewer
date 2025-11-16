@@ -1,9 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
 import { EvaluationService } from '../services/evaluation.service';
 import { ApiResponse, EvaluationResult } from '../types';
+import { saveDebugData } from '../utils/debug';
 
 const router = Router();
 const evaluationService = new EvaluationService();
@@ -20,54 +19,6 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   userId: z.string().optional(),
 });
-
-/**
- * デバッグ用: ノードデータをファイルに保存
- */
-function saveDebugData(nodeData: any) {
-  if (process.env.NODE_ENV !== 'development') {
-    return;
-  }
-
-  try {
-    // logsディレクトリのパス（backendディレクトリ直下）
-    const logsDir = join(__dirname, '../logs');
-    
-    // logsディレクトリが存在しない場合は作成
-    if (!existsSync(logsDir)) {
-      mkdirSync(logsDir, { recursive: true });
-      console.log('📁 Created logs directory:', logsDir);
-    }
-
-    // タイムスタンプ付きファイル名
-    const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\./g, '-');
-    const nodeName = nodeData.name.replace(/[^a-zA-Z0-9]/g, '_'); // 安全なファイル名に変換
-    const filename = `debug-${nodeName}-${timestamp}.json`;
-    const filepath = join(logsDir, filename);
-
-    // データを整形して保存
-    const debugData = {
-      timestamp: new Date().toISOString(),
-      nodeId: nodeData.id,
-      nodeName: nodeData.name,
-      nodeType: nodeData.type,
-      childrenCount: nodeData.childrenCount || 0,
-      summary: {
-        hasChildren: !!nodeData.children,
-        childrenCount: nodeData.children?.length || 0,
-        hasLayoutMode: !!nodeData.layoutMode,
-        hasFills: !!nodeData.fills,
-      },
-      fullData: nodeData,
-    };
-
-    writeFileSync(filepath, JSON.stringify(debugData, null, 2));
-    console.log(`✅ Debug data saved to: logs/${filename}`);
-    console.log(`   Children count: ${debugData.childrenCount}`);
-  } catch (error) {
-    console.error('❌ Failed to save debug file:', error);
-  }
-}
 
 /**
  * POST /api/evaluate
