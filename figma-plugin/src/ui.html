@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <style>
+    /* 既存のスタイルはそのまま */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -88,6 +89,13 @@
       border-radius: 6px;
       font-size: 11px;
       margin-bottom: 16px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .error-title {
+      font-weight: 600;
+      margin-bottom: 4px;
     }
 
     .results {
@@ -217,6 +225,26 @@
       color: #666;
       text-align: center;
     }
+
+    .api-status {
+      font-size: 10px;
+      color: #666;
+      text-align: center;
+      margin-top: 8px;
+      padding: 8px;
+      background: #f9fafb;
+      border-radius: 4px;
+    }
+
+    .api-status.connected {
+      color: #059669;
+      background: #D1FAE5;
+    }
+
+    .api-status.error {
+      color: #DC2626;
+      background: #FEF2F2;
+    }
   </style>
 </head>
 <body>
@@ -269,7 +297,10 @@
 
     function showError(message) {
       errorContainer.innerHTML = `
-        <div class="error">${message}</div>
+        <div class="error">
+          <div class="error-title">エラーが発生しました</div>
+          <div>${message}</div>
+        </div>
       `;
     }
 
@@ -282,7 +313,10 @@
       loadingContainer.innerHTML = `
         <div class="loading">
           <div class="spinner"></div>
-          <div>評価中...</div>
+          <div>AI評価中...</div>
+          <div style="font-size: 10px; margin-top: 8px; color: #999;">
+            30〜60秒ほどお待ちください
+          </div>
         </div>
       `;
     }
@@ -306,6 +340,7 @@
                   ${issue.severity.toUpperCase()}
                 </span>
                 ${issue.message}
+                ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${issue.suggestion}</small>` : ''}
               </div>
             `).join('');
 
@@ -341,6 +376,9 @@
           評価完了: ${new Date(result.metadata.evaluatedAt).toLocaleString('ja-JP')}
           <br>
           処理時間: ${(result.metadata.duration / 1000).toFixed(1)}秒
+        </div>
+        <div class="api-status connected">
+          ✓ API接続成功
         </div>
       `;
       resultsContainer.classList.add('visible');

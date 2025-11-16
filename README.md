@@ -8,6 +8,7 @@ Figmaの情報をもとにAIを使って、UIデザインのレビューを行�
 
 ```sh
 # ビルド
+cd figma-plugin
 npm run build
 
 # Figmaで確認
@@ -15,6 +16,15 @@ npm run build
 # 2. Plugins > Development > Import plugin from manifest
 # 3. figma-plugin/manifest.json を選択
 # 4. フレームを選択してプラグインを実行
+```
+
+## API
+
+### APIの起動
+
+```sh
+cd backend
+npm run dev
 ```
 
 ### 有料APIの利用

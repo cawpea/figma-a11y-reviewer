@@ -1,5 +1,9 @@
 // src/code.ts
 
+// 設定
+const API_BASE_URL = 'http://localhost:3000/api';
+const API_TIMEOUT = 60000; // 60秒
+
 // プラグインUI表示
 figma.showUI(__html__, {
   width: 400,
@@ -56,16 +60,15 @@ async function handleEvaluation() {
     // ノードデータを抽出
     const nodeData = await extractNodeData(selectedNode);
 
-    // Phase 1ではモックデータを返す
-    // Phase 3でAPIコールに置き換える
-    const mockResult = generateMockResult();
+    // バックエンドAPIに送信
+    const result = await callEvaluationAPI(nodeData);
 
     figma.ui.postMessage({
       type: 'evaluation-complete',
-      result: mockResult,
-      nodeData: nodeData, // デバッグ用
+      result: result,
     });
   } catch (error) {
+    console.error('Evaluation error:', error);
     figma.ui.postMessage({
       type: 'error',
       message: `評価中にエラーが発生しました: ${error}`,
@@ -103,18 +106,41 @@ async function extractNodeData(node: SceneNode): Promise<any> {
   }
 
   // バウンディングボックス
-  if ('absoluteBoundingBox' in node) {
-    data.absoluteBoundingBox = node.absoluteBoundingBox;
+  if ('absoluteBoundingBox' in node && node.absoluteBoundingBox) {
+    data.absoluteBoundingBox = {
+      x: node.absoluteBoundingBox.x,
+      y: node.absoluteBoundingBox.y,
+      width: node.absoluteBoundingBox.width,
+      height: node.absoluteBoundingBox.height,
+    };
   }
 
   // 塗り
-  if ('fills' in node && node.fills !== figma.mixed) {
-    data.fills = node.fills;
+  if ('fills' in node && node.fills !== figma.mixed && Array.isArray(node.fills)) {
+    data.fills = node.fills.map((fill) => {
+      if (fill.type === 'SOLID') {
+        return {
+          type: fill.type,
+          color: fill.color,
+          opacity: fill.opacity,
+        };
+      }
+      return { type: fill.type };
+    });
   }
 
   // ストローク
   if ('strokes' in node && Array.isArray(node.strokes)) {
-    data.strokes = node.strokes;
+    data.strokes = node.strokes.map((stroke) => {
+      if (stroke.type === 'SOLID') {
+        return {
+          type: stroke.type,
+          color: stroke.color,
+          opacity: stroke.opacity,
+        };
+      }
+      return { type: stroke.type };
+    });
   }
 
   // テキストスタイル
@@ -130,90 +156,40 @@ async function extractNodeData(node: SceneNode): Promise<any> {
   return data;
 }
 
-// モック結果を生成（Phase 1用）
-function generateMockResult() {
-  return {
-    overallScore: 78,
-    categories: {
-      accessibility: {
-        score: 85,
-        issues: [
-          {
-            severity: 'medium',
-            message: 'テキストのコントラスト比が4.5:1を下回っています',
-            nodeId: 'sample-node-1',
-            autoFixable: false,
-            suggestion: '背景色を#FFFFFF、テキスト色を#333333に変更してください',
-          },
-          {
-            severity: 'low',
-            message: 'タッチターゲットサイズが推奨値(44x44px)より小さいボタンがあります',
-            nodeId: 'sample-node-2',
-            autoFixable: true,
-            suggestion: 'ボタンの高さを44px以上に設定してください',
-          },
-        ],
-        positives: [
-          'フォントサイズが適切に設定されています',
-          'Auto Layoutが適切に使用されています',
-        ],
-      },
-      designSystem: {
-        score: 72,
-        issues: [
-          {
-            severity: 'high',
-            message: 'spacing値が8pxグリッドに準拠していません',
-            nodeId: 'sample-node-3',
-            autoFixable: true,
-            suggestion: 'itemSpacingを12pxから16pxに変更してください',
-          },
-          {
-            severity: 'medium',
-            message: 'カラーパレット外の色が使用されています',
-            nodeId: 'sample-node-4',
-            autoFixable: false,
-            suggestion: 'デザインシステムで定義された色を使用してください',
-          },
-        ],
-        positives: [
-          'コンポーネントが適切に抽象化されています',
-        ],
-      },
-    },
-    suggestions: [
-      {
-        category: 'designSystem',
-        severity: 'high',
-        message: 'spacing値が8pxグリッドに準拠していません',
-        nodeId: 'sample-node-3',
-        autoFixable: true,
-      },
-      {
-        category: 'accessibility',
-        severity: 'medium',
-        message: 'テキストのコントラスト比が4.5:1を下回っています',
-        nodeId: 'sample-node-1',
-        autoFixable: false,
-      },
-      {
-        category: 'designSystem',
-        severity: 'medium',
-        message: 'カラーパレット外の色が使用されています',
-        nodeId: 'sample-node-4',
-        autoFixable: false,
-      },
-      {
-        category: 'accessibility',
-        severity: 'low',
-        message: 'タッチターゲットサイズが推奨値(44x44px)より小さいボタンがあります',
-        nodeId: 'sample-node-2',
-        autoFixable: true,
-      },
-    ],
-    metadata: {
-      evaluatedAt: new Date().toISOString(),
-      duration: 2500,
-    },
+// バックエンドAPIを呼び出す
+async function callEvaluationAPI(nodeData: any): Promise<any> {
+  const requestBody = {
+    fileKey: figma.fileKey || 'unknown',
+    nodeId: nodeData.id,
+    nodeData: nodeData,
+    evaluationTypes: ['accessibility', 'designSystem'], // 評価タイプを指定
   };
+
+  console.log('Sending request to API:', API_BASE_URL + '/evaluate');
+
+  try {
+    const response = await fetch(API_BASE_URL + '/evaluate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`API Error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'Unknown API error');
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error('API call failed:', error);
+    throw new Error(`API接続に失敗しました: ${error}`);
+  }
 }
