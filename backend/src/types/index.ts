@@ -1,38 +1,74 @@
-// Figmaノードデータ
+// Figmaノードデータ（拡張版）
 export interface FigmaNodeData {
   id: string;
   name: string;
   type: string;
-  children?: Array<{
-    id: string;
-    name: string;
-    type: string;
-  }>;
+  children?: FigmaNodeData[];
+  childrenCount?: number;
+  
+  // レイアウト
   layoutMode?: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   primaryAxisSizingMode?: 'FIXED' | 'AUTO';
   counterAxisSizingMode?: 'FIXED' | 'AUTO';
+  primaryAxisAlignItems?: string;
+  counterAxisAlignItems?: string;
   paddingLeft?: number;
   paddingRight?: number;
   paddingTop?: number;
   paddingBottom?: number;
   itemSpacing?: number;
+  counterAxisSpacing?: number;
+  
+  // サイズと位置
   absoluteBoundingBox?: {
     x: number;
     y: number;
     width: number;
     height: number;
   };
-  fills?: any[];
-  strokes?: any[];
-  textStyle?: {
-    fontSize: any;
-    fontName: any;
-    lineHeight: any;
-    letterSpacing: any;
+  
+  // スタイル
+  fills?: Array<{
+    type: string;
+    color?: { r: number; g: number; b: number };
+    opacity?: number;
+  }>;
+  strokes?: Array<{
+    type: string;
+    color?: { r: number; g: number; b: number };
+    opacity?: number;
+  }>;
+  strokeWeight?: number;
+  effects?: Array<{
+    type: string;
+    color?: any;
+    offset?: any;
+    radius?: number;
+    spread?: number;
+  }>;
+  cornerRadius?: number;
+  opacity?: number;
+  
+  // テキスト
+  characters?: string;
+  fontSize?: number;
+  fontName?: {
+    family: string;
+    style: string;
+  };
+  lineHeight?: any;
+  letterSpacing?: any;
+  textAlignHorizontal?: string;
+  textAlignVertical?: string;
+  
+  // コンポーネント
+  mainComponent?: {
+    id?: string;
+    name?: string;
   };
 }
 
-// 評価リクエスト
+// 以下は既存のまま
 export interface EvaluationRequest {
   fileKey: string;
   nodeId: string;
@@ -41,7 +77,6 @@ export interface EvaluationRequest {
   userId?: string;
 }
 
-// Issue（問題点）
 export interface Issue {
   severity: 'high' | 'medium' | 'low';
   message: string;
@@ -50,19 +85,16 @@ export interface Issue {
   suggestion?: string;
 }
 
-// カテゴリ別評価結果
 export interface CategoryResult {
   score: number;
   issues: Issue[];
   positives?: string[];
 }
 
-// Suggestion（改善提案）
 export interface Suggestion extends Issue {
   category: string;
 }
 
-// 最終的な評価結果
 export interface EvaluationResult {
   overallScore: number;
   categories: {
@@ -75,7 +107,6 @@ export interface EvaluationResult {
   };
 }
 
-// API レスポンス
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
