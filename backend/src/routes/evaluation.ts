@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+import { writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import { EvaluationService } from '../services/evaluation.service';
 import { ApiResponse, EvaluationResult } from '../types';
 
@@ -20,6 +22,54 @@ const evaluationRequestSchema = z.object({
 });
 
 /**
+ * デバッグ用: ノードデータをファイルに保存
+ */
+function saveDebugData(nodeData: any) {
+  if (process.env.NODE_ENV !== 'development') {
+    return;
+  }
+
+  try {
+    // logsディレクトリのパス（backendディレクトリ直下）
+    const logsDir = join(__dirname, '../logs');
+    
+    // logsディレクトリが存在しない場合は作成
+    if (!existsSync(logsDir)) {
+      mkdirSync(logsDir, { recursive: true });
+      console.log('📁 Created logs directory:', logsDir);
+    }
+
+    // タイムスタンプ付きファイル名
+    const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\./g, '-');
+    const nodeName = nodeData.name.replace(/[^a-zA-Z0-9]/g, '_'); // 安全なファイル名に変換
+    const filename = `debug-${nodeName}-${timestamp}.json`;
+    const filepath = join(logsDir, filename);
+
+    // データを整形して保存
+    const debugData = {
+      timestamp: new Date().toISOString(),
+      nodeId: nodeData.id,
+      nodeName: nodeData.name,
+      nodeType: nodeData.type,
+      childrenCount: nodeData.childrenCount || 0,
+      summary: {
+        hasChildren: !!nodeData.children,
+        childrenCount: nodeData.children?.length || 0,
+        hasLayoutMode: !!nodeData.layoutMode,
+        hasFills: !!nodeData.fills,
+      },
+      fullData: nodeData,
+    };
+
+    writeFileSync(filepath, JSON.stringify(debugData, null, 2));
+    console.log(`✅ Debug data saved to: logs/${filename}`);
+    console.log(`   Children count: ${debugData.childrenCount}`);
+  } catch (error) {
+    console.error('❌ Failed to save debug file:', error);
+  }
+}
+
+/**
  * POST /api/evaluate
  * デザインを評価
  */
@@ -29,6 +79,11 @@ router.post('/evaluate', async (req: Request, res: Response) => {
       nodeId: req.body.nodeId,
       nodeName: req.body.nodeData?.name,
     });
+
+    // デバッグ用: データをファイルに保存
+    if (process.env.NODE_ENV === 'development') {
+      saveDebugData(req.body.nodeData);
+    }
 
     // バリデーション
     const validatedData = evaluationRequestSchema.parse(req.body);
@@ -50,7 +105,7 @@ router.post('/evaluate', async (req: Request, res: Response) => {
       const response: ApiResponse = {
         success: false,
         error: 'Invalid request data',
-        details: error.errors,
+        details: error.issues,
       };
       res.status(400).json(response);
     } else {
