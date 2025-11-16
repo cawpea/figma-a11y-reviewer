@@ -16,3 +16,11 @@ npm run build
 # 3. figma-plugin/manifest.json を選択
 # 4. フレームを選択してプラグインを実行
 ```
+
+### 有料APIの利用
+
+`backend/.env`ファイルにAnthropicのAPI Keyを設定してください。
+
+```
+ANTHROPIC_API_KEY=***
+```
