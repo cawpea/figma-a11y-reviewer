@@ -11,5 +11,5 @@ export const anthropic = new Anthropic({
 export const MODEL_CONFIG = {
   default: 'claude-sonnet-4-20250514',
   maxTokens: 4000,
-  temperature: 0.3, // 一貫性のある評価のため低めに設定
+  temperature: 0, // 一貫性のある評価のため低めに設定
 } as const;
