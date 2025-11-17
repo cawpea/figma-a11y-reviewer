@@ -16,6 +16,31 @@ figma.showUI(__html__, {
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'evaluate-selection') {
     await handleEvaluation();
+  } else if (msg.type === 'select-node') {
+    // Issueクリック時のノード選択処理
+    if (msg.nodeId) {
+      try {
+        const node = await figma.getNodeByIdAsync(msg.nodeId);
+        if (node) {
+          figma.currentPage.selection = [node as SceneNode];
+          figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+          console.log('✅ Selected node:', msg.nodeId, node.name);
+        } else {
+          console.warn('Node not found:', msg.nodeId);
+
+          // nodeIdの形式をチェック（Figma IDは "数字:数字" 形式）
+          if (!msg.nodeId.match(/^\d+:\d+$/)) {
+            console.error('Invalid nodeId format:', msg.nodeId);
+            figma.notify('エラー: 無効なノードIDです（システム内部エラー）');
+          } else {
+            figma.notify('該当するレイヤーが見つかりませんでした');
+          }
+        }
+      } catch (error) {
+        console.error('Failed to select node:', error);
+        figma.notify('レイヤーの選択に失敗しました');
+      }
+    }
   } else if (msg.type === 'cancel') {
     figma.closePlugin();
   }

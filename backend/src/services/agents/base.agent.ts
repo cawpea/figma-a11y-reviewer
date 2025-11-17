@@ -62,9 +62,22 @@ export abstract class BaseEvaluationAgent {
 
     try {
       const result = extractJsonFromResponse(textContent.text);
-      
+
       if (typeof result.score !== 'number' || !Array.isArray(result.issues)) {
         throw new Error('Invalid response format');
+      }
+
+      // nodeIdの形式を検証（Figma IDは "数字:数字" 形式であるべき）
+      if (result.issues) {
+        result.issues.forEach((issue: any) => {
+          if (issue.nodeId && !issue.nodeId.match(/^\d+:\d+$/)) {
+            console.warn(
+              `⚠️  Invalid nodeId format in ${this.category}: "${issue.nodeId}". ` +
+              `Expected "xxxx:xxxx" format (e.g., "1809:1836"). Removing nodeId.`
+            );
+            delete issue.nodeId;
+          }
+        });
       }
 
       return result;

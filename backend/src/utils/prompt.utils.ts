@@ -15,7 +15,7 @@ function formatNodeRecursive(node: any, depth: number): string {
   let output = '';
 
   // ノード基本情報
-  output += `${indent}【${node.type}】 ${node.name}\n`;
+  output += `${indent}【${node.type}】 ${node.name} (ID: ${node.id})\n`;
 
   // サイズ情報
   if (node.absoluteBoundingBox) {

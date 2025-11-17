@@ -160,6 +160,16 @@
       border-radius: 3px;
     }
 
+    button.issue {
+      width: 100%;
+      text-align: left;
+      border: none;
+      border-left: 3px solid #fbbf24;
+      font-family: inherit;
+      color: inherit;
+      line-height: inherit;
+    }
+
     .issue.high {
       border-left-color: #ef4444;
     }
@@ -170,6 +180,20 @@
 
     .issue.low {
       border-left-color: #10b981;
+    }
+
+    .issue.clickable {
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .issue.clickable:hover {
+      background: #f9fafb;
+      transform: translateX(2px);
+    }
+
+    .issue.clickable:active {
+      transform: translateX(1px);
     }
 
     .issue-severity {
@@ -334,15 +358,22 @@
       const categoriesHtml = Object.entries(result.categories)
         .map(([key, category]) => {
           const issuesHtml = category.issues
-            .map(issue => `
-              <div class="issue ${issue.severity}">
-                <span class="issue-severity ${issue.severity}">
-                  ${issue.severity.toUpperCase()}
-                </span>
-                ${issue.message}
-                ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${issue.suggestion}</small>` : ''}
-              </div>
-            `).join('');
+            .map(issue => {
+              const clickableClass = issue.nodeId ? 'clickable' : '';
+              const nodeIdAttr = issue.nodeId ? `data-node-id="${issue.nodeId}"` : '';
+              const tag = issue.nodeId ? 'button' : 'div';
+
+              return `
+                <${tag} class="issue ${issue.severity} ${clickableClass}" ${nodeIdAttr} ${issue.nodeId ? 'type="button"' : ''}>
+                  <span class="issue-severity ${issue.severity}">
+                    ${issue.severity.toUpperCase()}
+                  </span>
+                  ${issue.message}
+                  ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${issue.suggestion}</small>` : ''}
+                  ${issue.nodeId ? '<br><small style="color: #999; margin-top: 4px; display: block;">👆 クリックしてレイヤーを選択</small>' : ''}
+                </${tag}>
+              `;
+            }).join('');
 
           const positivesHtml = category.positives && category.positives.length > 0
             ? `
@@ -382,6 +413,20 @@
         </div>
       `;
       resultsContainer.classList.add('visible');
+
+      // issueクリック時のイベントリスナーを追加
+      const clickableIssues = resultsContainer.querySelectorAll('.issue.clickable');
+      clickableIssues.forEach(issueElement => {
+        issueElement.addEventListener('click', () => {
+          const nodeId = issueElement.getAttribute('data-node-id');
+          if (nodeId) {
+            console.log('Issue clicked, selecting node:', nodeId);
+            parent.postMessage({
+              pluginMessage: { type: 'select-node', nodeId: nodeId }
+            }, '*');
+          }
+        });
+      });
     }
 
     function getCategoryLabel(key) {

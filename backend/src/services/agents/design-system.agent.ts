@@ -40,7 +40,7 @@ Figmaデザインの一貫性、再利用性、保守性を評価してくださ
     {
       "severity": "high" | "medium" | "low",
       "message": "問題の説明（具体的なノード名と値を含める）",
-      "nodeId": "該当ノードID（不明な場合は省略可）",
+      "nodeId": "該当ノードの実際のFigma ID（例: 1809:1836）。プロンプト内の (ID: xxx) 形式から必ず抽出してください",
       "autoFixable": true | false,
       "suggestion": "改善案（具体的な数値を含める）"
     }
@@ -49,11 +49,18 @@ Figmaデザインの一貫性、再利用性、保守性を評価してくださ
 }
 \`\`\`
 
+**重要なnodeIdの指定方法:**
+- nodeIdには必ずプロンプト内に記載されている実際のFigma IDを使用してください
+- 例: 「【FRAME】 Header (ID: 1809:1838)」の場合、nodeIdは "1809:1838" です
+- 「数字:数字」の形式（例: "1809:1838", "123:456"）で指定してください
+- 独自の説明的な名前（"Header"、"Button (Primary)"など）は使用しないでください
+- 該当ノードにIDが記載されている場合は必ず指定し、記載がない場合のみ省略してください
+
 重要: レスポンスは必ずJSON形式のみで返してください。説明文は含めないでください。`;
 
   protected buildPrompt(data: FigmaNodeData): string {
     const formattedData = formatFigmaDataForEvaluation(data);
-    
+
     return `以下のFigmaノード（子要素を含む階層構造）をデザインシステムの観点で評価してください:
 
 ${formattedData}
@@ -66,8 +73,9 @@ ${formattedData}
 - カラーパレットの使用が適切か
 - Auto Layoutの使用が適切か
 - 命名規則が一貫しているか
+- **重要**: 問題を指摘する際は、各ノードに記載されている (ID: xxx) 形式の実際のFigma ID（例: 1809:1836）をnodeIdフィールドに使用してください
 
-子要素も含めて厳しく評価し、具体的なノード名と不適切な値を指摘してください。
+子要素も含めて厳しく評価し、具体的なノード名、不適切な値、Figma IDを指摘してください。
 JSON形式で評価結果を返してください。`;
   }
 }

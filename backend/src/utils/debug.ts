@@ -3,7 +3,7 @@ import { existsSync, readdirSync, unlinkSync, statSync, mkdirSync, writeFileSync
 import { MODEL_CONFIG } from '../config/anthropic';
 import Anthropic from '@anthropic-ai/sdk';
 
-const logsDir = join(__dirname, '../logs');
+const logsDir = join(__dirname, '../../logs');
 
 /**
  * デバッグ用: ノードデータをファイルに保存
