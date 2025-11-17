@@ -29,7 +29,6 @@ async function selectNodeWithFallback(
       figma.currentPage.selection = [node as SceneNode];
       figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
       console.log('✅ Selected target node:', nodeId, node.name);
-      figma.notify(`レイヤー「${node.name}」を選択しました`);
       return true;
     }
 
@@ -48,7 +47,6 @@ async function selectNodeWithFallback(
           console.log(`✅ Fallback: Selected ancestor ${levelsUp} level(s) up:`, ancestorId, ancestorNode.name);
           figma.currentPage.selection = [ancestorNode as SceneNode];
           figma.viewport.scrollAndZoomIntoView([ancestorNode as SceneNode]);
-          figma.notify(`対象レイヤーが見つかりません。親レイヤー「${ancestorNode.name}」を選択しました（${levelsUp}段階上）`);
           return true;
         }
       }
@@ -62,7 +60,6 @@ async function selectNodeWithFallback(
         figma.currentPage.selection = [rootNode as SceneNode];
         figma.viewport.scrollAndZoomIntoView([rootNode as SceneNode]);
         console.log('✅ Fallback: Selected root evaluation frame');
-        figma.notify(`対象レイヤーが見つかりません。評価対象フレーム「${rootNode.name}」を選択しました`);
         return true;
       }
     }

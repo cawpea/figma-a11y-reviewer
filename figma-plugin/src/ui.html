@@ -189,11 +189,6 @@
 
     .issue.clickable:hover {
       background: #f9fafb;
-      transform: translateX(2px);
-    }
-
-    .issue.clickable:active {
-      transform: translateX(1px);
     }
 
     .issue-severity {
@@ -368,16 +363,14 @@
               const rootNodeIdAttr = rootNodeId ? `data-root-node-id="${rootNodeId}"` : '';
               const nodeHierarchyAttr = issue.nodeHierarchy ? `data-node-hierarchy='${JSON.stringify(issue.nodeHierarchy)}'` : '';
               const tag = 'button';  // 常にbuttonタグを使用
-              const ariaLabel = `レイヤー選択: ${issue.message}`;
 
               return `
-                <${tag} class="issue ${issue.severity} ${clickableClass}" ${nodeIdAttr} ${rootNodeIdAttr} ${nodeHierarchyAttr} aria-label="${ariaLabel}" type="button">
+                <${tag} class="issue ${issue.severity} ${clickableClass}" ${nodeIdAttr} ${rootNodeIdAttr} ${nodeHierarchyAttr} type="button">
                   <span class="issue-severity ${issue.severity}">
                     ${issue.severity.toUpperCase()}
                   </span>
                   ${issue.message}
                   ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${issue.suggestion}</small>` : ''}
-                  <br><small style="color: #999; margin-top: 4px; display: block;">👆 クリックしてレイヤーを選択</small>
                 </${tag}>
               `;
             }).join('');
