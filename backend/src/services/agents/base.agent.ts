@@ -1,6 +1,7 @@
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
 import { FigmaNodeData, CategoryResult } from '../../types';
-import { formatFigmaDataForEvaluation, extractJsonFromResponse } from '../../utils/prompt.utils';
+import { savePromptAndResponse } from '../../utils/debug';
+import { extractJsonFromResponse } from '../../utils/prompt.utils';
 import Anthropic from '@anthropic-ai/sdk';
 
 export abstract class BaseEvaluationAgent {
@@ -12,6 +13,14 @@ export abstract class BaseEvaluationAgent {
    */
   protected async callClaude(prompt: string): Promise<Anthropic.Message> {
     try {
+      // プロンプトをログ出力
+      console.log(`${'='.repeat(80)}`);
+      console.log(`🤖 Calling Claude API for: ${this.category}`);
+      console.log(`${'='.repeat(80)}`);
+      console.log(`SYSTEM PROMPT: ${this.systemPrompt.length}`);
+      console.log(`USER PROMPT (first 1000 chars): ${prompt.length}`);
+      console.log('='.repeat(80) + '\n');
+
       const response = await anthropic.messages.create({
         model: MODEL_CONFIG.default,
         max_tokens: MODEL_CONFIG.maxTokens,
@@ -23,9 +32,18 @@ export abstract class BaseEvaluationAgent {
         }],
       });
 
+      // ファイルに保存
+      savePromptAndResponse(this.systemPrompt, prompt, this.category, response);
+
+      // レスポンスもログ出力
+      console.log(`✅ Claude API response received for: ${this.category}`);
+      console.log(`   Input tokens: ${response.usage.input_tokens}`);
+      console.log(`   Output tokens: ${response.usage.output_tokens}`);
+      console.log(`   Stop reason: ${response.stop_reason}\n`);
+
       return response;
     } catch (error) {
-      console.error(`Error calling Claude API for ${this.category}:`, error);
+      console.error(`❌ Error calling Claude API for ${this.category}:`, error);
       throw error;
     }
   }
@@ -45,7 +63,6 @@ export abstract class BaseEvaluationAgent {
     try {
       const result = extractJsonFromResponse(textContent.text);
       
-      // 基本的なバリデーション
       if (typeof result.score !== 'number' || !Array.isArray(result.issues)) {
         throw new Error('Invalid response format');
       }
@@ -57,17 +74,11 @@ export abstract class BaseEvaluationAgent {
     }
   }
 
-  /**
-   * 評価を実行
-   */
   async evaluate(data: FigmaNodeData): Promise<CategoryResult> {
     const prompt = this.buildPrompt(data);
     const response = await this.callClaude(prompt);
     return this.parseResponse(response);
   }
 
-  /**
-   * プロンプトを構築（サブクラスで実装）
-   */
   protected abstract buildPrompt(data: FigmaNodeData): string;
 }

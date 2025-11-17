@@ -1,5 +1,7 @@
 import { join } from 'path';
 import { existsSync, readdirSync, unlinkSync, statSync, mkdirSync, writeFileSync } from 'fs';
+import { MODEL_CONFIG } from '../config/anthropic';
+import Anthropic from '@anthropic-ai/sdk';
 
 const logsDir = join(__dirname, '../logs');
 
@@ -79,5 +81,55 @@ export function cleanupOldDebugFiles() {
     }
   } catch (error) {
     console.error('Failed to cleanup old debug files:', error);
+  }
+}
+
+/**
+   * プロンプトをファイルに保存
+   */
+/**
+ * プロンプトとレスポンスをファイルに保存
+ */
+export function savePromptAndResponse(
+  systemPrompt: string,
+  userPrompt: string,
+  category: string,
+  response?: Anthropic.Message
+) {
+  if (process.env.NODE_ENV !== 'development') {
+    return;
+  }
+
+  try {
+    const promptsDir = join(logsDir, 'prompts');
+    
+    if (!existsSync(promptsDir)) {
+      mkdirSync(promptsDir, { recursive: true });
+    }
+
+    const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\./g, '-');
+    const filename = `prompt-${category}-${timestamp}.json`;
+    const filepath = join(promptsDir, filename);
+
+    const data = {
+      timestamp: new Date().toISOString(),
+      category: category,
+      model: MODEL_CONFIG.default,
+      maxTokens: MODEL_CONFIG.maxTokens,
+      temperature: MODEL_CONFIG.temperature,
+      systemPrompt: systemPrompt,
+      userPrompt: userPrompt,
+      response: response ? {
+        model: response.model,
+        stopReason: response.stop_reason,
+        usage: response.usage,
+        content: response.content,
+      } : null,
+    };
+
+    writeFileSync(filepath, JSON.stringify(data, null, 2));
+    console.log(`📋 Prompt JSON saved to: logs/prompts/${filename}`);
+  } catch (error) {
+    console.error('Failed to save prompt JSON:', error);
   }
 }

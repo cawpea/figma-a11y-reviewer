@@ -31,9 +31,9 @@ export class EvaluationService {
       }
 
       try {
-        console.log(`Evaluating ${type}...`);
+        console.log(`🧪 Evaluating ${type}...`);
         const result = await agent.evaluate(data);
-        console.log(`${type} evaluation completed. Score: ${result.score}`);
+        console.log(`🧪 ${type} evaluation completed. Score: ${result.score}`);
         return { type, result };
       } catch (error) {
         console.error(`Error in ${type} evaluation:`, error);
@@ -43,7 +43,7 @@ export class EvaluationService {
             score: 0,
             issues: [{
               severity: 'high' as const,
-              message: `評価中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}`,
+              message: `🧪 評価中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}`,
               autoFixable: false,
             }],
           },
