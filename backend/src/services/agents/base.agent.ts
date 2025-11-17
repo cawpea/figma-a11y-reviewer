@@ -1,7 +1,7 @@
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
 import { FigmaNodeData, CategoryResult } from '../../types';
 import { savePromptAndResponse } from '../../utils/debug';
-import { extractJsonFromResponse } from '../../utils/prompt.utils';
+import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
 import Anthropic from '@anthropic-ai/sdk';
 
 export abstract class BaseEvaluationAgent {
@@ -51,7 +51,7 @@ export abstract class BaseEvaluationAgent {
   /**
    * Claudeのレスポンスをパース
    */
-  protected parseResponse(response: Anthropic.Message): CategoryResult {
+  protected parseResponse(response: Anthropic.Message, rootNodeData: FigmaNodeData): CategoryResult {
     const textContent = response.content.find(
       (block): block is Anthropic.TextBlock => block.type === 'text'
     );
@@ -67,15 +67,30 @@ export abstract class BaseEvaluationAgent {
         throw new Error('Invalid response format');
       }
 
-      // nodeIdの形式を検証（Figma IDは "数字:数字" 形式であるべき）
+      // nodeIdの形式を検証 & 階層パスを追加
       if (result.issues) {
         result.issues.forEach((issue: any) => {
-          if (issue.nodeId && !issue.nodeId.match(/^\d+:\d+$/)) {
-            console.warn(
-              `⚠️  Invalid nodeId format in ${this.category}: "${issue.nodeId}". ` +
-              `Expected "xxxx:xxxx" format (e.g., "1809:1836"). Removing nodeId.`
-            );
-            delete issue.nodeId;
+          if (issue.nodeId) {
+            // nodeIdの形式を検証
+            // 通常のノード: "1809:1836"
+            // インスタンスノード: "I1806:932;589:1207"
+            // ネストされたインスタンス: "I1806:984;1809:902;105:1169"
+            if (!issue.nodeId.match(/^[I]?\d+:\d+(;\d+:\d+)*$/)) {
+              console.warn(
+                `⚠️  Invalid nodeId format in ${this.category}: "${issue.nodeId}". ` +
+                `Expected formats: "xxxx:xxxx" or "Ixxxx:xxxx;xxxx:xxxx". Removing nodeId.`
+              );
+              delete issue.nodeId;
+            } else {
+              // 有効なnodeIdの場合、階層パスを抽出して追加
+              const hierarchy = extractNodeHierarchyPath(rootNodeData, issue.nodeId);
+              if (hierarchy) {
+                issue.nodeHierarchy = hierarchy;
+                console.log(`✅ Added hierarchy for nodeId ${issue.nodeId}:`, hierarchy);
+              } else {
+                console.warn(`⚠️  Could not find hierarchy path for nodeId: ${issue.nodeId}`);
+              }
+            }
           }
         });
       }
@@ -90,7 +105,7 @@ export abstract class BaseEvaluationAgent {
   async evaluate(data: FigmaNodeData): Promise<CategoryResult> {
     const prompt = this.buildPrompt(data);
     const response = await this.callClaude(prompt);
-    return this.parseResponse(response);
+    return this.parseResponse(response, data);
   }
 
   protected abstract buildPrompt(data: FigmaNodeData): string;

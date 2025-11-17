@@ -1,5 +1,13 @@
 // Figmaノードデータ（拡張版）
 export interface FigmaNodeData {
+  /**
+   * Figma node ID
+   *
+   * Formats:
+   * - Regular nodes: "1809:1836" (digits:digits)
+   * - Instance nodes: "I1806:932;589:1207" (I prefix + semicolon-separated)
+   * - Nested instances: "I1806:984;1809:902;105:1169" (multiple segments)
+   */
   id: string;
   name: string;
   type: string;
@@ -80,7 +88,18 @@ export interface EvaluationRequest {
 export interface Issue {
   severity: 'high' | 'medium' | 'low';
   message: string;
+  /**
+   * Figma node ID of the issue target
+   *
+   * Formats:
+   * - Regular nodes: "1809:1836"
+   * - Instance nodes: "I1806:932;589:1207"
+   * - Nested instances: "I1806:984;1809:902;105:1169"
+   *
+   * If undefined, the rootNodeId will be used as fallback
+   */
   nodeId?: string;
+  nodeHierarchy?: string[]; // 階層パス: [rootId, parentId, ..., nodeId]
   autoFixable: boolean;
   suggestion?: string;
 }
@@ -104,6 +123,13 @@ export interface EvaluationResult {
   metadata: {
     evaluatedAt: Date;
     duration: number;
+    /**
+     * Root node ID of the evaluated frame (used as fallback)
+     *
+     * When a specific issue nodeId cannot be found in Figma,
+     * this rootNodeId is used to select the evaluation target frame instead
+     */
+    rootNodeId: string;
   };
 }
 

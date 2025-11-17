@@ -132,3 +132,32 @@ export function extractJsonFromResponse(text: string): any {
 
   throw new Error('No valid JSON found in response');
 }
+
+/**
+ * ノード階層パスを抽出（ルートからターゲットまでのIDリスト）
+ */
+export function extractNodeHierarchyPath(
+  data: FigmaNodeData,
+  targetNodeId: string,
+  currentPath: string[] = []
+): string[] | null {
+  const newPath = [...currentPath, data.id];
+
+  // ターゲットノードが見つかった
+  if (data.id === targetNodeId) {
+    return newPath;
+  }
+
+  // 子要素を再帰的に探索
+  if (data.children && data.children.length > 0) {
+    for (const child of data.children) {
+      const result = extractNodeHierarchyPath(child, targetNodeId, newPath);
+      if (result) {
+        return result;
+      }
+    }
+  }
+
+  // このパスにはターゲットノードが見つからなかった
+  return null;
+}

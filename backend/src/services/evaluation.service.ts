@@ -13,7 +13,8 @@ export class EvaluationService {
    */
   async evaluateDesign(
     data: FigmaNodeData,
-    evaluationTypes?: string[]
+    evaluationTypes?: string[],
+    rootNodeId?: string
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
 
@@ -92,6 +93,7 @@ export class EvaluationService {
       metadata: {
         evaluatedAt: new Date(),
         duration,
+        rootNodeId: rootNodeId || data.id,
       },
     };
   }

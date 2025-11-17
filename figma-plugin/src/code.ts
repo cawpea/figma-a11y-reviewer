@@ -12,34 +12,89 @@ figma.showUI(__html__, {
   themeColors: true,
 });
 
+/**
+ * フォールバック付きノード選択
+ * ターゲットノードが見つからない場合、階層を逆順に辿って親ノードを選択
+ * 最終的にはルートノード（評価対象フレーム）にフォールバック
+ */
+async function selectNodeWithFallback(
+  nodeId: string,
+  nodeHierarchy?: string[],
+  fallbackRootNodeId?: string
+): Promise<boolean> {
+  try {
+    // ターゲットノードを試す
+    const node = await figma.getNodeByIdAsync(nodeId);
+    if (node) {
+      figma.currentPage.selection = [node as SceneNode];
+      figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+      console.log('✅ Selected target node:', nodeId, node.name);
+      figma.notify(`レイヤー「${node.name}」を選択しました`);
+      return true;
+    }
+
+    console.warn('⚠️  Target node not found, attempting fallback selection');
+
+    // 階層パスがある場合、親ノードへフォールバック
+    if (nodeHierarchy && nodeHierarchy.length > 1) {
+      // 最後のIDがターゲット、その前が親、さらに前が祖父...
+      // 階層を逆順に辿る（親 → 祖父 → ... → ルート）
+      for (let i = nodeHierarchy.length - 2; i >= 0; i--) {
+        const ancestorId = nodeHierarchy[i];
+        const ancestorNode = await figma.getNodeByIdAsync(ancestorId);
+
+        if (ancestorNode) {
+          const levelsUp = nodeHierarchy.length - 1 - i;
+          console.log(`✅ Fallback: Selected ancestor ${levelsUp} level(s) up:`, ancestorId, ancestorNode.name);
+          figma.currentPage.selection = [ancestorNode as SceneNode];
+          figma.viewport.scrollAndZoomIntoView([ancestorNode as SceneNode]);
+          figma.notify(`対象レイヤーが見つかりません。親レイヤー「${ancestorNode.name}」を選択しました（${levelsUp}段階上）`);
+          return true;
+        }
+      }
+    }
+
+    // 階層フォールバックが失敗した場合、ルートノードを試す
+    if (fallbackRootNodeId && fallbackRootNodeId !== nodeId) {
+      console.log('⚠️  Attempting fallback to root node:', fallbackRootNodeId);
+      const rootNode = await figma.getNodeByIdAsync(fallbackRootNodeId);
+      if (rootNode) {
+        figma.currentPage.selection = [rootNode as SceneNode];
+        figma.viewport.scrollAndZoomIntoView([rootNode as SceneNode]);
+        console.log('✅ Fallback: Selected root evaluation frame');
+        figma.notify(`対象レイヤーが見つかりません。評価対象フレーム「${rootNode.name}」を選択しました`);
+        return true;
+      }
+    }
+
+    // すべてのフォールバックが失敗
+    console.error('❌ All fallback attempts failed for nodeId:', nodeId);
+
+    // nodeIdの形式をチェック
+    // 通常: "1809:1836", インスタンス: "I1806:932;589:1207"
+    if (!nodeId.match(/^[I]?\d+:\d+(;\d+:\d+)*$/)) {
+      console.error('Invalid nodeId format:', nodeId);
+      figma.notify('エラー: 無効なノードIDです（システム内部エラー）');
+    } else {
+      figma.notify('該当するレイヤーが見つかりませんでした');
+    }
+    return false;
+
+  } catch (error) {
+    console.error('Failed to select node:', error);
+    figma.notify('レイヤーの選択に失敗しました');
+    return false;
+  }
+}
+
 // UIからのメッセージを受信
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'evaluate-selection') {
     await handleEvaluation();
   } else if (msg.type === 'select-node') {
-    // Issueクリック時のノード選択処理
+    // Issueクリック時のノード選択処理（フォールバック付き）
     if (msg.nodeId) {
-      try {
-        const node = await figma.getNodeByIdAsync(msg.nodeId);
-        if (node) {
-          figma.currentPage.selection = [node as SceneNode];
-          figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
-          console.log('✅ Selected node:', msg.nodeId, node.name);
-        } else {
-          console.warn('Node not found:', msg.nodeId);
-
-          // nodeIdの形式をチェック（Figma IDは "数字:数字" 形式）
-          if (!msg.nodeId.match(/^\d+:\d+$/)) {
-            console.error('Invalid nodeId format:', msg.nodeId);
-            figma.notify('エラー: 無効なノードIDです（システム内部エラー）');
-          } else {
-            figma.notify('該当するレイヤーが見つかりませんでした');
-          }
-        }
-      } catch (error) {
-        console.error('Failed to select node:', error);
-        figma.notify('レイヤーの選択に失敗しました');
-      }
+      await selectNodeWithFallback(msg.nodeId, msg.nodeHierarchy, msg.rootNodeId);
     }
   } else if (msg.type === 'cancel') {
     figma.closePlugin();

@@ -355,22 +355,29 @@
     }
 
     function showResults(result) {
+      const rootNodeId = result.metadata.rootNodeId;  // ルートノードIDを取得
+
       const categoriesHtml = Object.entries(result.categories)
         .map(([key, category]) => {
           const issuesHtml = category.issues
             .map(issue => {
-              const clickableClass = issue.nodeId ? 'clickable' : '';
+              // すべてのissueをクリック可能に（nodeIdまたはrootNodeIdがあれば）
+              const isClickable = issue.nodeId || rootNodeId;
+              const clickableClass = isClickable ? 'clickable' : '';
               const nodeIdAttr = issue.nodeId ? `data-node-id="${issue.nodeId}"` : '';
-              const tag = issue.nodeId ? 'button' : 'div';
+              const rootNodeIdAttr = rootNodeId ? `data-root-node-id="${rootNodeId}"` : '';
+              const nodeHierarchyAttr = issue.nodeHierarchy ? `data-node-hierarchy='${JSON.stringify(issue.nodeHierarchy)}'` : '';
+              const tag = 'button';  // 常にbuttonタグを使用
+              const ariaLabel = `レイヤー選択: ${issue.message}`;
 
               return `
-                <${tag} class="issue ${issue.severity} ${clickableClass}" ${nodeIdAttr} ${issue.nodeId ? 'type="button"' : ''}>
+                <${tag} class="issue ${issue.severity} ${clickableClass}" ${nodeIdAttr} ${rootNodeIdAttr} ${nodeHierarchyAttr} aria-label="${ariaLabel}" type="button">
                   <span class="issue-severity ${issue.severity}">
                     ${issue.severity.toUpperCase()}
                   </span>
                   ${issue.message}
                   ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${issue.suggestion}</small>` : ''}
-                  ${issue.nodeId ? '<br><small style="color: #999; margin-top: 4px; display: block;">👆 クリックしてレイヤーを選択</small>' : ''}
+                  <br><small style="color: #999; margin-top: 4px; display: block;">👆 クリックしてレイヤーを選択</small>
                 </${tag}>
               `;
             }).join('');
@@ -419,10 +426,22 @@
       clickableIssues.forEach(issueElement => {
         issueElement.addEventListener('click', () => {
           const nodeId = issueElement.getAttribute('data-node-id');
-          if (nodeId) {
-            console.log('Issue clicked, selecting node:', nodeId);
+          const rootNodeId = issueElement.getAttribute('data-root-node-id');
+          const hierarchyStr = issueElement.getAttribute('data-node-hierarchy');
+          const nodeHierarchy = hierarchyStr ? JSON.parse(hierarchyStr) : undefined;
+
+          // nodeIdがある場合はそれを使用、ない場合はrootNodeIdを使用
+          const targetNodeId = nodeId || rootNodeId;
+
+          if (targetNodeId) {
+            console.log('Issue clicked, selecting node with fallback:', targetNodeId, nodeHierarchy);
             parent.postMessage({
-              pluginMessage: { type: 'select-node', nodeId: nodeId }
+              pluginMessage: {
+                type: 'select-node',
+                nodeId: targetNodeId,
+                nodeHierarchy: nodeHierarchy,
+                rootNodeId: rootNodeId
+              }
             }, '*');
           }
         });
