@@ -1,4 +1,5 @@
 import { FigmaNodeData, EvaluationResult, CategoryResult, Suggestion } from '../types';
+
 import { AccessibilityAgent } from './agents/accessibility.agent';
 import { DesignSystemAgent } from './agents/design-system.agent';
 
@@ -42,18 +43,21 @@ export class EvaluationService {
           type,
           result: {
             score: 0,
-            issues: [{
-              severity: 'high' as const,
-              message: `🧪 評価中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}`,
-              autoFixable: false,
-            }],
+            issues: [
+              {
+                severity: 'high' as const,
+                message: `🧪 評価中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}`,
+                autoFixable: false,
+              },
+            ],
           },
         };
       }
     });
 
-    const evaluations = (await Promise.all(evaluationPromises))
-      .filter((e): e is { type: string; result: CategoryResult } => e !== null);
+    const evaluations = (await Promise.all(evaluationPromises)).filter(
+      (e): e is { type: string; result: CategoryResult } => e !== null
+    );
 
     // 結果を集約
     const categories: { [key: string]: CategoryResult } = {};
@@ -61,9 +65,9 @@ export class EvaluationService {
 
     evaluations.forEach(({ type, result }) => {
       categories[type] = result;
-      
+
       // issuesをsuggestionsに変換
-      result.issues.forEach(issue => {
+      result.issues.forEach((issue) => {
         allSuggestions.push({
           category: type,
           ...issue,
@@ -72,10 +76,11 @@ export class EvaluationService {
     });
 
     // 総合スコアを計算（各カテゴリの加重平均）
-    const scores = Object.values(categories).map(c => c.score);
-    const overallScore = scores.length > 0
-      ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
-      : 0;
+    const scores = Object.values(categories).map((c) => c.score);
+    const overallScore =
+      scores.length > 0
+        ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
+        : 0;
 
     // 重要度順にソート
     const sortedSuggestions = allSuggestions.sort((a, b) => {

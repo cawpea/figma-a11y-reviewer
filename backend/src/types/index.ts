@@ -13,7 +13,7 @@ export interface FigmaNodeData {
   type: string;
   children?: FigmaNodeData[];
   childrenCount?: number;
-  
+
   // レイアウト
   layoutMode?: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   primaryAxisSizingMode?: 'FIXED' | 'AUTO';
@@ -26,7 +26,7 @@ export interface FigmaNodeData {
   paddingBottom?: number;
   itemSpacing?: number;
   counterAxisSpacing?: number;
-  
+
   // サイズと位置
   absoluteBoundingBox?: {
     x: number;
@@ -34,7 +34,7 @@ export interface FigmaNodeData {
     width: number;
     height: number;
   };
-  
+
   // スタイル
   fills?: Array<{
     type: string;
@@ -56,7 +56,7 @@ export interface FigmaNodeData {
   }>;
   cornerRadius?: number;
   opacity?: number;
-  
+
   // テキスト
   characters?: string;
   fontSize?: number;
@@ -68,7 +68,7 @@ export interface FigmaNodeData {
   letterSpacing?: any;
   textAlignHorizontal?: string;
   textAlignVertical?: string;
-  
+
   // コンポーネント
   mainComponent?: {
     id?: string;

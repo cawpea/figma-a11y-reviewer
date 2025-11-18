@@ -1,7 +1,9 @@
-import { join } from 'path';
 import { existsSync, readdirSync, unlinkSync, statSync, mkdirSync, writeFileSync } from 'fs';
-import { MODEL_CONFIG } from '../config/anthropic';
+import { join } from 'path';
+
 import Anthropic from '@anthropic-ai/sdk';
+
+import { MODEL_CONFIG } from '../config/anthropic';
 
 const logsDir = join(__dirname, '../../logs');
 
@@ -14,7 +16,6 @@ export function saveDebugData(nodeData: any) {
   }
 
   try {
-    
     // logsディレクトリが存在しない場合は作成
     if (!existsSync(logsDir)) {
       mkdirSync(logsDir, { recursive: true });
@@ -63,9 +64,9 @@ export function cleanupOldDebugFiles() {
     const maxAge = 7 * 24 * 60 * 60 * 1000; // 7日
 
     let deletedCount = 0;
-    files.forEach(file => {
+    files.forEach((file) => {
       if (!file.startsWith('debug-')) return;
-      
+
       const filepath = join(logsDir, file);
       const stats = statSync(filepath);
       const age = now - stats.mtimeMs;
@@ -85,8 +86,8 @@ export function cleanupOldDebugFiles() {
 }
 
 /**
-   * プロンプトをファイルに保存
-   */
+ * プロンプトをファイルに保存
+ */
 /**
  * プロンプトとレスポンスをファイルに保存
  */
@@ -102,7 +103,7 @@ export function savePromptAndResponse(
 
   try {
     const promptsDir = join(logsDir, 'prompts');
-    
+
     if (!existsSync(promptsDir)) {
       mkdirSync(promptsDir, { recursive: true });
     }
@@ -119,12 +120,14 @@ export function savePromptAndResponse(
       temperature: MODEL_CONFIG.temperature,
       systemPrompt: systemPrompt,
       userPrompt: userPrompt,
-      response: response ? {
-        model: response.model,
-        stopReason: response.stop_reason,
-        usage: response.usage,
-        content: response.content,
-      } : null,
+      response: response
+        ? {
+            model: response.model,
+            stopReason: response.stop_reason,
+            usage: response.usage,
+            content: response.content,
+          }
+        : null,
     };
 
     writeFileSync(filepath, JSON.stringify(data, null, 2));

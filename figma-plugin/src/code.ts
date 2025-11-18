@@ -44,7 +44,11 @@ async function selectNodeWithFallback(
 
         if (ancestorNode) {
           const levelsUp = nodeHierarchy.length - 1 - i;
-          console.log(`✅ Fallback: Selected ancestor ${levelsUp} level(s) up:`, ancestorId, ancestorNode.name);
+          console.log(
+            `✅ Fallback: Selected ancestor ${levelsUp} level(s) up:`,
+            ancestorId,
+            ancestorNode.name
+          );
           figma.currentPage.selection = [ancestorNode as SceneNode];
           figma.viewport.scrollAndZoomIntoView([ancestorNode as SceneNode]);
           return true;
@@ -76,7 +80,6 @@ async function selectNodeWithFallback(
       figma.notify('該当するレイヤーが見つかりませんでした');
     }
     return false;
-
   } catch (error) {
     console.error('Failed to select node:', error);
     figma.notify('レイヤーの選択に失敗しました');
@@ -249,7 +252,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
   // エフェクト（シャドウ、ブラーなど）
   if ('effects' in node && Array.isArray(node.effects)) {
     data.effects = node.effects
-      .filter(effect => effect.visible)
+      .filter((effect) => effect.visible)
       .map((effect) => {
         if (effect.type === 'DROP_SHADOW' || effect.type === 'INNER_SHADOW') {
           return {
@@ -277,12 +280,12 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
   // テキスト情報
   if (node.type === 'TEXT') {
     data.characters = node.characters;
-    
+
     // フォント情報
     if (typeof node.fontSize === 'number') {
       data.fontSize = node.fontSize;
     }
-    
+
     if (node.fontName !== figma.mixed && typeof node.fontName === 'object') {
       data.fontName = {
         family: node.fontName.family,
@@ -310,7 +313,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
 
   // コンポーネント情報
   if (node.type === 'INSTANCE') {
-  try {
+    try {
       const mainComponent = await node.getMainComponentAsync();
       if (mainComponent) {
         data.mainComponent = {
@@ -327,7 +330,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
   // 子要素を再帰的に取得
   if ('children' in node && node.children.length > 0) {
     data.children = [];
-    
+
     for (const child of node.children) {
       const childData = await extractNodeData(child, depth + 1);
       data.children.push(childData);

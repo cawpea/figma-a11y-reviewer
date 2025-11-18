@@ -85,7 +85,7 @@ function formatNodeRecursive(
     output += `${indent}  テキスト: "${node.characters}"\n`;
     output += `${indent}  フォント: ${node.fontName?.family} ${node.fontName?.style}\n`;
     output += `${indent}  フォントサイズ: ${node.fontSize}px\n`;
-    
+
     if (node.lineHeight) {
       if (node.lineHeight.unit === 'PIXELS') {
         output += `${indent}  行間: ${node.lineHeight.value}px\n`;

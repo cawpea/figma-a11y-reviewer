@@ -1,0 +1,40 @@
+{
+  "name": "figma-ui-reviewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Figma UI Reviewer with Claude AI",
+  "workspaces": [
+    "backend",
+    "figma-plugin"
+  ],
+  "scripts": {
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"**/*.{ts,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,js,json,md}\"",
+    "check": "npm run format:check && npm run lint",
+    "backend:dev": "npm run dev -w backend",
+    "backend:build": "npm run build -w backend",
+    "plugin:build": "npm run build -w figma-plugin",
+    "plugin:watch": "npm run watch -w figma-plugin"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "^3.4.2"
+  },
+  "keywords": [
+    "figma",
+    "plugin",
+    "ai",
+    "claude",
+    "ui-review"
+  ],
+  "author": "",
+  "license": "ISC"
+}

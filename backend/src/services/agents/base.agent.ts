@@ -1,8 +1,9 @@
+import Anthropic from '@anthropic-ai/sdk';
+
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
 import { FigmaNodeData, CategoryResult } from '../../types';
 import { savePromptAndResponse } from '../../utils/debug';
 import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
-import Anthropic from '@anthropic-ai/sdk';
 
 export abstract class BaseEvaluationAgent {
   protected abstract systemPrompt: string;
@@ -26,10 +27,12 @@ export abstract class BaseEvaluationAgent {
         max_tokens: MODEL_CONFIG.maxTokens,
         temperature: MODEL_CONFIG.temperature,
         system: this.systemPrompt,
-        messages: [{
-          role: 'user',
-          content: prompt,
-        }],
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
       });
 
       // ファイルに保存
@@ -51,7 +54,10 @@ export abstract class BaseEvaluationAgent {
   /**
    * Claudeのレスポンスをパース
    */
-  protected parseResponse(response: Anthropic.Message, rootNodeData: FigmaNodeData): CategoryResult {
+  protected parseResponse(
+    response: Anthropic.Message,
+    rootNodeData: FigmaNodeData
+  ): CategoryResult {
     const textContent = response.content.find(
       (block): block is Anthropic.TextBlock => block.type === 'text'
     );
@@ -78,7 +84,7 @@ export abstract class BaseEvaluationAgent {
             if (!this.validateNodeIdFormat(issue.nodeId)) {
               console.warn(
                 `⚠️  Invalid nodeId format in ${this.category}: "${issue.nodeId}". ` +
-                `Expected formats: "xxxx:xxxx" or "Ixxxx:xxxx;xxxx:xxxx". Removing nodeId.`
+                  `Expected formats: "xxxx:xxxx" or "Ixxxx:xxxx;xxxx:xxxx". Removing nodeId.`
               );
               delete issue.nodeId;
             } else {
@@ -118,7 +124,7 @@ export abstract class BaseEvaluationAgent {
     const segments = normalized.split(';');
 
     // 各セグメントが "数字:数字" の形式か確認
-    return segments.every(segment => {
+    return segments.every((segment) => {
       const parts = segment.split(':');
       if (parts.length !== 2) return false;
       // 各パーツが数字のみで構成されているか確認（短い正規表現は安全）

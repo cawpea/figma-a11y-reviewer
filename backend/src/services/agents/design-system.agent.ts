@@ -1,14 +1,15 @@
-import { BaseEvaluationAgent } from './base.agent';
 import { FigmaNodeData } from '../../types';
 import {
   formatFigmaDataForEvaluation,
   buildSystemPromptSuffix,
-  getNodeIdReminder
+  getNodeIdReminder,
 } from '../../utils/prompt.utils';
+
+import { BaseEvaluationAgent } from './base.agent';
 
 export class DesignSystemAgent extends BaseEvaluationAgent {
   protected category = 'designSystem';
-  
+
   protected systemPrompt = `あなたはデザインシステムとコンポーネント設計の専門家です。
 Figmaデザインの一貫性、再利用性、保守性を評価してください。
 

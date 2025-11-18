@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
+
 import { EvaluationService } from '../services/evaluation.service';
 import { ApiResponse, EvaluationResult } from '../types';
 import { saveDebugData } from '../utils/debug';
@@ -11,11 +12,13 @@ const evaluationService = new EvaluationService();
 const evaluationRequestSchema = z.object({
   fileKey: z.string(),
   nodeId: z.string(),
-  nodeData: z.object({
-    id: z.string(),
-    name: z.string(),
-    type: z.string(),
-  }).passthrough(), // 追加のプロパティを許可
+  nodeData: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      type: z.string(),
+    })
+    .passthrough(), // 追加のプロパティを許可
   evaluationTypes: z.array(z.string()).optional(),
   userId: z.string().optional(),
 });

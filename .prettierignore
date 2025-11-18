@@ -1,0 +1,27 @@
+# 依存関係
+node_modules/
+
+# ビルド出力
+dist/
+build/
+
+# ログファイル
+*.log
+logs/
+
+# デバッグファイル
+debug-*.json
+
+# 環境変数
+.env
+.env.*
+
+# OS固有
+.DS_Store
+
+# その他
+coverage/
+*.min.js
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
