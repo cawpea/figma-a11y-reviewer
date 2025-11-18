@@ -4,15 +4,36 @@ import { FigmaNodeData } from '../types';
  * Figmaデータを評価用に整形（階層構造を保持）
  */
 export function formatFigmaDataForEvaluation(data: FigmaNodeData): string {
-  return formatNodeRecursive(data, 0);
+  const visited = new Set<string>();
+  return formatNodeRecursive(data, 0, visited);
 }
 
 /**
  * ノードを再帰的に整形
  */
-function formatNodeRecursive(node: any, depth: number): string {
+function formatNodeRecursive(
+  node: any,
+  depth: number,
+  visited: Set<string> = new Set(),
+  maxDepth: number = 10
+): string {
   const indent = '  '.repeat(depth);
   let output = '';
+
+  // 深度制限チェック
+  if (depth > maxDepth) {
+    output += `${indent}[最大深度 ${maxDepth} に達しました]\n`;
+    return output;
+  }
+
+  // 循環参照チェック
+  if (visited.has(node.id)) {
+    output += `${indent}[循環参照を検出: ${node.name} (ID: ${node.id})]\n`;
+    return output;
+  }
+
+  // 訪問済みとしてマーク
+  visited.add(node.id);
 
   // ノード基本情報
   output += `${indent}【${node.type}】 ${node.name} (ID: ${node.id})\n`;
@@ -95,7 +116,7 @@ function formatNodeRecursive(node: any, depth: number): string {
   if (node.children && node.children.length > 0) {
     output += `${indent}  子要素数: ${node.children.length}\n`;
     node.children.forEach((child: any) => {
-      output += formatNodeRecursive(child, depth + 1);
+      output += formatNodeRecursive(child, depth + 1, visited, maxDepth);
     });
   }
 
@@ -139,8 +160,17 @@ export function extractJsonFromResponse(text: string): any {
 export function extractNodeHierarchyPath(
   data: FigmaNodeData,
   targetNodeId: string,
-  currentPath: string[] = []
+  currentPath: string[] = [],
+  visited: Set<string> = new Set()
 ): string[] | null {
+  // 循環参照チェック
+  if (visited.has(data.id)) {
+    return null;
+  }
+
+  // 訪問済みとしてマーク
+  visited.add(data.id);
+
   const newPath = [...currentPath, data.id];
 
   // ターゲットノードが見つかった
@@ -151,7 +181,7 @@ export function extractNodeHierarchyPath(
   // 子要素を再帰的に探索
   if (data.children && data.children.length > 0) {
     for (const child of data.children) {
-      const result = extractNodeHierarchyPath(child, targetNodeId, newPath);
+      const result = extractNodeHierarchyPath(child, targetNodeId, newPath, visited);
       if (result) {
         return result;
       }
