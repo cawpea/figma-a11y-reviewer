@@ -1,8 +1,65 @@
 // src/code.ts
 
+// 型定義
+interface FigmaNodeData {
+  id: string;
+  name: string;
+  type: string;
+  children?: FigmaNodeData[];
+  childrenCount?: number;
+  layoutMode?: string;
+  primaryAxisSizingMode?: string;
+  counterAxisSizingMode?: string;
+  primaryAxisAlignItems?: string;
+  counterAxisAlignItems?: string;
+  paddingLeft?: number;
+  paddingRight?: number;
+  paddingTop?: number;
+  paddingBottom?: number;
+  itemSpacing?: number;
+  counterAxisSpacing?: number;
+  absoluteBoundingBox?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  fills?: unknown[];
+  strokes?: unknown[];
+  strokeWeight?: number;
+  effects?: unknown[];
+  cornerRadius?: number;
+  opacity?: number;
+  characters?: string;
+  fontSize?: number;
+  fontName?: {
+    family: string;
+    style: string;
+  };
+  lineHeight?: unknown;
+  letterSpacing?: unknown;
+  textAlignHorizontal?: string;
+  textAlignVertical?: string;
+  mainComponent?: {
+    id?: string;
+    name?: string;
+  };
+  note?: string;
+}
+
+interface EvaluationResult {
+  overallScore: number;
+  categories: Record<string, unknown>;
+  suggestions: unknown[];
+  metadata: {
+    evaluatedAt: string;
+    duration: number;
+    rootNodeId: string;
+  };
+}
+
 // 設定
 const API_BASE_URL = 'http://localhost:3000/api';
-const API_TIMEOUT = 60000; // 60秒
 const MAX_DEPTH = 10; // 再帰の最大深さ（無限ループ防止）
 
 // プラグインUI表示
@@ -162,7 +219,7 @@ async function handleEvaluation() {
 /**
  * ノードデータを再帰的に抽出する関数
  */
-async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any> {
+async function extractNodeData(node: SceneNode, depth: number = 0): Promise<FigmaNodeData> {
   // 最大深さチェック
   if (depth > MAX_DEPTH) {
     return {
@@ -173,7 +230,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
     };
   }
 
-  const data: any = {
+  const data: FigmaNodeData = {
     id: node.id,
     name: node.name,
     type: node.type,
@@ -201,7 +258,9 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
     data.paddingTop = node.paddingTop;
     data.paddingBottom = node.paddingBottom;
     data.itemSpacing = node.itemSpacing;
-    data.counterAxisSpacing = node.counterAxisSpacing;
+    if (node.counterAxisSpacing !== null) {
+      data.counterAxisSpacing = node.counterAxisSpacing;
+    }
   }
 
   // 塗り（背景色など）
@@ -244,7 +303,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
       return { type: stroke.type };
     });
 
-    if ('strokeWeight' in node) {
+    if ('strokeWeight' in node && typeof node.strokeWeight === 'number') {
       data.strokeWeight = node.strokeWeight;
     }
   }
@@ -323,7 +382,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
       }
     } catch (error) {
       console.warn('Failed to get main component:', error);
-      data.mainComponent = null;
+      // mainComponentはundefinedのままにする
     }
   }
 
@@ -343,7 +402,7 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<any>
 }
 
 // バックエンドAPIを呼び出す
-async function callEvaluationAPI(nodeData: any): Promise<any> {
+async function callEvaluationAPI(nodeData: FigmaNodeData): Promise<EvaluationResult> {
   const requestBody = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,

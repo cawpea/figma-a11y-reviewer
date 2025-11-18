@@ -6,7 +6,13 @@ const unusedImports = require('eslint-plugin-unused-imports');
 module.exports = [
   // グローバル無視設定
   {
-    ignores: ['**/dist/**', '**/node_modules/**', '**/*.js', '!eslint.config.js', '!.prettierrc.js'],
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/*.js',
+      '!eslint.config.js',
+      '!.prettierrc.js',
+    ],
   },
   // TypeScriptファイル用の設定
   {
@@ -44,13 +50,7 @@ module.exports = [
       'import/order': [
         'error',
         {
-          groups: [
-            'builtin',
-            'external',
-            'parent',
-            'sibling',
-            'index',
-          ],
+          groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
           'newlines-between': 'always',
           alphabetize: {
             order: 'asc',

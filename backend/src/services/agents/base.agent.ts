@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
-import { FigmaNodeData, CategoryResult } from '../../types';
+import { FigmaNodeData, CategoryResult, Issue } from '../../types';
 import { savePromptAndResponse } from '../../utils/debug';
 import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
 
@@ -75,7 +75,7 @@ export abstract class BaseEvaluationAgent {
 
       // nodeIdの形式を検証 & 階層パスを追加
       if (result.issues) {
-        result.issues.forEach((issue: any) => {
+        result.issues.forEach((issue: Issue) => {
           if (issue.nodeId) {
             // nodeIdの形式を検証
             // 通常のノード: "1809:1836"

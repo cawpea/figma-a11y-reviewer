@@ -4,13 +4,14 @@ import { join } from 'path';
 import Anthropic from '@anthropic-ai/sdk';
 
 import { MODEL_CONFIG } from '../config/anthropic';
+import { FigmaNodeData } from '../types';
 
 const logsDir = join(__dirname, '../../logs');
 
 /**
  * デバッグ用: ノードデータをファイルに保存
  */
-export function saveDebugData(nodeData: any) {
+export function saveDebugData(nodeData: FigmaNodeData) {
   if (process.env.NODE_ENV !== 'development') {
     return;
   }
