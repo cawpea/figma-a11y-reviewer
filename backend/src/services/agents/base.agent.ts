@@ -75,7 +75,7 @@ export abstract class BaseEvaluationAgent {
             // 通常のノード: "1809:1836"
             // インスタンスノード: "I1806:932;589:1207"
             // ネストされたインスタンス: "I1806:984;1809:902;105:1169"
-            if (!issue.nodeId.match(/^[I]?\d+:\d+(;\d+:\d+)*$/)) {
+            if (!this.validateNodeIdFormat(issue.nodeId)) {
               console.warn(
                 `⚠️  Invalid nodeId format in ${this.category}: "${issue.nodeId}". ` +
                 `Expected formats: "xxxx:xxxx" or "Ixxxx:xxxx;xxxx:xxxx". Removing nodeId.`
@@ -100,6 +100,30 @@ export abstract class BaseEvaluationAgent {
       console.error('Failed to parse response:', textContent.text);
       throw new Error(`Failed to parse ${this.category} evaluation result: ${error}`);
     }
+  }
+
+  /**
+   * nodeIdの形式を検証（ReDoS脆弱性を回避するため文字列解析を使用）
+   */
+  private validateNodeIdFormat(nodeId: string): boolean {
+    // 基本的な長さチェック（異常に長い入力を早期に拒否）
+    if (nodeId.length > 1000) {
+      return false;
+    }
+
+    // 先頭のIを除去
+    const normalized = nodeId.startsWith('I') ? nodeId.slice(1) : nodeId;
+
+    // セミコロンで分割
+    const segments = normalized.split(';');
+
+    // 各セグメントが "数字:数字" の形式か確認
+    return segments.every(segment => {
+      const parts = segment.split(':');
+      if (parts.length !== 2) return false;
+      // 各パーツが数字のみで構成されているか確認（短い正規表現は安全）
+      return /^\d+$/.test(parts[0]) && /^\d+$/.test(parts[1]);
+    });
   }
 
   async evaluate(data: FigmaNodeData): Promise<CategoryResult> {
