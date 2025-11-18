@@ -3,6 +3,8 @@
     "allow": [
       "Bash(npm run build)",
       "Bash(npm run type-check:*)",
+      "Bash(npm run type-check)",
+      "Bash(npm run check)",
       "Bash(npm install:*)",
       "Bash(npm run lint)",
       "Bash(npm run format:check:*)",
