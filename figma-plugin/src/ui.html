@@ -346,7 +346,7 @@
       errorContainer.innerHTML = `
         <div class="error">
           <div class="error-title">エラーが発生しました</div>
-          <div>${message}</div>
+          <div>${escapeHtml(message)}</div>
         </div>
       `;
     }
@@ -397,8 +397,8 @@
                   <span class="issue-severity ${issue.severity}">
                     ${issue.severity.toUpperCase()}
                   </span>
-                  ${issue.message}
-                  ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${issue.suggestion}</small>` : ''}
+                  ${escapeHtml(issue.message)}
+                  ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${escapeHtml(issue.suggestion)}</small>` : ''}
                 </${tag}>
               `;
             }).join('');
@@ -407,7 +407,7 @@
             ? `
               <div class="positives">
                 ${category.positives.map(p => `
-                  <div class="positive-item">${p}</div>
+                  <div class="positive-item">${escapeHtml(p)}</div>
                 `).join('')}
               </div>
             `
@@ -441,6 +441,16 @@
         </div>
       `;
       resultsContainer.classList.add('visible');
+    }
+
+    function escapeHtml(unsafe) {
+      if (!unsafe) return '';
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
     function getCategoryLabel(key) {
