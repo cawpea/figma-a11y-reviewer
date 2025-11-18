@@ -1,10 +1,12 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with
+code in this repository.
 
 ## プロジェクト概要
 
-Figma UI Reviewerは、FigmaデザインをAnthropicのClaude APIを使ってAIによる自動評価を行うシステムです。Figmaプラグインとバックエンド APIで構成されています。
+Figma UI Reviewerは、FigmaデザインをAnthropicのClaude
+APIを使ってAIによる自動評価を行うシステムです。Figmaプラグインとバックエンド APIで構成されています。
 
 ## アーキテクチャ
 
@@ -42,7 +44,8 @@ backend/              # Express.js バックエンド API
    - 抽出されたノードデータを`POST /api/evaluate`に送信
 
 2. **バックエンド → Claude API**
-   - `backend/src/services/evaluation.service.ts`が各評価エージェント（accessibility, designSystem）を並列実行
+   - `backend/src/services/evaluation.service.ts`が各評価エージェント（accessibility,
+     designSystem）を並列実行
    - 各エージェント（`base.agent.ts`を継承）がClaude APIを呼び出し
    - システムプロンプトとノードデータを使って評価を実行
 
@@ -94,6 +97,7 @@ npm run watch
 ```
 
 **Figmaでの確認手順**:
+
 1. Figma Desktopアプリを開く
 2. Plugins > Development > Import plugin from manifest...
 3. `figma-plugin/manifest.json`を選択
@@ -113,6 +117,7 @@ npm run watch
 ### Claude API設定
 
 `backend/src/config/anthropic.ts`:
+
 - モデル: `claude-sonnet-4-20250514`
 - `temperature: 0`: 評価の一貫性を確保するため
 - `maxTokens: 4000`: 長い評価結果に対応
@@ -150,9 +155,11 @@ npm run watch
 
 ### エラーハンドリング
 
-- バリデーション: `zod`スキーマで入力を検証（`backend/src/routes/evaluation.ts`）
+- バリデーション:
+  `zod`スキーマで入力を検証（`backend/src/routes/evaluation.ts`）
 - 評価エラー: 個別エージェントでエラーが発生してもスコア0で結果を返す
-- ミドルウェア: `backend/src/middleware/error-handler.ts`で共通エラーハンドリング
+- ミドルウェア:
+  `backend/src/middleware/error-handler.ts`で共通エラーハンドリング
 
 ## テストとデプロイ
 

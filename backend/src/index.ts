@@ -1,8 +1,9 @@
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import evaluationRoutes from './routes/evaluation';
+import express from 'express';
+
 import { errorHandler } from './middleware/error-handler';
+import evaluationRoutes from './routes/evaluation';
 import { cleanupOldDebugFiles } from './utils/debug';
 
 // 環境変数を読み込む
@@ -19,9 +20,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*', // Phase 3で適切に設定
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || '*', // Phase 3で適切に設定
+  })
+);
 app.use(express.json({ limit: '10mb' })); // Figmaデータが大きい可能性
 
 // ロギングミドルウェア

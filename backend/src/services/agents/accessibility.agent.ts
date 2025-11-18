@@ -1,14 +1,15 @@
-import { BaseEvaluationAgent } from './base.agent';
 import { FigmaNodeData } from '../../types';
 import {
   formatFigmaDataForEvaluation,
   buildSystemPromptSuffix,
-  getNodeIdReminder
+  getNodeIdReminder,
 } from '../../utils/prompt.utils';
+
+import { BaseEvaluationAgent } from './base.agent';
 
 export class AccessibilityAgent extends BaseEvaluationAgent {
   protected category = 'accessibility';
-  
+
   protected systemPrompt = `あなたはWCAG 2.1 AA基準に精通したアクセシビリティの専門家です。
 Figmaデザインを評価し、アクセシビリティの問題点を特定してください。
 

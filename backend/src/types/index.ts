@@ -13,7 +13,7 @@ export interface FigmaNodeData {
   type: string;
   children?: FigmaNodeData[];
   childrenCount?: number;
-  
+
   // レイアウト
   layoutMode?: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
   primaryAxisSizingMode?: 'FIXED' | 'AUTO';
@@ -26,7 +26,7 @@ export interface FigmaNodeData {
   paddingBottom?: number;
   itemSpacing?: number;
   counterAxisSpacing?: number;
-  
+
   // サイズと位置
   absoluteBoundingBox?: {
     x: number;
@@ -34,7 +34,7 @@ export interface FigmaNodeData {
     width: number;
     height: number;
   };
-  
+
   // スタイル
   fills?: Array<{
     type: string;
@@ -49,14 +49,14 @@ export interface FigmaNodeData {
   strokeWeight?: number;
   effects?: Array<{
     type: string;
-    color?: any;
-    offset?: any;
+    color?: { r: number; g: number; b: number; a?: number };
+    offset?: { x: number; y: number };
     radius?: number;
     spread?: number;
   }>;
   cornerRadius?: number;
   opacity?: number;
-  
+
   // テキスト
   characters?: string;
   fontSize?: number;
@@ -64,11 +64,11 @@ export interface FigmaNodeData {
     family: string;
     style: string;
   };
-  lineHeight?: any;
-  letterSpacing?: any;
+  lineHeight?: { unit: string; value: number } | number;
+  letterSpacing?: { unit: string; value: number } | number;
   textAlignHorizontal?: string;
   textAlignVertical?: string;
-  
+
   // コンポーネント
   mainComponent?: {
     id?: string;
@@ -133,9 +133,9 @@ export interface EvaluationResult {
   };
 }
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
-  details?: any;
+  details?: unknown;
 }
