@@ -1,6 +1,10 @@
 import { BaseEvaluationAgent } from './base.agent';
 import { FigmaNodeData } from '../../types';
-import { formatFigmaDataForEvaluation } from '../../utils/prompt.utils';
+import {
+  formatFigmaDataForEvaluation,
+  buildSystemPromptSuffix,
+  getNodeIdReminder
+} from '../../utils/prompt.utils';
 
 export class DesignSystemAgent extends BaseEvaluationAgent {
   protected category = 'designSystem';
@@ -31,29 +35,11 @@ Figmaデザインの一貫性、再利用性、保守性を評価してくださ
    - 再利用可能な設計
 
 階層構造全体を見て、一貫性を評価してください。
-
-必ず以下のJSON形式で結果を返してください:
-\`\`\`json
-{
-  "score": 0-100の数値,
-  "issues": [
-    {
-      "severity": "high" | "medium" | "low",
-      "message": "問題の説明（具体的なノード名と値を含める）",
-      "nodeId": "該当ノードID（不明な場合は省略可）",
-      "autoFixable": true | false,
-      "suggestion": "改善案（具体的な数値を含める）"
-    }
-  ],
-  "positives": ["良い点の配列（任意）"]
-}
-\`\`\`
-
-重要: レスポンスは必ずJSON形式のみで返してください。説明文は含めないでください。`;
+${buildSystemPromptSuffix()}`;
 
   protected buildPrompt(data: FigmaNodeData): string {
     const formattedData = formatFigmaDataForEvaluation(data);
-    
+
     return `以下のFigmaノード（子要素を含む階層構造）をデザインシステムの観点で評価してください:
 
 ${formattedData}
@@ -66,8 +52,9 @@ ${formattedData}
 - カラーパレットの使用が適切か
 - Auto Layoutの使用が適切か
 - 命名規則が一貫しているか
+${getNodeIdReminder()}
 
-子要素も含めて厳しく評価し、具体的なノード名と不適切な値を指摘してください。
+子要素も含めて厳しく評価し、具体的なノード名、不適切な値、Figma IDを指摘してください。
 JSON形式で評価結果を返してください。`;
   }
 }

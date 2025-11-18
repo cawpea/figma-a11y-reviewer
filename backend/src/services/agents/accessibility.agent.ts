@@ -1,6 +1,10 @@
 import { BaseEvaluationAgent } from './base.agent';
 import { FigmaNodeData } from '../../types';
-import { formatFigmaDataForEvaluation } from '../../utils/prompt.utils';
+import {
+  formatFigmaDataForEvaluation,
+  buildSystemPromptSuffix,
+  getNodeIdReminder
+} from '../../utils/prompt.utils';
 
 export class AccessibilityAgent extends BaseEvaluationAgent {
   protected category = 'accessibility';
@@ -28,29 +32,11 @@ Figmaデザインを評価し、アクセシビリティの問題点を特定し
 6. 色のみに依存しない情報伝達
 
 階層構造を考慮して、親要素と子要素の関係も評価してください。
-
-必ず以下のJSON形式で結果を返してください:
-\`\`\`json
-{
-  "score": 0-100の数値,
-  "issues": [
-    {
-      "severity": "high" | "medium" | "low",
-      "message": "問題の説明（具体的なノード名を含める）",
-      "nodeId": "該当ノードID（不明な場合は省略可）",
-      "autoFixable": true | false,
-      "suggestion": "改善案（具体的な数値を含める）"
-    }
-  ],
-  "positives": ["良い点の配列（任意）"]
-}
-\`\`\`
-
-重要: レスポンスは必ずJSON形式のみで返してください。説明文は含めないでください。`;
+${buildSystemPromptSuffix()}`;
 
   protected buildPrompt(data: FigmaNodeData): string {
     const formattedData = formatFigmaDataForEvaluation(data);
-    
+
     return `以下のFigmaノード（子要素を含む階層構造）をアクセシビリティの観点で評価してください:
 
 ${formattedData}
@@ -61,8 +47,9 @@ ${formattedData}
 - テキストのフォントサイズと行間
 - 階層構造の論理性（親子関係が適切か）
 - 各要素の命名が分かりやすいか
+${getNodeIdReminder()}
 
-子要素も含めて厳しく評価し、具体的なノード名を指摘してください。
+子要素も含めて厳しく評価し、具体的なノード名とFigma IDを指摘してください。
 JSON形式で評価結果を返してください。`;
   }
 }

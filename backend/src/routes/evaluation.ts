@@ -42,7 +42,8 @@ router.post('/evaluate', async (req: Request, res: Response) => {
     // 評価実行
     const result = await evaluationService.evaluateDesign(
       validatedData.nodeData,
-      validatedData.evaluationTypes
+      validatedData.evaluationTypes,
+      validatedData.nodeId
     );
 
     const response: ApiResponse<EvaluationResult> = {

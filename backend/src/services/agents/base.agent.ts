@@ -1,7 +1,7 @@
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
 import { FigmaNodeData, CategoryResult } from '../../types';
 import { savePromptAndResponse } from '../../utils/debug';
-import { extractJsonFromResponse } from '../../utils/prompt.utils';
+import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
 import Anthropic from '@anthropic-ai/sdk';
 
 export abstract class BaseEvaluationAgent {
@@ -51,7 +51,7 @@ export abstract class BaseEvaluationAgent {
   /**
    * Claudeのレスポンスをパース
    */
-  protected parseResponse(response: Anthropic.Message): CategoryResult {
+  protected parseResponse(response: Anthropic.Message, rootNodeData: FigmaNodeData): CategoryResult {
     const textContent = response.content.find(
       (block): block is Anthropic.TextBlock => block.type === 'text'
     );
@@ -62,9 +62,37 @@ export abstract class BaseEvaluationAgent {
 
     try {
       const result = extractJsonFromResponse(textContent.text);
-      
+
       if (typeof result.score !== 'number' || !Array.isArray(result.issues)) {
         throw new Error('Invalid response format');
+      }
+
+      // nodeIdの形式を検証 & 階層パスを追加
+      if (result.issues) {
+        result.issues.forEach((issue: any) => {
+          if (issue.nodeId) {
+            // nodeIdの形式を検証
+            // 通常のノード: "1809:1836"
+            // インスタンスノード: "I1806:932;589:1207"
+            // ネストされたインスタンス: "I1806:984;1809:902;105:1169"
+            if (!this.validateNodeIdFormat(issue.nodeId)) {
+              console.warn(
+                `⚠️  Invalid nodeId format in ${this.category}: "${issue.nodeId}". ` +
+                `Expected formats: "xxxx:xxxx" or "Ixxxx:xxxx;xxxx:xxxx". Removing nodeId.`
+              );
+              delete issue.nodeId;
+            } else {
+              // 有効なnodeIdの場合、階層パスを抽出して追加
+              const hierarchy = extractNodeHierarchyPath(rootNodeData, issue.nodeId);
+              if (hierarchy) {
+                issue.nodeHierarchy = hierarchy;
+                console.log(`✅ Added hierarchy for nodeId ${issue.nodeId}:`, hierarchy);
+              } else {
+                console.warn(`⚠️  Could not find hierarchy path for nodeId: ${issue.nodeId}`);
+              }
+            }
+          }
+        });
       }
 
       return result;
@@ -74,10 +102,34 @@ export abstract class BaseEvaluationAgent {
     }
   }
 
+  /**
+   * nodeIdの形式を検証（ReDoS脆弱性を回避するため文字列解析を使用）
+   */
+  private validateNodeIdFormat(nodeId: string): boolean {
+    // 基本的な長さチェック（異常に長い入力を早期に拒否）
+    if (nodeId.length > 1000) {
+      return false;
+    }
+
+    // 先頭のIを除去
+    const normalized = nodeId.startsWith('I') ? nodeId.slice(1) : nodeId;
+
+    // セミコロンで分割
+    const segments = normalized.split(';');
+
+    // 各セグメントが "数字:数字" の形式か確認
+    return segments.every(segment => {
+      const parts = segment.split(':');
+      if (parts.length !== 2) return false;
+      // 各パーツが数字のみで構成されているか確認（短い正規表現は安全）
+      return /^\d+$/.test(parts[0]) && /^\d+$/.test(parts[1]);
+    });
+  }
+
   async evaluate(data: FigmaNodeData): Promise<CategoryResult> {
     const prompt = this.buildPrompt(data);
     const response = await this.callClaude(prompt);
-    return this.parseResponse(response);
+    return this.parseResponse(response, data);
   }
 
   protected abstract buildPrompt(data: FigmaNodeData): string;
