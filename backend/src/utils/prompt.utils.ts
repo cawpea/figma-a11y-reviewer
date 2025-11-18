@@ -191,3 +191,62 @@ export function extractNodeHierarchyPath(
   // このパスにはターゲットノードが見つからなかった
   return null;
 }
+
+/**
+ * JSON形式の指示テンプレートを取得
+ * 全エージェントで共通のJSON出力フォーマット
+ */
+export function getJsonSchemaTemplate(): string {
+  return `必ず以下のJSON形式で結果を返してください:
+\`\`\`json
+{
+  "score": 0-100の数値,
+  "issues": [
+    {
+      "severity": "high" | "medium" | "low",
+      "message": "問題の説明（具体的なノード名を含める）",
+      "nodeId": "該当ノードの実際のFigma ID（例: 1809:1836）。プロンプト内の (ID: xxx) 形式から必ず抽出してください",
+      "autoFixable": true | false,
+      "suggestion": "改善案（具体的な数値を含める）"
+    }
+  ],
+  "positives": ["良い点の配列（任意）"]
+}
+\`\`\``;
+}
+
+/**
+ * nodeId指定方法の詳細な説明を取得
+ * Claude APIがFigma IDを正確に抽出するための指示
+ */
+export function getNodeIdInstructions(): string {
+  return `**重要なnodeIdの指定方法:**
+- nodeIdには必ずプロンプト内に記載されている実際のFigma IDをそのまま完全にコピーしてください
+- 基本的なノード: 「【FRAME】 Header (ID: 1809:1838)」→ nodeIdは "1809:1838"
+- インスタンスノード: 「【INSTANCE】 Button (ID: I1806:932;589:1207)」→ nodeIdは "I1806:932;589:1207"
+- ネストされたインスタンス: 「【INSTANCE】 Icon (ID: I1806:984;1809:902;105:1169)」→ nodeIdは "I1806:984;1809:902;105:1169"
+- プロンプトに記載されている通りの形式で、(ID: xxx) から完全にコピーしてください
+- I接頭辞やセミコロンが含まれている場合もそのまま使用してください
+- 独自の説明的な名前（"Header"、"Button (Primary)"など）は使用しないでください
+- 該当ノードにIDが記載されている場合は必ず指定し、記載がない場合のみ省略してください`;
+}
+
+/**
+ * システムプロンプトの共通末尾部分を構築
+ * JSON形式指示 + nodeId指定方法 + 最終指示
+ */
+export function buildSystemPromptSuffix(): string {
+  return `
+${getJsonSchemaTemplate()}
+
+${getNodeIdInstructions()}
+
+重要: レスポンスは必ずJSON形式のみで返してください。説明文は含めないでください。`;
+}
+
+/**
+ * ユーザープロンプトのnodeID注意書きを取得
+ */
+export function getNodeIdReminder(): string {
+  return '- **重要**: 問題を指摘する際は、各ノードに記載されている (ID: xxx) 形式の実際のFigma ID（例: 1809:1836）をnodeIdフィールドに使用してください';
+}
