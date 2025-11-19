@@ -330,14 +330,21 @@ function findSiblingBackgroundColor(siblings: FigmaNodeData[]): string | undefin
 
 /**
  * ノードツリーからテキストと背景色のペアを再帰的に抽出
+ * @param maxResults - 最大収集件数（デフォルト: 100）。この数に達したら処理を中断
  */
 function collectTextColorPairs(
   node: FigmaNodeData,
   parentBackgroundColor?: string,
   parentNode?: FigmaNodeData,
   results: ColorContrastInfo[] = [],
-  visited: Set<string> = new Set()
+  visited: Set<string> = new Set(),
+  maxResults: number = 100
 ): ColorContrastInfo[] {
+  // 最大件数に達したら早期終了
+  if (results.length >= maxResults) {
+    return results;
+  }
+
   // 循環参照チェック
   if (visited.has(node.id)) {
     return results;
@@ -364,7 +371,7 @@ function collectTextColorPairs(
     }
 
     // 背景色が見つかった場合のみコントラスト比を計算
-    if (finalBackgroundColor) {
+    if (finalBackgroundColor && results.length < maxResults) {
       try {
         const contrastResult = calculateWCAGContrast({
           color1: textColor,
@@ -385,15 +392,19 @@ function collectTextColorPairs(
     }
   }
 
-  // 子要素を再帰的に処理
-  if (node.children && node.children.length > 0) {
+  // 子要素を再帰的に処理（最大件数に達していない場合のみ）
+  if (node.children && node.children.length > 0 && results.length < maxResults) {
     // 現在のノードの背景色を取得
     // fills: [] の場合（hasExplicitNoFill）は親の背景色を継承しない
     const currentBg = backgroundColor || (hasExplicitNoFill ? undefined : parentBackgroundColor);
 
-    node.children.forEach((child) => {
-      collectTextColorPairs(child, currentBg, node, results, visited);
-    });
+    for (const child of node.children) {
+      collectTextColorPairs(child, currentBg, node, results, visited, maxResults);
+      // 最大件数に達したら処理を中断
+      if (results.length >= maxResults) {
+        break;
+      }
+    }
   }
 
   return results;
@@ -401,17 +412,25 @@ function collectTextColorPairs(
 
 /**
  * カラーコントラスト比マップを生成
+ * @param data - Figmaノードデータ
+ * @param maxItems - 最大表示件数（デフォルト: 100）
  */
-export function buildColorContrastMap(data: FigmaNodeData): string {
-  const contrastInfos = collectTextColorPairs(data);
+export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 100): string {
+  const contrastInfos = collectTextColorPairs(data, undefined, undefined, [], new Set(), maxItems);
 
   if (contrastInfos.length === 0) {
     return 'テキスト要素が見つかりませんでした。';
   }
 
+  const hasMore = contrastInfos.length >= maxItems;
+
   let output = '## カラーコントラスト比マップ\n\n';
   output += '以下は、各テキスト要素の文字色と背景色のコントラスト比を事前計算した結果です。\n';
   output += 'この情報を参照して、WCAG 2.2準拠の評価を行ってください。\n\n';
+
+  if (hasMore) {
+    output += `> **注意**: テキスト要素が${maxItems}件以上見つかったため、最初の${maxItems}件のみを表示しています。\n\n`;
+  }
 
   contrastInfos.forEach((info, index) => {
     output += `### ${index + 1}. ${info.nodeName} (ID: ${info.nodeId})\n`;
@@ -426,6 +445,10 @@ export function buildColorContrastMap(data: FigmaNodeData): string {
     output += `  - 大きなテキスト (4.5:1以上): ${info.wcagCompliance.AAA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
     output += '\n';
   });
+
+  if (hasMore) {
+    output += `> さらに多くのテキスト要素が存在する可能性がありますが、パフォーマンスのため省略されています。\n`;
+  }
 
   return output;
 }
