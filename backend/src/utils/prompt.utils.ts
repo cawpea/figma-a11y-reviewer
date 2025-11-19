@@ -284,9 +284,10 @@ export function getNodeIdReminder(): string {
 function extractTextAndBackgroundColors(
   node: FigmaNodeData,
   parentBackgroundColor?: string
-): { textColor?: string; backgroundColor?: string } {
+): { textColor?: string; backgroundColor?: string; hasExplicitNoFill?: boolean } {
   let textColor: string | undefined;
   let backgroundColor: string | undefined;
+  let hasExplicitNoFill = false;
 
   // テキストノードの場合、文字色を取得
   if (node.type === 'TEXT' && node.fills && node.fills.length > 0) {
@@ -297,19 +298,40 @@ function extractTextAndBackgroundColors(
   }
 
   // テキストノード以外の場合、背景色を取得
-  if (node.type !== 'TEXT' && node.fills && node.fills.length > 0) {
-    const fill = node.fills[0];
-    if (fill.type === 'SOLID' && fill.color) {
-      backgroundColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+  if (node.type !== 'TEXT') {
+    if (node.fills && node.fills.length > 0) {
+      const fill = node.fills[0];
+      if (fill.type === 'SOLID' && fill.color) {
+        backgroundColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+      }
+    } else if (Array.isArray(node.fills) && node.fills.length === 0) {
+      // fills: [] の場合、明示的に背景色なしとマーク
+      hasExplicitNoFill = true;
     }
   }
 
-  // 背景色がない場合は親の背景色を使用
-  if (!backgroundColor && parentBackgroundColor) {
+  // 背景色がなく、かつ明示的にfills: []でない場合のみ、親の背景色を使用
+  if (!backgroundColor && !hasExplicitNoFill && parentBackgroundColor) {
     backgroundColor = parentBackgroundColor;
   }
 
-  return { textColor, backgroundColor };
+  return { textColor, backgroundColor, hasExplicitNoFill };
+}
+
+/**
+ * 兄弟要素から背景色を探す（テキストより前にある要素を優先）
+ */
+function findSiblingBackgroundColor(siblings: FigmaNodeData[]): string | undefined {
+  // RECTANGLEやFRAMEなどの背景要素を探す
+  for (const sibling of siblings) {
+    if (sibling.type !== 'TEXT' && sibling.fills && sibling.fills.length > 0) {
+      const fill = sibling.fills[0];
+      if (fill.type === 'SOLID' && fill.color) {
+        return rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+      }
+    }
+  }
+  return undefined;
 }
 
 /**
@@ -318,6 +340,7 @@ function extractTextAndBackgroundColors(
 function collectTextColorPairs(
   node: FigmaNodeData,
   parentBackgroundColor?: string,
+  parentNode?: FigmaNodeData,
   results: ColorContrastInfo[] = [],
   visited: Set<string> = new Set()
 ): ColorContrastInfo[] {
@@ -327,37 +350,55 @@ function collectTextColorPairs(
   }
   visited.add(node.id);
 
-  const { textColor, backgroundColor } = extractTextAndBackgroundColors(
+  const { textColor, backgroundColor, hasExplicitNoFill } = extractTextAndBackgroundColors(
     node,
     parentBackgroundColor
   );
 
-  // テキストノードで文字色と背景色がある場合、コントラスト比を計算
-  if (node.type === 'TEXT' && textColor && backgroundColor) {
-    try {
-      const contrastResult = calculateWCAGContrast({
-        color1: textColor,
-        color2: backgroundColor,
-      });
+  // テキストノードの場合
+  if (node.type === 'TEXT' && textColor) {
+    let finalBackgroundColor = backgroundColor;
 
-      results.push({
-        textColor,
-        backgroundColor,
-        nodeName: node.name,
-        nodeId: node.id,
-        contrastRatio: contrastResult.contrast_ratio,
-        wcagCompliance: contrastResult.wcag_compliance,
-      });
-    } catch (error) {
-      console.error(`Failed to calculate contrast for node ${node.name}:`, error);
+    // 背景色がない場合、兄弟要素から探す
+    if (!finalBackgroundColor && parentNode?.children) {
+      finalBackgroundColor = findSiblingBackgroundColor(parentNode.children);
+    }
+
+    // それでもない場合は親の背景色を使用
+    if (!finalBackgroundColor) {
+      finalBackgroundColor = parentBackgroundColor;
+    }
+
+    // 背景色が見つかった場合のみコントラスト比を計算
+    if (finalBackgroundColor) {
+      try {
+        const contrastResult = calculateWCAGContrast({
+          color1: textColor,
+          color2: finalBackgroundColor,
+        });
+
+        results.push({
+          textColor,
+          backgroundColor: finalBackgroundColor,
+          nodeName: node.name,
+          nodeId: node.id,
+          contrastRatio: contrastResult.contrast_ratio,
+          wcagCompliance: contrastResult.wcag_compliance,
+        });
+      } catch (error) {
+        console.error(`Failed to calculate contrast for node ${node.name}:`, error);
+      }
     }
   }
 
-  // 子要素を再帰的に処理（現在の背景色を継承）
+  // 子要素を再帰的に処理
   if (node.children && node.children.length > 0) {
-    const currentBg = backgroundColor || parentBackgroundColor;
+    // 現在のノードの背景色を取得
+    // fills: [] の場合（hasExplicitNoFill）は親の背景色を継承しない
+    const currentBg = backgroundColor || (hasExplicitNoFill ? undefined : parentBackgroundColor);
+
     node.children.forEach((child) => {
-      collectTextColorPairs(child, currentBg, results, visited);
+      collectTextColorPairs(child, currentBg, node, results, visited);
     });
   }
 
