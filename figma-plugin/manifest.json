@@ -1,5 +1,5 @@
 {
-  "name": "UI Reviewer",
+  "name": "Review.ai - Review your designs with AI",
   "id": "ui-reviewer",
   "api": "1.0.0",
   "main": "dist/code.js",
