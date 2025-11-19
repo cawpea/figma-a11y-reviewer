@@ -62,6 +62,13 @@ interface EvaluationResult {
 const API_BASE_URL = 'http://localhost:3000/api';
 const MAX_DEPTH = 10; // 再帰の最大深さ（無限ループ防止）
 
+// エラーメッセージ定数
+const ERROR_MESSAGES = {
+  NO_SELECTION: 'フレーム、コンポーネント、またはインスタンスを選択してください',
+  MULTIPLE_SELECTION: '評価できるのは1つのフレームのみです',
+  INVALID_NODE_TYPE: 'フレーム、コンポーネント、またはインスタンスを選択してください',
+} as const;
+
 // プラグインUI表示
 figma.showUI(__html__, {
   width: 400,
@@ -165,7 +172,7 @@ async function handleEvaluation() {
   if (selection.length === 0) {
     figma.ui.postMessage({
       type: 'error',
-      message: 'フレームまたはコンポーネントを選択してください',
+      message: ERROR_MESSAGES.NO_SELECTION,
     });
     return;
   }
@@ -173,7 +180,7 @@ async function handleEvaluation() {
   if (selection.length > 1) {
     figma.ui.postMessage({
       type: 'error',
-      message: '評価できるのは1つのフレームのみです',
+      message: ERROR_MESSAGES.MULTIPLE_SELECTION,
     });
     return;
   }
@@ -188,7 +195,7 @@ async function handleEvaluation() {
   ) {
     figma.ui.postMessage({
       type: 'error',
-      message: 'フレーム、コンポーネント、またはインスタンスを選択してください',
+      message: ERROR_MESSAGES.INVALID_NODE_TYPE,
     });
     return;
   }
