@@ -1,7 +1,8 @@
 import { FigmaNodeData } from '../../types';
 import {
-  formatFigmaDataForEvaluation,
+  buildColorContrastMap,
   buildSystemPromptSuffix,
+  formatFigmaDataForEvaluation,
   getNodeIdReminder,
 } from '../../utils/prompt.utils';
 
@@ -37,13 +38,23 @@ ${buildSystemPromptSuffix()}`;
 
   protected buildPrompt(data: FigmaNodeData): string {
     const formattedData = formatFigmaDataForEvaluation(data);
+    const contrastMap = buildColorContrastMap(data);
 
     return `以下のFigmaノード（子要素を含む階層構造）をアクセシビリティの観点で評価してください:
 
 ${formattedData}
 
+---
+
+${contrastMap}
+
+---
+
 特に以下の点に注目してください:
-- テキスト要素の背景色とテキスト色のコントラスト比（16進数カラーコードから計算）
+- **上記のカラーコントラスト比マップを参照して**、各テキスト要素のコントラスト比がWCAG 2.1 AA基準を満たしているか評価してください
+  - 通常テキスト: 4.5:1以上
+  - 大きなテキスト(18pt以上または14pt太字): 3:1以上
+  - コントラスト比はすでに計算済みなので、マップの値を使用してください
 - ボタンやインタラクティブ要素のサイズ（44x44px以上か）
 - テキストのフォントサイズと行間
 - 階層構造の論理性（親子関係が適切か）

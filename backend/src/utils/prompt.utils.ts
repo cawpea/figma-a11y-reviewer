@@ -1,5 +1,28 @@
 import { CategoryResult, FigmaNodeData } from '../types';
 
+import { calculateWCAGContrast } from './accessibility';
+
+/**
+ * カラーコントラスト情報
+ */
+interface ColorContrastInfo {
+  textColor: string;
+  backgroundColor: string;
+  nodeName: string;
+  nodeId: string;
+  contrastRatio: number;
+  wcagCompliance: {
+    AA: {
+      normal_text: boolean;
+      large_text: boolean;
+    };
+    AAA: {
+      normal_text: boolean;
+      large_text: boolean;
+    };
+  };
+}
+
 /**
  * Figmaデータを評価用に整形（階層構造を保持）
  */
@@ -253,4 +276,121 @@ ${getNodeIdInstructions()}
  */
 export function getNodeIdReminder(): string {
   return '- **重要**: 問題を指摘する際は、各ノードに記載されている (ID: xxx) 形式の実際のFigma ID（例: 1809:1836）をnodeIdフィールドに使用してください';
+}
+
+/**
+ * テキストノードから文字色と親要素の背景色を取得
+ */
+function extractTextAndBackgroundColors(
+  node: FigmaNodeData,
+  parentBackgroundColor?: string
+): { textColor?: string; backgroundColor?: string } {
+  let textColor: string | undefined;
+  let backgroundColor: string | undefined;
+
+  // テキストノードの場合、文字色を取得
+  if (node.type === 'TEXT' && node.fills && node.fills.length > 0) {
+    const fill = node.fills[0];
+    if (fill.type === 'SOLID' && fill.color) {
+      textColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+    }
+  }
+
+  // テキストノード以外の場合、背景色を取得
+  if (node.type !== 'TEXT' && node.fills && node.fills.length > 0) {
+    const fill = node.fills[0];
+    if (fill.type === 'SOLID' && fill.color) {
+      backgroundColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+    }
+  }
+
+  // 背景色がない場合は親の背景色を使用
+  if (!backgroundColor && parentBackgroundColor) {
+    backgroundColor = parentBackgroundColor;
+  }
+
+  return { textColor, backgroundColor };
+}
+
+/**
+ * ノードツリーからテキストと背景色のペアを再帰的に抽出
+ */
+function collectTextColorPairs(
+  node: FigmaNodeData,
+  parentBackgroundColor?: string,
+  results: ColorContrastInfo[] = [],
+  visited: Set<string> = new Set()
+): ColorContrastInfo[] {
+  // 循環参照チェック
+  if (visited.has(node.id)) {
+    return results;
+  }
+  visited.add(node.id);
+
+  const { textColor, backgroundColor } = extractTextAndBackgroundColors(
+    node,
+    parentBackgroundColor
+  );
+
+  // テキストノードで文字色と背景色がある場合、コントラスト比を計算
+  if (node.type === 'TEXT' && textColor && backgroundColor) {
+    try {
+      const contrastResult = calculateWCAGContrast({
+        color1: textColor,
+        color2: backgroundColor,
+      });
+
+      results.push({
+        textColor,
+        backgroundColor,
+        nodeName: node.name,
+        nodeId: node.id,
+        contrastRatio: contrastResult.contrast_ratio,
+        wcagCompliance: contrastResult.wcag_compliance,
+      });
+    } catch (error) {
+      console.error(`Failed to calculate contrast for node ${node.name}:`, error);
+    }
+  }
+
+  // 子要素を再帰的に処理（現在の背景色を継承）
+  if (node.children && node.children.length > 0) {
+    const currentBg = backgroundColor || parentBackgroundColor;
+    node.children.forEach((child) => {
+      collectTextColorPairs(child, currentBg, results, visited);
+    });
+  }
+
+  return results;
+}
+
+/**
+ * カラーコントラスト比マップを生成
+ */
+export function buildColorContrastMap(data: FigmaNodeData): string {
+  const contrastInfos = collectTextColorPairs(data);
+
+  if (contrastInfos.length === 0) {
+    return 'テキスト要素が見つかりませんでした。';
+  }
+
+  let output = '## カラーコントラスト比マップ\n\n';
+  output += '以下は、各テキスト要素の文字色と背景色のコントラスト比を事前計算した結果です。\n';
+  output += 'この情報を参照して、WCAG 2.1準拠の評価を行ってください。\n\n';
+
+  contrastInfos.forEach((info, index) => {
+    output += `### ${index + 1}. ${info.nodeName} (ID: ${info.nodeId})\n`;
+    output += `- 文字色: ${info.textColor}\n`;
+    output += `- 背景色: ${info.backgroundColor}\n`;
+    output += `- **コントラスト比: ${info.contrastRatio}:1**\n`;
+    output += `- WCAG AA準拠:\n`;
+    output += `  - 通常テキスト (4.5:1以上): ${info.wcagCompliance.AA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `  - 大きなテキスト (3.0:1以上): ${info.wcagCompliance.AA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `- WCAG AAA準拠:\n`;
+    output += `  - 通常テキスト (7.0:1以上): ${info.wcagCompliance.AAA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `  - 大きなテキスト (4.5:1以上): ${info.wcagCompliance.AAA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += '\n';
+  });
+
+  return output;
 }
