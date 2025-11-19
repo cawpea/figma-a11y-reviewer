@@ -417,7 +417,7 @@ export function buildColorContrastMap(data: FigmaNodeData): string {
 
   let output = '## カラーコントラスト比マップ\n\n';
   output += '以下は、各テキスト要素の文字色と背景色のコントラスト比を事前計算した結果です。\n';
-  output += 'この情報を参照して、WCAG 2.1準拠の評価を行ってください。\n\n';
+  output += 'この情報を参照して、WCAG 2.2準拠の評価を行ってください。\n\n';
 
   contrastInfos.forEach((info, index) => {
     output += `### ${index + 1}. ${info.nodeName} (ID: ${info.nodeId})\n`;
