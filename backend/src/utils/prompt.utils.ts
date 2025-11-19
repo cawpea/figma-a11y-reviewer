@@ -292,7 +292,8 @@ function extractTextAndBackgroundColors(
   // テキストノードの場合、文字色を取得
   if (node.type === 'TEXT' && node.fills && node.fills.length > 0) {
     const fill = node.fills[0];
-    if (fill.type === 'SOLID' && fill.color) {
+    // opacityが0.1以下の場合は無視
+    if (fill.type === 'SOLID' && fill.color && (fill.opacity === undefined || fill.opacity > 0.1)) {
       textColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
     }
   }
@@ -301,7 +302,12 @@ function extractTextAndBackgroundColors(
   if (node.type !== 'TEXT') {
     if (node.fills && node.fills.length > 0) {
       const fill = node.fills[0];
-      if (fill.type === 'SOLID' && fill.color) {
+      // opacityが0.1以下の場合は無視
+      if (
+        fill.type === 'SOLID' &&
+        fill.color &&
+        (fill.opacity === undefined || fill.opacity > 0.1)
+      ) {
         backgroundColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
       }
     } else if (Array.isArray(node.fills) && node.fills.length === 0) {

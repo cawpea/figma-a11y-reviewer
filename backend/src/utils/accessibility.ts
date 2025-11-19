@@ -35,6 +35,9 @@ export function calculateWCAGContrast({
   // Hex to RGB
   const hexToRgb = (hex: string): [number, number, number] => {
     const cleaned = hex.replace('#', '');
+    if (!/^[0-9A-Fa-f]{6}$/.test(cleaned)) {
+      throw new Error(`Invalid hex color: ${hex}`);
+    }
     return [
       parseInt(cleaned.substring(0, 2), 16),
       parseInt(cleaned.substring(2, 4), 16),
