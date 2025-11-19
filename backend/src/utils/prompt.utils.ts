@@ -1,6 +1,6 @@
 import { CategoryResult, FigmaNodeData } from '../types';
 
-import { calculateWCAGContrast } from './accessibility';
+import { calculateWCAGContrast, rgbToHex } from './accessibility';
 
 /**
  * カラーコントラスト情報
@@ -148,18 +148,6 @@ function formatNodeRecursive(
   }
 
   return output;
-}
-
-/**
- * RGBを16進数カラーコードに変換
- */
-function rgbToHex(r: number, g: number, b: number): string {
-  const toHex = (value: number) => {
-    const hex = Math.round(value * 255).toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  };
-
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
 }
 
 /**
