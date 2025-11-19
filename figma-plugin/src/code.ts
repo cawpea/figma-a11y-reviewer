@@ -180,11 +180,15 @@ async function handleEvaluation() {
 
   const selectedNode = selection[0];
 
-  // フレームまたはコンポーネントかチェック
-  if (selectedNode.type !== 'FRAME' && selectedNode.type !== 'COMPONENT') {
+  // フレーム、コンポーネント、またはインスタンスかチェック
+  if (
+    selectedNode.type !== 'FRAME' &&
+    selectedNode.type !== 'COMPONENT' &&
+    selectedNode.type !== 'INSTANCE'
+  ) {
     figma.ui.postMessage({
       type: 'error',
-      message: 'フレームまたはコンポーネントを選択してください',
+      message: 'フレーム、コンポーネント、またはインスタンスを選択してください',
     });
     return;
   }

@@ -1,363 +1,380 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <style>
-    /* 既存のスタイルはそのまま */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      /* 既存のスタイルはそのまま */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-size: 12px;
-      padding: 16px;
-      color: #333;
-      background: #fff;
-    }
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        font-size: 12px;
+        padding: 16px;
+        color: #333;
+        background: #fff;
+      }
 
-    .header {
-      margin-bottom: 20px;
-    }
+      .header {
+        margin-bottom: 12px;
+      }
 
-    h1 {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
+      h1 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
 
-    .description {
-      color: #666;
-      font-size: 11px;
-      line-height: 1.5;
-    }
+      .description {
+        color: #666;
+        font-size: 11px;
+        line-height: 1.5;
+      }
 
-    .button-container {
-      margin-bottom: 20px;
-    }
+      .button-container {
+        margin-bottom: 20px;
+      }
 
-    button {
-      width: 100%;
-      padding: 10px 16px;
-      background: #18A0FB;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+      button {
+        width: 100%;
+        padding: 10px 16px;
+        background: #18a0fb;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
 
-    button:hover {
-      background: #0D8DE5;
-    }
+      button:hover {
+        background: #0d8de5;
+      }
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
 
-    .loading {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-    }
+      .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+      }
 
-    .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #18A0FB;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 12px;
-    }
+      .spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #18a0fb;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 12px;
+      }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .error {
-      background: #FEF2F2;
-      border: 1px solid #FCA5A5;
-      color: #DC2626;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 11px;
-      margin-bottom: 16px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .error-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .results {
-      display: none;
-    }
-
-    .results.visible {
-      display: block;
-    }
-
-    .score-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .score-value {
-      font-size: 48px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .score-label {
-      font-size: 11px;
-      opacity: 0.9;
-    }
-
-    .category {
-      background: #f9fafb;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    .category-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .category-name {
-      font-weight: 600;
-      font-size: 12px;
-    }
-
-    .category-score {
-      font-weight: 600;
-      font-size: 12px;
-      color: #18A0FB;
-    }
-
-    .issue {
-      background: white;
-      border-left: 3px solid #fbbf24;
-      padding: 8px 10px;
-      margin-bottom: 6px;
-      font-size: 11px;
-      border-radius: 3px;
-    }
-
-    button.issue {
-      width: 100%;
-      text-align: left;
-      border: none;
-      border-left: 3px solid #fbbf24;
-      font-family: inherit;
-      color: inherit;
-      line-height: inherit;
-    }
-
-    .issue.high {
-      border-left-color: #ef4444;
-    }
-
-    .issue.medium {
-      border-left-color: #f59e0b;
-    }
-
-    .issue.low {
-      border-left-color: #10b981;
-    }
-
-    .issue.clickable {
-      cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
-    }
-
-    .issue.clickable:hover {
-      background: #f9fafb;
-    }
-
-    .issue-severity {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-size: 10px;
-      font-weight: 600;
-      margin-right: 6px;
-    }
-
-    .issue-severity.high {
-      background: #FEE2E2;
-      color: #DC2626;
-    }
-
-    .issue-severity.medium {
-      background: #FEF3C7;
-      color: #D97706;
-    }
-
-    .issue-severity.low {
-      background: #D1FAE5;
-      color: #059669;
-    }
-
-    .positives {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .positive-item {
-      color: #059669;
-      font-size: 11px;
-      margin-bottom: 4px;
-      padding-left: 16px;
-      position: relative;
-    }
-
-    .positive-item:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      font-weight: 700;
-    }
-
-    .metadata {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid #e5e7eb;
-      font-size: 10px;
-      color: #666;
-      text-align: center;
-    }
-
-    .api-status {
-      font-size: 10px;
-      color: #666;
-      text-align: center;
-      margin-top: 8px;
-      padding: 8px;
-      background: #f9fafb;
-      border-radius: 4px;
-    }
-
-    .api-status.connected {
-      color: #059669;
-      background: #D1FAE5;
-    }
-
-    .api-status.error {
-      color: #DC2626;
-      background: #FEF2F2;
-    }
-  </style>
-</head>
-<body>
-  <div class="header">
-    <h1>UI Reviewer</h1>
-    <p class="description">
-      フレームまたはコンポーネントを選択して、デザイン品質を評価します。
-    </p>
-  </div>
-
-  <div class="button-container">
-    <button id="evaluate-btn">評価を開始</button>
-  </div>
-
-  <div id="error-container"></div>
-  <div id="loading-container"></div>
-  <div id="results-container" class="results"></div>
-
-  <script>
-    const evaluateBtn = document.getElementById('evaluate-btn');
-    const errorContainer = document.getElementById('error-container');
-    const loadingContainer = document.getElementById('loading-container');
-    const resultsContainer = document.getElementById('results-container');
-
-    // 評価開始ボタン
-    evaluateBtn.addEventListener('click', () => {
-      parent.postMessage({
-        pluginMessage: { type: 'evaluate-selection' }
-      }, '*');
-    });
-
-    // イベント委譲を使用したissueクリックハンドラー（1回のみ登録）
-    resultsContainer.addEventListener('click', (event) => {
-      // クリックされた要素またはその親要素が.issue.clickableかチェック
-      const issueElement = event.target.closest('.issue.clickable');
-
-      if (issueElement) {
-        const nodeId = issueElement.getAttribute('data-node-id');
-        const rootNodeId = issueElement.getAttribute('data-root-node-id');
-        const hierarchyStr = issueElement.getAttribute('data-node-hierarchy');
-        const nodeHierarchy = hierarchyStr ? JSON.parse(hierarchyStr) : undefined;
-
-        // nodeIdがある場合はそれを使用、ない場合はrootNodeIdを使用
-        const targetNodeId = nodeId || rootNodeId;
-
-        if (targetNodeId) {
-          console.log('Issue clicked, selecting node with fallback:', targetNodeId, nodeHierarchy);
-          parent.postMessage({
-            pluginMessage: {
-              type: 'select-node',
-              nodeId: targetNodeId,
-              nodeHierarchy: nodeHierarchy,
-              rootNodeId: rootNodeId
-            }
-          }, '*');
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
         }
       }
-    });
 
-    // プラグインからのメッセージを受信
-    window.onmessage = (event) => {
-      const msg = event.data.pluginMessage;
-
-      if (msg.type === 'error') {
-        showError(msg.message);
-        hideLoading();
-        hideResults();
-      } else if (msg.type === 'evaluation-started') {
-        showLoading();
-        hideError();
-        hideResults();
-      } else if (msg.type === 'evaluation-complete') {
-        hideLoading();
-        hideError();
-        showResults(msg.result);
+      .error {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #dc2626;
+        padding: 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        margin-bottom: 16px;
+        max-height: 200px;
+        overflow-y: auto;
       }
-    };
 
-    function showError(message) {
-      errorContainer.innerHTML = `
+      .error-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .results {
+        display: none;
+      }
+
+      .results.visible {
+        display: block;
+      }
+
+      .score-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .score-value {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+
+      .score-label {
+        font-size: 11px;
+        opacity: 0.9;
+      }
+
+      .category {
+        background: #f9fafb;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .category-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .category-name {
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .category-score {
+        font-weight: 600;
+        font-size: 12px;
+        color: #18a0fb;
+      }
+
+      .issue {
+        background: white;
+        border-left: 3px solid #fbbf24;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+        font-size: 11px;
+        border-radius: 3px;
+      }
+
+      button.issue {
+        width: 100%;
+        text-align: left;
+        border: none;
+        border-left: 3px solid #fbbf24;
+        font-family: inherit;
+        color: inherit;
+        line-height: inherit;
+      }
+
+      .issue.high {
+        border-left-color: #ef4444;
+      }
+
+      .issue.medium {
+        border-left-color: #f59e0b;
+      }
+
+      .issue.low {
+        border-left-color: #10b981;
+      }
+
+      .issue.clickable {
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.1s;
+      }
+
+      .issue.clickable:hover {
+        background: #f9fafb;
+      }
+
+      .issue-severity {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 600;
+        margin-right: 6px;
+      }
+
+      .issue-severity.high {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .issue-severity.medium {
+        background: #fef3c7;
+        color: #d97706;
+      }
+
+      .issue-severity.low {
+        background: #d1fae5;
+        color: #059669;
+      }
+
+      .positives {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .positive-item {
+        color: #059669;
+        font-size: 11px;
+        margin-bottom: 4px;
+        padding-left: 16px;
+        position: relative;
+      }
+
+      .positive-item:before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        font-weight: 700;
+      }
+
+      .metadata {
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid #e5e7eb;
+        font-size: 10px;
+        color: #666;
+        text-align: center;
+      }
+
+      .api-status {
+        font-size: 10px;
+        color: #666;
+        text-align: center;
+        margin-top: 8px;
+        padding: 8px;
+        background: #f9fafb;
+        border-radius: 4px;
+      }
+
+      .api-status.connected {
+        color: #059669;
+        background: #d1fae5;
+      }
+
+      .api-status.error {
+        color: #dc2626;
+        background: #fef2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <p class="description">フレームまたはコンポーネントを選択して、デザイン品質を評価します。</p>
+    </div>
+
+    <div class="button-container">
+      <button id="evaluate-btn">評価を開始</button>
+    </div>
+
+    <div id="error-container"></div>
+    <div id="loading-container"></div>
+    <div id="results-container" class="results"></div>
+
+    <script>
+      const evaluateBtn = document.getElementById('evaluate-btn');
+      const errorContainer = document.getElementById('error-container');
+      const loadingContainer = document.getElementById('loading-container');
+      const resultsContainer = document.getElementById('results-container');
+
+      // 評価開始ボタン
+      evaluateBtn.addEventListener('click', () => {
+        parent.postMessage(
+          {
+            pluginMessage: { type: 'evaluate-selection' },
+          },
+          '*'
+        );
+      });
+
+      // イベント委譲を使用したissueクリックハンドラー（1回のみ登録）
+      resultsContainer.addEventListener('click', (event) => {
+        // クリックされた要素またはその親要素が.issue.clickableかチェック
+        const issueElement = event.target.closest('.issue.clickable');
+
+        if (issueElement) {
+          const nodeId = issueElement.getAttribute('data-node-id');
+          const rootNodeId = issueElement.getAttribute('data-root-node-id');
+          const hierarchyStr = issueElement.getAttribute('data-node-hierarchy');
+          const nodeHierarchy = hierarchyStr ? JSON.parse(hierarchyStr) : undefined;
+
+          // nodeIdがある場合はそれを使用、ない場合はrootNodeIdを使用
+          const targetNodeId = nodeId || rootNodeId;
+
+          if (targetNodeId) {
+            console.log(
+              'Issue clicked, selecting node with fallback:',
+              targetNodeId,
+              nodeHierarchy
+            );
+            parent.postMessage(
+              {
+                pluginMessage: {
+                  type: 'select-node',
+                  nodeId: targetNodeId,
+                  nodeHierarchy: nodeHierarchy,
+                  rootNodeId: rootNodeId,
+                },
+              },
+              '*'
+            );
+          }
+        }
+      });
+
+      // プラグインからのメッセージを受信
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+
+        if (msg.type === 'error') {
+          showError(msg.message);
+          hideLoading();
+          hideResults();
+        } else if (msg.type === 'evaluation-started') {
+          showLoading();
+          hideError();
+          hideResults();
+        } else if (msg.type === 'evaluation-complete') {
+          hideLoading();
+          hideError();
+          showResults(msg.result);
+        }
+      };
+
+      function showError(message) {
+        errorContainer.innerHTML = `
         <div class="error">
           <div class="error-title">エラーが発生しました</div>
           <div>${escapeHtml(message)}</div>
         </div>
       `;
-    }
+      }
 
-    function hideError() {
-      errorContainer.innerHTML = '';
-    }
+      function hideError() {
+        errorContainer.innerHTML = '';
+      }
 
-    function showLoading() {
-      evaluateBtn.disabled = true;
-      loadingContainer.innerHTML = `
+      function showLoading() {
+        evaluateBtn.disabled = true;
+        loadingContainer.innerHTML = `
         <div class="loading">
           <div class="spinner"></div>
           <div>AI評価中...</div>
@@ -366,33 +383,35 @@
           </div>
         </div>
       `;
-    }
+      }
 
-    function hideLoading() {
-      evaluateBtn.disabled = false;
-      loadingContainer.innerHTML = '';
-    }
+      function hideLoading() {
+        evaluateBtn.disabled = false;
+        loadingContainer.innerHTML = '';
+      }
 
-    function hideResults() {
-      resultsContainer.classList.remove('visible');
-    }
+      function hideResults() {
+        resultsContainer.classList.remove('visible');
+      }
 
-    function showResults(result) {
-      const rootNodeId = result.metadata.rootNodeId;  // ルートノードIDを取得
+      function showResults(result) {
+        const rootNodeId = result.metadata.rootNodeId; // ルートノードIDを取得
 
-      const categoriesHtml = Object.entries(result.categories)
-        .map(([key, category]) => {
-          const issuesHtml = category.issues
-            .map(issue => {
-              // すべてのissueをクリック可能に（nodeIdまたはrootNodeIdがあれば）
-              const isClickable = issue.nodeId || rootNodeId;
-              const clickableClass = isClickable ? 'clickable' : '';
-              const nodeIdAttr = issue.nodeId ? `data-node-id="${issue.nodeId}"` : '';
-              const rootNodeIdAttr = rootNodeId ? `data-root-node-id="${rootNodeId}"` : '';
-              const nodeHierarchyAttr = issue.nodeHierarchy ? `data-node-hierarchy='${JSON.stringify(issue.nodeHierarchy)}'` : '';
-              const tag = 'button';  // 常にbuttonタグを使用
+        const categoriesHtml = Object.entries(result.categories)
+          .map(([key, category]) => {
+            const issuesHtml = category.issues
+              .map((issue) => {
+                // すべてのissueをクリック可能に（nodeIdまたはrootNodeIdがあれば）
+                const isClickable = issue.nodeId || rootNodeId;
+                const clickableClass = isClickable ? 'clickable' : '';
+                const nodeIdAttr = issue.nodeId ? `data-node-id="${issue.nodeId}"` : '';
+                const rootNodeIdAttr = rootNodeId ? `data-root-node-id="${rootNodeId}"` : '';
+                const nodeHierarchyAttr = issue.nodeHierarchy
+                  ? `data-node-hierarchy='${JSON.stringify(issue.nodeHierarchy)}'`
+                  : '';
+                const tag = 'button'; // 常にbuttonタグを使用
 
-              return `
+                return `
                 <${tag} class="issue ${issue.severity} ${clickableClass}" ${nodeIdAttr} ${rootNodeIdAttr} ${nodeHierarchyAttr} type="button">
                   <span class="issue-severity ${issue.severity}">
                     ${issue.severity.toUpperCase()}
@@ -401,19 +420,25 @@
                   ${issue.suggestion ? `<br><small style="color: #666; margin-top: 4px; display: block;">💡 ${escapeHtml(issue.suggestion)}</small>` : ''}
                 </${tag}>
               `;
-            }).join('');
+              })
+              .join('');
 
-          const positivesHtml = category.positives && category.positives.length > 0
-            ? `
+            const positivesHtml =
+              category.positives && category.positives.length > 0
+                ? `
               <div class="positives">
-                ${category.positives.map(p => `
+                ${category.positives
+                  .map(
+                    (p) => `
                   <div class="positive-item">${escapeHtml(p)}</div>
-                `).join('')}
+                `
+                  )
+                  .join('')}
               </div>
             `
-            : '';
+                : '';
 
-          return `
+            return `
             <div class="category">
               <div class="category-header">
                 <span class="category-name">${getCategoryLabel(key)}</span>
@@ -423,9 +448,10 @@
               ${positivesHtml}
             </div>
           `;
-        }).join('');
+          })
+          .join('');
 
-      resultsContainer.innerHTML = `
+        resultsContainer.innerHTML = `
         <div class="score-card">
           <div class="score-value">${result.overallScore}</div>
           <div class="score-label">総合スコア</div>
@@ -440,28 +466,28 @@
           ✓ API接続成功
         </div>
       `;
-      resultsContainer.classList.add('visible');
-    }
+        resultsContainer.classList.add('visible');
+      }
 
-    function escapeHtml(unsafe) {
-      if (!unsafe) return '';
-      return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+      function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
 
-    function getCategoryLabel(key) {
-      const labels = {
-        accessibility: 'アクセシビリティ',
-        designSystem: 'デザインシステム',
-        layout: 'レイアウト',
-        naming: '命名規則',
-      };
-      return labels[key] || key;
-    }
-  </script>
-</body>
+      function getCategoryLabel(key) {
+        const labels = {
+          accessibility: 'アクセシビリティ',
+          designSystem: 'デザインシステム',
+          layout: 'レイアウト',
+          naming: '命名規則',
+        };
+        return labels[key] || key;
+      }
+    </script>
+  </body>
 </html>
