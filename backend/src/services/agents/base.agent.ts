@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
-import { FigmaNodeData, CategoryResult, Issue } from '../../types';
+import { CategoryResult, FigmaNodeData, Issue } from '../../types';
 import { savePromptAndResponse } from '../../utils/debug';
 import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
 
@@ -19,7 +19,7 @@ export abstract class BaseEvaluationAgent {
       console.log(`🤖 Calling Claude API for: ${this.category}`);
       console.log(`${'='.repeat(80)}`);
       console.log(`SYSTEM PROMPT: ${this.systemPrompt.length}`);
-      console.log(`USER PROMPT (first 1000 chars): ${prompt.length}`);
+      console.log(`USER PROMPT: ${prompt.length}`);
       console.log('='.repeat(80) + '\n');
 
       const response = await anthropic.messages.create({
@@ -92,7 +92,6 @@ export abstract class BaseEvaluationAgent {
               const hierarchy = extractNodeHierarchyPath(rootNodeData, issue.nodeId);
               if (hierarchy) {
                 issue.nodeHierarchy = hierarchy;
-                console.log(`✅ Added hierarchy for nodeId ${issue.nodeId}:`, hierarchy);
               } else {
                 console.warn(`⚠️  Could not find hierarchy path for nodeId: ${issue.nodeId}`);
               }

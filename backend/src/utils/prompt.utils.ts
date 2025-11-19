@@ -1,5 +1,28 @@
 import { CategoryResult, FigmaNodeData } from '../types';
 
+import { calculateWCAGContrast, rgbToHex } from './accessibility';
+
+/**
+ * カラーコントラスト情報
+ */
+interface ColorContrastInfo {
+  textColor: string;
+  backgroundColor: string;
+  nodeName: string;
+  nodeId: string;
+  contrastRatio: number;
+  wcagCompliance: {
+    AA: {
+      normal_text: boolean;
+      large_text: boolean;
+    };
+    AAA: {
+      normal_text: boolean;
+      large_text: boolean;
+    };
+  };
+}
+
 /**
  * Figmaデータを評価用に整形（階層構造を保持）
  */
@@ -128,18 +151,6 @@ function formatNodeRecursive(
 }
 
 /**
- * RGBを16進数カラーコードに変換
- */
-function rgbToHex(r: number, g: number, b: number): string {
-  const toHex = (value: number) => {
-    const hex = Math.round(value * 255).toString(16);
-    return hex.length === 1 ? '0' + hex : hex;
-  };
-
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase();
-}
-
-/**
  * JSONレスポンスから評価結果を抽出
  */
 export function extractJsonFromResponse(text: string): CategoryResult {
@@ -253,4 +264,191 @@ ${getNodeIdInstructions()}
  */
 export function getNodeIdReminder(): string {
   return '- **重要**: 問題を指摘する際は、各ノードに記載されている (ID: xxx) 形式の実際のFigma ID（例: 1809:1836）をnodeIdフィールドに使用してください';
+}
+
+/**
+ * テキストノードから文字色と親要素の背景色を取得
+ */
+function extractTextAndBackgroundColors(
+  node: FigmaNodeData,
+  parentBackgroundColor?: string
+): { textColor?: string; backgroundColor?: string; hasExplicitNoFill?: boolean } {
+  let textColor: string | undefined;
+  let backgroundColor: string | undefined;
+  let hasExplicitNoFill = false;
+
+  // テキストノードの場合、文字色を取得
+  if (node.type === 'TEXT' && node.fills && node.fills.length > 0) {
+    const fill = node.fills[0];
+    // opacityが0.1以下の場合は無視
+    if (fill.type === 'SOLID' && fill.color && (fill.opacity === undefined || fill.opacity > 0.1)) {
+      textColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+    }
+  }
+
+  // テキストノード以外の場合、背景色を取得
+  if (node.type !== 'TEXT') {
+    if (node.fills && node.fills.length > 0) {
+      const fill = node.fills[0];
+      // opacityが0.1以下の場合は無視
+      if (
+        fill.type === 'SOLID' &&
+        fill.color &&
+        (fill.opacity === undefined || fill.opacity > 0.1)
+      ) {
+        backgroundColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+      }
+    } else if (Array.isArray(node.fills) && node.fills.length === 0) {
+      // fills: [] の場合、明示的に背景色なしとマーク
+      hasExplicitNoFill = true;
+    }
+  }
+
+  // 背景色がなく、かつ明示的にfills: []でない場合のみ、親の背景色を使用
+  if (!backgroundColor && !hasExplicitNoFill && parentBackgroundColor) {
+    backgroundColor = parentBackgroundColor;
+  }
+
+  return { textColor, backgroundColor, hasExplicitNoFill };
+}
+
+/**
+ * 兄弟要素から背景色を探す（テキストより前にある要素を優先）
+ */
+function findSiblingBackgroundColor(siblings: FigmaNodeData[]): string | undefined {
+  // RECTANGLEやFRAMEなどの背景要素を探す
+  for (const sibling of siblings) {
+    if (sibling.type !== 'TEXT' && sibling.fills && sibling.fills.length > 0) {
+      const fill = sibling.fills[0];
+      if (fill.type === 'SOLID' && fill.color) {
+        return rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+      }
+    }
+  }
+  return undefined;
+}
+
+/**
+ * ノードツリーからテキストと背景色のペアを再帰的に抽出
+ * @param maxResults - 最大収集件数（デフォルト: 100）。この数に達したら処理を中断
+ */
+function collectTextColorPairs(
+  node: FigmaNodeData,
+  parentBackgroundColor?: string,
+  parentNode?: FigmaNodeData,
+  results: ColorContrastInfo[] = [],
+  visited: Set<string> = new Set(),
+  maxResults: number = 100
+): ColorContrastInfo[] {
+  // 最大件数に達したら早期終了
+  if (results.length >= maxResults) {
+    return results;
+  }
+
+  // 循環参照チェック
+  if (visited.has(node.id)) {
+    return results;
+  }
+  visited.add(node.id);
+
+  const { textColor, backgroundColor, hasExplicitNoFill } = extractTextAndBackgroundColors(
+    node,
+    parentBackgroundColor
+  );
+
+  // テキストノードの場合
+  if (node.type === 'TEXT' && textColor) {
+    let finalBackgroundColor = backgroundColor;
+
+    // 背景色がない場合、兄弟要素から探す
+    if (!finalBackgroundColor && parentNode?.children) {
+      finalBackgroundColor = findSiblingBackgroundColor(parentNode.children);
+    }
+
+    // それでもない場合は親の背景色を使用
+    if (!finalBackgroundColor) {
+      finalBackgroundColor = parentBackgroundColor;
+    }
+
+    // 背景色が見つかった場合のみコントラスト比を計算
+    if (finalBackgroundColor && results.length < maxResults) {
+      try {
+        const contrastResult = calculateWCAGContrast({
+          color1: textColor,
+          color2: finalBackgroundColor,
+        });
+
+        results.push({
+          textColor,
+          backgroundColor: finalBackgroundColor,
+          nodeName: node.name,
+          nodeId: node.id,
+          contrastRatio: contrastResult.contrast_ratio,
+          wcagCompliance: contrastResult.wcag_compliance,
+        });
+      } catch (error) {
+        console.error(`Failed to calculate contrast for node ${node.name}:`, error);
+      }
+    }
+  }
+
+  // 子要素を再帰的に処理（最大件数に達していない場合のみ）
+  if (node.children && node.children.length > 0 && results.length < maxResults) {
+    // 現在のノードの背景色を取得
+    // fills: [] の場合（hasExplicitNoFill）は親の背景色を継承しない
+    const currentBg = backgroundColor || (hasExplicitNoFill ? undefined : parentBackgroundColor);
+
+    for (const child of node.children) {
+      collectTextColorPairs(child, currentBg, node, results, visited, maxResults);
+      // 最大件数に達したら処理を中断
+      if (results.length >= maxResults) {
+        break;
+      }
+    }
+  }
+
+  return results;
+}
+
+/**
+ * カラーコントラスト比マップを生成
+ * @param data - Figmaノードデータ
+ * @param maxItems - 最大表示件数（デフォルト: 100）
+ */
+export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 100): string {
+  const contrastInfos = collectTextColorPairs(data, undefined, undefined, [], new Set(), maxItems);
+
+  if (contrastInfos.length === 0) {
+    return 'テキスト要素が見つかりませんでした。';
+  }
+
+  const hasMore = contrastInfos.length >= maxItems;
+
+  let output = '## カラーコントラスト比マップ\n\n';
+  output += '以下は、各テキスト要素の文字色と背景色のコントラスト比を事前計算した結果です。\n';
+  output += 'この情報を参照して、WCAG 2.2準拠の評価を行ってください。\n\n';
+
+  if (hasMore) {
+    output += `> **注意**: テキスト要素が${maxItems}件以上見つかったため、最初の${maxItems}件のみを表示しています。\n\n`;
+  }
+
+  contrastInfos.forEach((info, index) => {
+    output += `### ${index + 1}. ${info.nodeName} (ID: ${info.nodeId})\n`;
+    output += `- 文字色: ${info.textColor}\n`;
+    output += `- 背景色: ${info.backgroundColor}\n`;
+    output += `- **コントラスト比: ${info.contrastRatio}:1**\n`;
+    output += `- WCAG AA準拠:\n`;
+    output += `  - 通常テキスト (4.5:1以上): ${info.wcagCompliance.AA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `  - 大きなテキスト (3.0:1以上): ${info.wcagCompliance.AA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `- WCAG AAA準拠:\n`;
+    output += `  - 通常テキスト (7.0:1以上): ${info.wcagCompliance.AAA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `  - 大きなテキスト (4.5:1以上): ${info.wcagCompliance.AAA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += '\n';
+  });
+
+  if (hasMore) {
+    output += `> さらに多くのテキスト要素が存在する可能性がありますが、パフォーマンスのため省略されています。\n`;
+  }
+
+  return output;
 }
