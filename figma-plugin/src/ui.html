@@ -274,6 +274,145 @@
         color: #dc2626;
         background: #fef2f2;
       }
+
+      /* 評価軸選択メニュー */
+      .evaluate-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .evaluate-controls button {
+        width: auto;
+      }
+
+      #evaluate-btn {
+        flex: 1;
+      }
+
+      #settings-btn {
+        width: 40px;
+        padding: 10px;
+        background: #f3f4f6;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #settings-btn:hover {
+        background: #e5e7eb;
+      }
+
+      .popover {
+        position: absolute;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 16px;
+        z-index: 1000;
+        display: none;
+        width: 320px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+
+      .popover.visible {
+        display: block;
+      }
+
+      .popover-header {
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .popover-close {
+        background: none;
+        border: none;
+        width: auto;
+        padding: 4px;
+        cursor: pointer;
+        color: #6b7280;
+        font-size: 18px;
+        line-height: 1;
+      }
+
+      .popover-close:hover {
+        color: #374151;
+      }
+
+      .agent-option {
+        margin-bottom: 12px;
+        padding: 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+      }
+
+      .agent-checkbox-wrapper {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .agent-checkbox-wrapper input[type='checkbox'] {
+        margin-top: 2px;
+        cursor: pointer;
+      }
+
+      .agent-label {
+        flex: 1;
+        font-weight: 500;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .agent-description {
+        font-size: 10px;
+        color: #6b7280;
+        line-height: 1.4;
+        margin-left: 24px;
+      }
+
+      .popover-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .popover-actions button {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 11px;
+      }
+
+      .select-all-btn,
+      .deselect-all-btn {
+        background: #f3f4f6;
+        color: #374151;
+      }
+
+      .select-all-btn:hover,
+      .deselect-all-btn:hover {
+        background: #e5e7eb;
+      }
+
+      .popover-info {
+        margin-top: 12px;
+        padding: 8px;
+        background: #eff6ff;
+        border-radius: 4px;
+        font-size: 10px;
+        color: #1e40af;
+        text-align: center;
+      }
     </style>
   </head>
   <body>
@@ -281,8 +420,54 @@
       <p class="description">フレームまたはコンポーネントを選択して、デザイン品質を評価します。</p>
     </div>
 
-    <div class="button-container">
+    <div class="evaluate-controls">
       <button id="evaluate-btn">評価を開始</button>
+      <button id="settings-btn" title="評価項目を選択">⚙️</button>
+    </div>
+
+    <div id="settings-popover" class="popover">
+      <div class="popover-header">
+        <span>評価項目の選択</span>
+        <button class="popover-close" id="close-popover">×</button>
+      </div>
+
+      <div class="agent-option">
+        <div class="agent-checkbox-wrapper">
+          <input type="checkbox" id="agent-accessibility" value="accessibility" checked />
+          <label for="agent-accessibility" class="agent-label">アクセシビリティ</label>
+        </div>
+        <div class="agent-description">
+          WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズを評価
+        </div>
+      </div>
+
+      <div class="agent-option">
+        <div class="agent-checkbox-wrapper">
+          <input type="checkbox" id="agent-designSystem" value="designSystem" checked />
+          <label for="agent-designSystem" class="agent-label">デザインシステム</label>
+        </div>
+        <div class="agent-description">
+          8pxグリッド、スペーシング、タイポグラフィの一貫性を評価
+        </div>
+      </div>
+
+      <div class="agent-option">
+        <div class="agent-checkbox-wrapper">
+          <input type="checkbox" id="agent-usability" value="usability" checked />
+          <label for="agent-usability" class="agent-label">ユーザビリティ</label>
+        </div>
+        <div class="agent-description">
+          Nielsen's 10原則に基づき、使いやすさと直感性を評価
+        </div>
+      </div>
+
+      <div class="popover-actions">
+        <button class="select-all-btn" id="select-all-btn">全選択</button>
+        <button class="deselect-all-btn" id="deselect-all-btn">全解除</button>
+      </div>
+
+      <div class="popover-info" id="selection-info">
+      </div>
     </div>
 
     <div id="error-container"></div>
@@ -294,16 +479,142 @@
       const errorContainer = document.getElementById('error-container');
       const loadingContainer = document.getElementById('loading-container');
       const resultsContainer = document.getElementById('results-container');
+      const settingsBtn = document.getElementById('settings-btn');
+      const settingsPopover = document.getElementById('settings-popover');
+      const closePopoverBtn = document.getElementById('close-popover');
+      const selectAllBtn = document.getElementById('select-all-btn');
+      const deselectAllBtn = document.getElementById('deselect-all-btn');
+      const selectionInfo = document.getElementById('selection-info');
+
+      const STORAGE_KEY = 'figma-ui-reviewer-selected-agents';
+      const AGENT_TIME_ESTIMATE = 30; // seconds per agent
+
+      // 評価軸の定義
+      const agentCheckboxes = [
+        document.getElementById('agent-accessibility'),
+        document.getElementById('agent-designSystem'),
+        document.getElementById('agent-usability'),
+      ].filter(cb => cb !== null);
+
+      // 初期化: localStorageから選択状態を復元
+      function initializeAgentSelection() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const selectedAgents = JSON.parse(saved);
+            agentCheckboxes.forEach((checkbox) => {
+              checkbox.checked = selectedAgents.includes(checkbox.value);
+            });
+          }
+        } catch (e) {
+          console.error('Failed to load agent selection:', e);
+        }
+        updateSelectionInfo();
+        updateEvaluateButton();
+      }
+
+      // 選択状態をlocalStorageに保存
+      function saveAgentSelection() {
+        try {
+          const selectedAgents = getSelectedAgents();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedAgents));
+        } catch (e) {
+          console.warn('localStorage not available:', e);
+          // Figmaプラグイン環境ではlocalStorageが使えない場合があるが、
+          // 選択状態の保存失敗は致命的ではないので処理を継続
+        }
+      }
+
+      // 選択されている評価軸を取得
+      function getSelectedAgents() {
+        return agentCheckboxes.filter((cb) => cb.checked).map((cb) => cb.value);
+      }
+
+      // 選択情報を更新
+      function updateSelectionInfo() {
+        if (!selectionInfo) {
+          console.error('selectionInfo element not found');
+          return;
+        }
+        const count = getSelectedAgents().length;
+        const estimatedTime = count * AGENT_TIME_ESTIMATE;
+        selectionInfo.textContent = `${count}項目選択中 • 約${estimatedTime}秒`;
+      }
+
+      // 評価開始ボタンの有効/無効を切り替え
+      function updateEvaluateButton() {
+        const hasSelection = getSelectedAgents().length > 0;
+        evaluateBtn.disabled = !hasSelection;
+      }
+
+      // ポップオーバーの開閉
+      settingsBtn.addEventListener('click', () => {
+        settingsPopover.classList.toggle('visible');
+      });
+
+      closePopoverBtn.addEventListener('click', () => {
+        settingsPopover.classList.remove('visible');
+      });
+
+      // ポップオーバー外をクリックしたら閉じる
+      document.addEventListener('click', (e) => {
+        if (
+          !settingsPopover.contains(e.target) &&
+          !settingsBtn.contains(e.target) &&
+          settingsPopover.classList.contains('visible')
+        ) {
+          settingsPopover.classList.remove('visible');
+        }
+      });
+
+      // 全選択/全解除
+      selectAllBtn.addEventListener('click', () => {
+        agentCheckboxes.forEach((cb) => (cb.checked = true));
+        saveAgentSelection();
+        updateSelectionInfo();
+        updateEvaluateButton();
+      });
+
+      deselectAllBtn.addEventListener('click', () => {
+        agentCheckboxes.forEach((cb) => (cb.checked = false));
+        saveAgentSelection();
+        updateSelectionInfo();
+        updateEvaluateButton();
+      });
+
+      // チェックボックス変更時
+      agentCheckboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          saveAgentSelection();
+          updateSelectionInfo();
+          updateEvaluateButton();
+        });
+      });
 
       // 評価開始ボタン
       evaluateBtn.addEventListener('click', () => {
+        const selectedAgents = getSelectedAgents();
+        if (selectedAgents.length === 0) {
+          showError('評価項目を1つ以上選択してください');
+          return;
+        }
+
+        // ポップオーバーを閉じる
+        settingsPopover.classList.remove('visible');
+
         parent.postMessage(
           {
-            pluginMessage: { type: 'evaluate-selection' },
+            pluginMessage: {
+              type: 'evaluate-selection',
+              evaluationTypes: selectedAgents,
+            },
           },
           '*'
         );
       });
+
+      // 初期化
+      initializeAgentSelection();
 
       // イベント委譲を使用したissueクリックハンドラー（1回のみ登録）
       resultsContainer.addEventListener('click', (event) => {
@@ -374,12 +685,14 @@
 
       function showLoading() {
         evaluateBtn.disabled = true;
+        const selectedCount = getSelectedAgents().length;
+        const estimatedTime = selectedCount * AGENT_TIME_ESTIMATE;
         loadingContainer.innerHTML = `
         <div class="loading">
           <div class="spinner"></div>
           <div>AI評価中...</div>
           <div style="font-size: 10px; margin-top: 8px; color: #999;">
-            30〜60秒ほどお待ちください
+            ${selectedCount}項目を評価中 • 約${estimatedTime}秒ほどお待ちください
           </div>
         </div>
       `;
@@ -461,6 +774,13 @@
           評価完了: ${new Date(result.metadata.evaluatedAt).toLocaleString('ja-JP')}
           <br>
           処理時間: ${(result.metadata.duration / 1000).toFixed(1)}秒
+          ${result.metadata.usage ? `
+            <br>
+            トークン使用量: ${result.metadata.usage.totalInputTokens.toLocaleString()} 入力 / ${result.metadata.usage.totalOutputTokens.toLocaleString()} 出力
+            ${result.metadata.usage.totalCachedTokens > 0 ? ` / ${result.metadata.usage.totalCachedTokens.toLocaleString()} キャッシュ` : ''}
+            <br>
+            推定コスト: $${result.metadata.usage.estimatedCost.toFixed(4)}
+          ` : ''}
         </div>
         <div class="api-status connected">
           ✓ API接続成功
@@ -483,6 +803,7 @@
         const labels = {
           accessibility: 'アクセシビリティ',
           designSystem: 'デザインシステム',
+          usability: 'ユーザビリティ',
           layout: 'レイアウト',
           naming: '命名規則',
         };

@@ -1,62 +1,7 @@
 // src/code.ts
 
-// 型定義
-interface FigmaNodeData {
-  id: string;
-  name: string;
-  type: string;
-  children?: FigmaNodeData[];
-  childrenCount?: number;
-  layoutMode?: string;
-  primaryAxisSizingMode?: string;
-  counterAxisSizingMode?: string;
-  primaryAxisAlignItems?: string;
-  counterAxisAlignItems?: string;
-  paddingLeft?: number;
-  paddingRight?: number;
-  paddingTop?: number;
-  paddingBottom?: number;
-  itemSpacing?: number;
-  counterAxisSpacing?: number;
-  absoluteBoundingBox?: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-  fills?: unknown[];
-  strokes?: unknown[];
-  strokeWeight?: number;
-  effects?: unknown[];
-  cornerRadius?: number;
-  opacity?: number;
-  characters?: string;
-  fontSize?: number;
-  fontName?: {
-    family: string;
-    style: string;
-  };
-  lineHeight?: unknown;
-  letterSpacing?: unknown;
-  textAlignHorizontal?: string;
-  textAlignVertical?: string;
-  mainComponent?: {
-    id?: string;
-    name?: string;
-  };
-  note?: string;
-}
-
-interface EvaluationResult {
-  overallScore: number;
-  categories: Record<string, unknown>;
-  suggestions: unknown[];
-  metadata: {
-    evaluatedAt: string;
-    duration: number;
-    rootNodeId: string;
-  };
-}
+// 共通の型定義をインポート
+import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from '@shared/types';
 
 // 設定
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -154,7 +99,7 @@ async function selectNodeWithFallback(
 // UIからのメッセージを受信
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'evaluate-selection') {
-    await handleEvaluation();
+    await handleEvaluation(msg.evaluationTypes);
   } else if (msg.type === 'select-node') {
     // Issueクリック時のノード選択処理（フォールバック付き）
     if (msg.nodeId) {
@@ -165,7 +110,7 @@ figma.ui.onmessage = async (msg) => {
   }
 };
 
-async function handleEvaluation() {
+async function handleEvaluation(evaluationTypes?: string[]) {
   const selection = figma.currentPage.selection;
 
   // 選択チェック
@@ -212,7 +157,7 @@ async function handleEvaluation() {
     console.log('Extracted node data:', JSON.stringify(nodeData, null, 2));
 
     // バックエンドAPIに送信
-    const result = await callEvaluationAPI(nodeData);
+    const result = await callEvaluationAPI(nodeData, evaluationTypes);
 
     figma.ui.postMessage({
       type: 'evaluation-complete',
@@ -413,13 +358,19 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
 }
 
 // バックエンドAPIを呼び出す
-async function callEvaluationAPI(nodeData: FigmaNodeData): Promise<EvaluationResult> {
-  const requestBody = {
+async function callEvaluationAPI(
+  nodeData: FigmaNodeData,
+  evaluationTypes?: string[]
+): Promise<EvaluationResult> {
+  const requestBody: Partial<EvaluationRequest> = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
     nodeData: nodeData,
-    evaluationTypes: ['accessibility', 'designSystem'],
   };
+
+  if (evaluationTypes) {
+    requestBody.evaluationTypes = evaluationTypes;
+  }
 
   console.log('Sending request to API:', API_BASE_URL + '/evaluate');
 
