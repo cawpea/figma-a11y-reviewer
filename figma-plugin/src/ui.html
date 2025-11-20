@@ -467,7 +467,6 @@
       </div>
 
       <div class="popover-info" id="selection-info">
-        3項目選択中 • 約90秒
       </div>
     </div>
 
@@ -495,7 +494,7 @@
         document.getElementById('agent-accessibility'),
         document.getElementById('agent-designSystem'),
         document.getElementById('agent-usability'),
-      ];
+      ].filter(cb => cb !== null);
 
       // 初期化: localStorageから選択状態を復元
       function initializeAgentSelection() {
@@ -516,8 +515,14 @@
 
       // 選択状態をlocalStorageに保存
       function saveAgentSelection() {
-        const selectedAgents = getSelectedAgents();
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedAgents));
+        try {
+          const selectedAgents = getSelectedAgents();
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedAgents));
+        } catch (e) {
+          console.warn('localStorage not available:', e);
+          // Figmaプラグイン環境ではlocalStorageが使えない場合があるが、
+          // 選択状態の保存失敗は致命的ではないので処理を継続
+        }
       }
 
       // 選択されている評価軸を取得
@@ -527,6 +532,10 @@
 
       // 選択情報を更新
       function updateSelectionInfo() {
+        if (!selectionInfo) {
+          console.error('selectionInfo element not found');
+          return;
+        }
         const count = getSelectedAgents().length;
         const estimatedTime = count * AGENT_TIME_ESTIMATE;
         selectionInfo.textContent = `${count}項目選択中 • 約${estimatedTime}秒`;
