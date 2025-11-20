@@ -131,10 +131,15 @@ export abstract class BaseEvaluationAgent {
     });
   }
 
-  async evaluate(data: FigmaNodeData): Promise<CategoryResult> {
+  async evaluate(
+    data: FigmaNodeData
+  ): Promise<{ result: CategoryResult; usage: Anthropic.Usage }> {
     const prompt = this.buildPrompt(data);
     const response = await this.callClaude(prompt);
-    return this.parseResponse(response, data);
+    return {
+      result: this.parseResponse(response, data),
+      usage: response.usage,
+    };
   }
 
   protected abstract buildPrompt(data: FigmaNodeData): string;

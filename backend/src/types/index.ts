@@ -114,6 +114,13 @@ export interface Suggestion extends Issue {
   category: string;
 }
 
+export interface TokenUsage {
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCachedTokens: number;
+  estimatedCost: number; // USD
+}
+
 export interface EvaluationResult {
   overallScore: number;
   categories: {
@@ -130,6 +137,7 @@ export interface EvaluationResult {
      * this rootNodeId is used to select the evaluation target frame instead
      */
     rootNodeId: string;
+    usage?: TokenUsage;
   };
 }
 

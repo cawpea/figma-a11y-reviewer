@@ -765,6 +765,13 @@
           評価完了: ${new Date(result.metadata.evaluatedAt).toLocaleString('ja-JP')}
           <br>
           処理時間: ${(result.metadata.duration / 1000).toFixed(1)}秒
+          ${result.metadata.usage ? `
+            <br>
+            トークン使用量: ${result.metadata.usage.totalInputTokens.toLocaleString()} 入力 / ${result.metadata.usage.totalOutputTokens.toLocaleString()} 出力
+            ${result.metadata.usage.totalCachedTokens > 0 ? ` / ${result.metadata.usage.totalCachedTokens.toLocaleString()} キャッシュ` : ''}
+            <br>
+            推定コスト: $${result.metadata.usage.estimatedCost.toFixed(4)}
+          ` : ''}
         </div>
         <div class="api-status connected">
           ✓ API接続成功

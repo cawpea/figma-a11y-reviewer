@@ -47,6 +47,13 @@ interface FigmaNodeData {
   note?: string;
 }
 
+interface TokenUsage {
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCachedTokens: number;
+  estimatedCost: number;
+}
+
 interface EvaluationResult {
   overallScore: number;
   categories: Record<string, unknown>;
@@ -55,6 +62,7 @@ interface EvaluationResult {
     evaluatedAt: string;
     duration: number;
     rootNodeId: string;
+    usage?: TokenUsage;
   };
 }
 
