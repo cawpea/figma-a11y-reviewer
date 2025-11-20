@@ -1,8 +1,8 @@
+import { ApiResponse, EvaluationResult } from '@shared/types';
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 
 import { EvaluationService } from '../services/evaluation.service';
-import { ApiResponse, EvaluationResult } from '../types';
 import { saveDebugData } from '../utils/debug';
 
 const router = Router();

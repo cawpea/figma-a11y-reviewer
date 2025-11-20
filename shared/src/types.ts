@@ -1,3 +1,6 @@
+// 共通型定義
+// figma-pluginとbackendの両方で使用される型
+
 // Figmaノードデータ（拡張版）
 export interface FigmaNodeData {
   /**
@@ -15,7 +18,7 @@ export interface FigmaNodeData {
   childrenCount?: number;
 
   // レイアウト
-  layoutMode?: 'NONE' | 'HORIZONTAL' | 'VERTICAL';
+  layoutMode?: 'NONE' | 'HORIZONTAL' | 'VERTICAL' | 'GRID';
   primaryAxisSizingMode?: 'FIXED' | 'AUTO';
   counterAxisSizingMode?: 'FIXED' | 'AUTO';
   primaryAxisAlignItems?: string;
@@ -64,8 +67,8 @@ export interface FigmaNodeData {
     family: string;
     style: string;
   };
-  lineHeight?: { unit: string; value: number } | number;
-  letterSpacing?: { unit: string; value: number } | number;
+  lineHeight?: { unit: string; value?: number } | number;
+  letterSpacing?: { unit: string; value?: number } | number;
   textAlignHorizontal?: string;
   textAlignVertical?: string;
 
@@ -74,15 +77,9 @@ export interface FigmaNodeData {
     id?: string;
     name?: string;
   };
-}
 
-// 以下は既存のまま
-export interface EvaluationRequest {
-  fileKey: string;
-  nodeId: string;
-  nodeData: FigmaNodeData;
-  evaluationTypes?: string[];
-  userId?: string;
+  // その他
+  note?: string;
 }
 
 export interface Issue {
@@ -139,6 +136,14 @@ export interface EvaluationResult {
     rootNodeId: string;
     usage?: TokenUsage;
   };
+}
+
+export interface EvaluationRequest {
+  fileKey: string;
+  nodeId: string;
+  nodeData: FigmaNodeData;
+  evaluationTypes?: string[];
+  userId?: string;
 }
 
 export interface ApiResponse<T = unknown> {

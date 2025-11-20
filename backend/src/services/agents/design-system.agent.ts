@@ -1,4 +1,5 @@
-import { FigmaNodeData } from '../../types';
+import { FigmaNodeData } from '@shared/types';
+
 import {
   formatFigmaDataForEvaluation,
   buildSystemPromptSuffix,

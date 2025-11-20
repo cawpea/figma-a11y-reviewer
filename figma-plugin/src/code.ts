@@ -1,70 +1,7 @@
 // src/code.ts
 
-// 型定義
-interface FigmaNodeData {
-  id: string;
-  name: string;
-  type: string;
-  children?: FigmaNodeData[];
-  childrenCount?: number;
-  layoutMode?: string;
-  primaryAxisSizingMode?: string;
-  counterAxisSizingMode?: string;
-  primaryAxisAlignItems?: string;
-  counterAxisAlignItems?: string;
-  paddingLeft?: number;
-  paddingRight?: number;
-  paddingTop?: number;
-  paddingBottom?: number;
-  itemSpacing?: number;
-  counterAxisSpacing?: number;
-  absoluteBoundingBox?: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-  fills?: unknown[];
-  strokes?: unknown[];
-  strokeWeight?: number;
-  effects?: unknown[];
-  cornerRadius?: number;
-  opacity?: number;
-  characters?: string;
-  fontSize?: number;
-  fontName?: {
-    family: string;
-    style: string;
-  };
-  lineHeight?: unknown;
-  letterSpacing?: unknown;
-  textAlignHorizontal?: string;
-  textAlignVertical?: string;
-  mainComponent?: {
-    id?: string;
-    name?: string;
-  };
-  note?: string;
-}
-
-interface TokenUsage {
-  totalInputTokens: number;
-  totalOutputTokens: number;
-  totalCachedTokens: number;
-  estimatedCost: number;
-}
-
-interface EvaluationResult {
-  overallScore: number;
-  categories: Record<string, unknown>;
-  suggestions: unknown[];
-  metadata: {
-    evaluatedAt: string;
-    duration: number;
-    rootNodeId: string;
-    usage?: TokenUsage;
-  };
-}
+// 共通の型定義をインポート
+import type { FigmaNodeData, EvaluationResult } from '@shared/types';
 
 // 設定
 const API_BASE_URL = 'http://localhost:3000/api';

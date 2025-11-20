@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { CategoryResult, FigmaNodeData, Issue } from '@shared/types';
 
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
-import { CategoryResult, FigmaNodeData, Issue } from '../../types';
 import { savePromptAndResponse } from '../../utils/debug';
 import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
 

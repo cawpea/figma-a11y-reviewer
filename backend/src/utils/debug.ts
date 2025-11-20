@@ -2,9 +2,9 @@ import { existsSync, readdirSync, unlinkSync, statSync, mkdirSync, writeFileSync
 import { join } from 'path';
 
 import Anthropic from '@anthropic-ai/sdk';
+import { FigmaNodeData } from '@shared/types';
 
 import { MODEL_CONFIG } from '../config/anthropic';
-import { FigmaNodeData } from '../types';
 
 const logsDir = join(__dirname, '../../logs');
 

@@ -1,4 +1,4 @@
-import { CategoryResult, FigmaNodeData } from '../types';
+import { CategoryResult, FigmaNodeData } from '@shared/types';
 
 import { calculateWCAGContrast, rgbToHex } from './accessibility';
 
@@ -111,12 +111,14 @@ function formatNodeRecursive(
 
     if (node.lineHeight) {
       if (typeof node.lineHeight === 'object') {
-        if (node.lineHeight.unit === 'PIXELS') {
+        if (node.lineHeight.unit === 'PIXELS' && node.lineHeight.value) {
           output += `${indent}  行間: ${node.lineHeight.value}px\n`;
-        } else if (node.lineHeight.unit === 'PERCENT') {
+        } else if (node.lineHeight.unit === 'PERCENT' && node.lineHeight.value) {
           output += `${indent}  行間: ${node.lineHeight.value}%\n`;
+        } else if (node.lineHeight.unit === 'AUTO') {
+          output += `${indent}  行間: 自動\n`;
         }
-      } else {
+      } else if (typeof node.lineHeight === 'number') {
         output += `${indent}  行間: ${node.lineHeight}px\n`;
       }
     }

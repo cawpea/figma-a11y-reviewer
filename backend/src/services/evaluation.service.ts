@@ -1,6 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-
-import { CategoryResult, EvaluationResult, FigmaNodeData, Suggestion } from '../types';
+import { CategoryResult, EvaluationResult, FigmaNodeData, Suggestion } from '@shared/types';
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
 import { DesignSystemAgent } from './agents/design-system.agent';
