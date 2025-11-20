@@ -1,7 +1,7 @@
 // src/code.ts
 
 // 共通の型定義をインポート
-import type { FigmaNodeData, EvaluationResult } from '@shared/types';
+import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from '@shared/types';
 
 // 設定
 const API_BASE_URL = 'http://localhost:3000/api';
@@ -362,7 +362,7 @@ async function callEvaluationAPI(
   nodeData: FigmaNodeData,
   evaluationTypes?: string[]
 ): Promise<EvaluationResult> {
-  const requestBody: any = {
+  const requestBody: Partial<EvaluationRequest> = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
     nodeData: nodeData,

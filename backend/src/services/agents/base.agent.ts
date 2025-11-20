@@ -131,9 +131,7 @@ export abstract class BaseEvaluationAgent {
     });
   }
 
-  async evaluate(
-    data: FigmaNodeData
-  ): Promise<{ result: CategoryResult; usage: Anthropic.Usage }> {
+  async evaluate(data: FigmaNodeData): Promise<{ result: CategoryResult; usage: Anthropic.Usage }> {
     const prompt = this.buildPrompt(data);
     const response = await this.callClaude(prompt);
     return {

@@ -31,7 +31,13 @@ export class EvaluationService {
     const startTime = Date.now();
 
     // 評価タイプが指定されていない場合は全て実行
-    const typesToRun = evaluationTypes || Object.keys(this.agents);
+    const typesToRun = evaluationTypes
+      ? evaluationTypes.filter((type) => type in this.agents)
+      : Object.keys(this.agents);
+
+    if (evaluationTypes && typesToRun.length === 0) {
+      throw new Error('No valid evaluation types provided');
+    }
 
     console.log(`Starting evaluation for types: ${typesToRun.join(', ')}`);
 
