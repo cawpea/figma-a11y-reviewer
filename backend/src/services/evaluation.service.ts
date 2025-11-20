@@ -1,12 +1,14 @@
-import { FigmaNodeData, EvaluationResult, CategoryResult, Suggestion } from '../types';
+import { CategoryResult, EvaluationResult, FigmaNodeData, Suggestion } from '../types';
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
 import { DesignSystemAgent } from './agents/design-system.agent';
+import { UsabilityAgent } from './agents/usability.agent';
 
 export class EvaluationService {
   private agents = {
     accessibility: new AccessibilityAgent(),
     designSystem: new DesignSystemAgent(),
+    usability: new UsabilityAgent(),
   };
 
   /**

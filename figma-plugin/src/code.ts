@@ -154,7 +154,7 @@ async function selectNodeWithFallback(
 // UIからのメッセージを受信
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'evaluate-selection') {
-    await handleEvaluation();
+    await handleEvaluation(msg.evaluationTypes);
   } else if (msg.type === 'select-node') {
     // Issueクリック時のノード選択処理（フォールバック付き）
     if (msg.nodeId) {
@@ -165,7 +165,7 @@ figma.ui.onmessage = async (msg) => {
   }
 };
 
-async function handleEvaluation() {
+async function handleEvaluation(evaluationTypes?: string[]) {
   const selection = figma.currentPage.selection;
 
   // 選択チェック
@@ -212,7 +212,7 @@ async function handleEvaluation() {
     console.log('Extracted node data:', JSON.stringify(nodeData, null, 2));
 
     // バックエンドAPIに送信
-    const result = await callEvaluationAPI(nodeData);
+    const result = await callEvaluationAPI(nodeData, evaluationTypes);
 
     figma.ui.postMessage({
       type: 'evaluation-complete',
@@ -413,13 +413,19 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
 }
 
 // バックエンドAPIを呼び出す
-async function callEvaluationAPI(nodeData: FigmaNodeData): Promise<EvaluationResult> {
-  const requestBody = {
+async function callEvaluationAPI(
+  nodeData: FigmaNodeData,
+  evaluationTypes?: string[]
+): Promise<EvaluationResult> {
+  const requestBody: any = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
     nodeData: nodeData,
-    evaluationTypes: ['accessibility', 'designSystem'],
   };
+
+  if (evaluationTypes) {
+    requestBody.evaluationTypes = evaluationTypes;
+  }
 
   console.log('Sending request to API:', API_BASE_URL + '/evaluate');
 
