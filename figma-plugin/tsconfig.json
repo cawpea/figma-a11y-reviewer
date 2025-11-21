@@ -3,7 +3,10 @@
   "compilerOptions": {
     "typeRoots": ["node_modules/@figma", "node_modules/@types"],
     "lib": ["ES2020"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@shared/*": ["../shared/src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

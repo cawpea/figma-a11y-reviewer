@@ -1,5 +1,5 @@
 // sharedから共通の型定義をインポート
-import type { EvaluationResult } from '../../shared/src/types';
+import type { EvaluationResult } from '@shared/types';
 
 // プラグインメッセージの型
 export interface PluginMessage {
