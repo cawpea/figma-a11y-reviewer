@@ -18,7 +18,8 @@
     "build:js": "build-figma-plugin --typecheck --minify",
     "watch": "npm run build:css && concurrently npm:watch:css npm:watch:js",
     "watch:css": "tailwindcss --input ./src/input.css --output ./src/output.css --watch",
-    "watch:js": "build-figma-plugin --typecheck --watch"
+    "watch:js": "build-figma-plugin --typecheck --watch",
+    "type-check": "tsc --noEmit"
   },
   "figma-plugin": {
     "editorType": [

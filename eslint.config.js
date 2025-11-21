@@ -7,8 +7,17 @@ module.exports = [
   // グローバル無視設定
   {
     ignores: [
-      '**/dist/**',
       '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/logs/**',
+      '**/*.log',
+      '**/debug-*.json',
+      '**/.env',
+      '**/.env.*',
+      '**/.DS_Store',
+      '**/coverage/**',
+      '**/*.min.js',
       '**/*.js',
       '!eslint.config.js',
       '!.prettierrc.js',

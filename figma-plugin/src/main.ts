@@ -1,16 +1,17 @@
-import { showUI, on, emit } from '@create-figma-plugin/utilities'
-import type { EvaluationRequest, EvaluationResult, FigmaNodeData, PluginMessage } from './types'
+import { emit, on, showUI } from '@create-figma-plugin/utilities';
+
+import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from './types';
 
 // 設定
-const API_BASE_URL = 'http://localhost:3000/api'
-const MAX_DEPTH = 10 // 再帰の最大深さ（無限ループ防止）
+const API_BASE_URL = 'http://localhost:3000/api';
+const MAX_DEPTH = 10; // 再帰の最大深さ（無限ループ防止）
 
 // エラーメッセージ定数
 const ERROR_MESSAGES = {
   NO_SELECTION: 'フレーム、コンポーネント、またはインスタンスを選択してください',
   MULTIPLE_SELECTION: '評価できるのは1つのフレームのみです',
   INVALID_NODE_TYPE: 'フレーム、コンポーネント、またはインスタンスを選択してください',
-} as const
+} as const;
 
 /**
  * フォールバック付きノード選択
@@ -24,84 +25,84 @@ async function selectNodeWithFallback(
 ): Promise<boolean> {
   try {
     // ターゲットノードを試す
-    const node = await figma.getNodeByIdAsync(nodeId)
+    const node = await figma.getNodeByIdAsync(nodeId);
     if (node) {
-      figma.currentPage.selection = [node as SceneNode]
-      figma.viewport.scrollAndZoomIntoView([node as SceneNode])
-      console.log('✅ Selected target node:', nodeId, node.name)
-      return true
+      figma.currentPage.selection = [node as SceneNode];
+      figma.viewport.scrollAndZoomIntoView([node as SceneNode]);
+      console.log('✅ Selected target node:', nodeId, node.name);
+      return true;
     }
 
-    console.warn('⚠️  Target node not found, attempting fallback selection')
+    console.warn('⚠️  Target node not found, attempting fallback selection');
 
     // 階層パスがある場合、親ノードへフォールバック
     if (nodeHierarchy && nodeHierarchy.length > 1) {
       // 最後のIDがターゲット、その前が親、さらに前が祖父...
       // 階層を逆順に辿る（親 → 祖父 → ... → ルート）
       for (let i = nodeHierarchy.length - 2; i >= 0; i--) {
-        const ancestorId = nodeHierarchy[i]
-        const ancestorNode = await figma.getNodeByIdAsync(ancestorId)
+        const ancestorId = nodeHierarchy[i];
+        const ancestorNode = await figma.getNodeByIdAsync(ancestorId);
 
         if (ancestorNode) {
-          const levelsUp = nodeHierarchy.length - 1 - i
+          const levelsUp = nodeHierarchy.length - 1 - i;
           console.log(
             `✅ Fallback: Selected ancestor ${levelsUp} level(s) up:`,
             ancestorId,
             ancestorNode.name
-          )
-          figma.currentPage.selection = [ancestorNode as SceneNode]
-          figma.viewport.scrollAndZoomIntoView([ancestorNode as SceneNode])
-          return true
+          );
+          figma.currentPage.selection = [ancestorNode as SceneNode];
+          figma.viewport.scrollAndZoomIntoView([ancestorNode as SceneNode]);
+          return true;
         }
       }
     }
 
     // 階層フォールバックが失敗した場合、ルートノードを試す
     if (fallbackRootNodeId && fallbackRootNodeId !== nodeId) {
-      console.log('⚠️  Attempting fallback to root node:', fallbackRootNodeId)
-      const rootNode = await figma.getNodeByIdAsync(fallbackRootNodeId)
+      console.log('⚠️  Attempting fallback to root node:', fallbackRootNodeId);
+      const rootNode = await figma.getNodeByIdAsync(fallbackRootNodeId);
       if (rootNode) {
-        figma.currentPage.selection = [rootNode as SceneNode]
-        figma.viewport.scrollAndZoomIntoView([rootNode as SceneNode])
-        console.log('✅ Fallback: Selected root evaluation frame')
-        return true
+        figma.currentPage.selection = [rootNode as SceneNode];
+        figma.viewport.scrollAndZoomIntoView([rootNode as SceneNode]);
+        console.log('✅ Fallback: Selected root evaluation frame');
+        return true;
       }
     }
 
     // すべてのフォールバックが失敗
-    console.error('❌ All fallback attempts failed for nodeId:', nodeId)
+    console.error('❌ All fallback attempts failed for nodeId:', nodeId);
 
     // nodeIdの形式をチェック
     // 通常: "1809:1836", インスタンス: "I1806:932;589:1207"
     if (!nodeId.match(/^[I]?\d+:\d+(;\d+:\d+)*$/)) {
-      console.error('Invalid nodeId format:', nodeId)
-      figma.notify('エラー: 無効なノードIDです（システム内部エラー）')
+      console.error('Invalid nodeId format:', nodeId);
+      figma.notify('エラー: 無効なノードIDです（システム内部エラー）');
     } else {
-      figma.notify('該当するレイヤーが見つかりませんでした')
+      figma.notify('該当するレイヤーが見つかりませんでした');
     }
-    return false
+    return false;
   } catch (error) {
-    console.error('Failed to select node:', error)
-    figma.notify('レイヤーの選択に失敗しました')
-    return false
+    console.error('Failed to select node:', error);
+    figma.notify('レイヤーの選択に失敗しました');
+    return false;
   }
 }
 
 async function handleEvaluation(evaluationTypes?: string[]) {
-  const selection = figma.currentPage.selection
+  const selection = figma.currentPage.selection;
 
   // 選択チェック
   if (selection.length === 0) {
-    emit('ERROR', ERROR_MESSAGES.NO_SELECTION)
-    return
+    emit('ERROR', ERROR_MESSAGES.NO_SELECTION);
+    return;
   }
 
   if (selection.length > 1) {
-    emit('ERROR', ERROR_MESSAGES.MULTIPLE_SELECTION)
-    return
+    emit('ERROR', ERROR_MESSAGES.MULTIPLE_SELECTION);
+    return;
   }
 
-  const selectedNode = selection[0]
+  const selectedNode = selection[0];
 
   // フレーム、コンポーネント、またはインスタンスかチェック
   if (
@@ -109,26 +110,26 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     selectedNode.type !== 'COMPONENT' &&
     selectedNode.type !== 'INSTANCE'
   ) {
-    emit('ERROR', ERROR_MESSAGES.INVALID_NODE_TYPE)
-    return
+    emit('ERROR', ERROR_MESSAGES.INVALID_NODE_TYPE);
+    return;
   }
 
   // 評価開始を通知
-  emit('EVALUATION_STARTED')
+  emit('EVALUATION_STARTED');
 
   try {
     // ノードデータを抽出（再帰的に子要素も取得）
-    const nodeData = await extractNodeData(selectedNode, 0)
+    const nodeData = await extractNodeData(selectedNode, 0);
 
-    console.log('Extracted node data:', JSON.stringify(nodeData, null, 2))
+    console.log('Extracted node data:', JSON.stringify(nodeData, null, 2));
 
     // バックエンドAPIに送信
-    const result = await callEvaluationAPI(nodeData, evaluationTypes)
+    const result = await callEvaluationAPI(nodeData, evaluationTypes);
 
-    emit('EVALUATION_COMPLETE', result)
+    emit('EVALUATION_COMPLETE', result);
   } catch (error) {
-    console.error('Evaluation error:', error)
-    emit('ERROR', `評価中にエラーが発生しました: ${error}`)
+    console.error('Evaluation error:', error);
+    emit('ERROR', `評価中にエラーが発生しました: ${error}`);
   }
 }
 
@@ -143,14 +144,14 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
       name: node.name,
       type: node.type,
       note: 'Max depth reached',
-    }
+    };
   }
 
   const data: FigmaNodeData = {
     id: node.id,
     name: node.name,
     type: node.type,
-  }
+  };
 
   // バウンディングボックス（サイズと位置）
   if ('absoluteBoundingBox' in node && node.absoluteBoundingBox) {
@@ -159,23 +160,23 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
       y: node.absoluteBoundingBox.y,
       width: node.absoluteBoundingBox.width,
       height: node.absoluteBoundingBox.height,
-    }
+    };
   }
 
   // レイアウト情報（Auto Layout）
   if ('layoutMode' in node) {
-    data.layoutMode = node.layoutMode
-    data.primaryAxisSizingMode = node.primaryAxisSizingMode
-    data.counterAxisSizingMode = node.counterAxisSizingMode
-    data.primaryAxisAlignItems = node.primaryAxisAlignItems
-    data.counterAxisAlignItems = node.counterAxisAlignItems
-    data.paddingLeft = node.paddingLeft
-    data.paddingRight = node.paddingRight
-    data.paddingTop = node.paddingTop
-    data.paddingBottom = node.paddingBottom
-    data.itemSpacing = node.itemSpacing
+    data.layoutMode = node.layoutMode;
+    data.primaryAxisSizingMode = node.primaryAxisSizingMode;
+    data.counterAxisSizingMode = node.counterAxisSizingMode;
+    data.primaryAxisAlignItems = node.primaryAxisAlignItems;
+    data.counterAxisAlignItems = node.counterAxisAlignItems;
+    data.paddingLeft = node.paddingLeft;
+    data.paddingRight = node.paddingRight;
+    data.paddingTop = node.paddingTop;
+    data.paddingBottom = node.paddingBottom;
+    data.itemSpacing = node.itemSpacing;
     if (node.counterAxisSpacing !== null) {
-      data.counterAxisSpacing = node.counterAxisSpacing
+      data.counterAxisSpacing = node.counterAxisSpacing;
     }
   }
 
@@ -191,15 +192,15 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
             b: fill.color.b,
           },
           opacity: fill.opacity,
-        }
+        };
       } else if (fill.type === 'GRADIENT_LINEAR' || fill.type === 'GRADIENT_RADIAL') {
         return {
           type: fill.type,
           opacity: fill.opacity,
-        }
+        };
       }
-      return { type: fill.type }
-    })
+      return { type: fill.type };
+    });
   }
 
   // ストローク（ボーダー）
@@ -214,13 +215,13 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
             b: stroke.color.b,
           },
           opacity: stroke.opacity,
-        }
+        };
       }
-      return { type: stroke.type }
-    })
+      return { type: stroke.type };
+    });
 
     if ('strokeWeight' in node && typeof node.strokeWeight === 'number') {
-      data.strokeWeight = node.strokeWeight
+      data.strokeWeight = node.strokeWeight;
     }
   }
 
@@ -236,85 +237,85 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
             offset: effect.offset,
             radius: effect.radius,
             spread: effect.spread,
-          }
+          };
         }
-        return { type: effect.type }
-      })
+        return { type: effect.type };
+      });
   }
 
   // 角丸
   if ('cornerRadius' in node && typeof node.cornerRadius === 'number') {
-    data.cornerRadius = node.cornerRadius
+    data.cornerRadius = node.cornerRadius;
   }
 
   // 透明度
   if ('opacity' in node) {
-    data.opacity = node.opacity
+    data.opacity = node.opacity;
   }
 
   // テキスト情報
   if (node.type === 'TEXT') {
-    data.characters = node.characters
+    data.characters = node.characters;
 
     // フォント情報
     if (typeof node.fontSize === 'number') {
-      data.fontSize = node.fontSize
+      data.fontSize = node.fontSize;
     }
 
     if (node.fontName !== figma.mixed && typeof node.fontName === 'object') {
       data.fontName = {
         family: node.fontName.family,
         style: node.fontName.style,
-      }
+      };
     }
 
     if (node.lineHeight !== figma.mixed && typeof node.lineHeight === 'object') {
-      data.lineHeight = node.lineHeight
+      data.lineHeight = node.lineHeight;
     }
 
     if (node.letterSpacing !== figma.mixed && typeof node.letterSpacing === 'object') {
-      data.letterSpacing = node.letterSpacing
+      data.letterSpacing = node.letterSpacing;
     }
 
     // テキストの配置
     if (typeof node.textAlignHorizontal === 'string') {
-      data.textAlignHorizontal = node.textAlignHorizontal
+      data.textAlignHorizontal = node.textAlignHorizontal;
     }
 
     if (typeof node.textAlignVertical === 'string') {
-      data.textAlignVertical = node.textAlignVertical
+      data.textAlignVertical = node.textAlignVertical;
     }
   }
 
   // コンポーネント情報
   if (node.type === 'INSTANCE') {
     try {
-      const mainComponent = await node.getMainComponentAsync()
+      const mainComponent = await node.getMainComponentAsync();
       if (mainComponent) {
         data.mainComponent = {
           id: mainComponent.id,
           name: mainComponent.name,
-        }
+        };
       }
     } catch (error) {
-      console.warn('Failed to get main component:', error)
+      console.warn('Failed to get main component:', error);
       // mainComponentはundefinedのままにする
     }
   }
 
   // 子要素を再帰的に取得
   if ('children' in node && node.children.length > 0) {
-    data.children = []
+    data.children = [];
 
     for (const child of node.children) {
-      const childData = await extractNodeData(child, depth + 1)
-      data.children.push(childData)
+      const childData = await extractNodeData(child, depth + 1);
+      data.children.push(childData);
     }
 
-    data.childrenCount = node.children.length
+    data.childrenCount = node.children.length;
   }
 
-  return data
+  return data;
 }
 
 // バックエンドAPIを呼び出す
@@ -326,13 +327,13 @@ async function callEvaluationAPI(
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
     nodeData: nodeData,
-  }
+  };
 
   if (evaluationTypes) {
-    requestBody.evaluationTypes = evaluationTypes
+    requestBody.evaluationTypes = evaluationTypes;
   }
 
-  console.log('Sending request to API:', API_BASE_URL + '/evaluate')
+  console.log('Sending request to API:', API_BASE_URL + '/evaluate');
 
   try {
     const response = await fetch(API_BASE_URL + '/evaluate', {
@@ -341,23 +342,23 @@ async function callEvaluationAPI(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
-    })
+    });
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`API Error: ${response.status} - ${errorText}`)
+      const errorText = await response.text();
+      throw new Error(`API Error: ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (!data.success) {
-      throw new Error(data.error || 'Unknown API error')
+      throw new Error(data.error || 'Unknown API error');
     }
 
-    return data.data
+    return data.data;
   } catch (error) {
-    console.error('API call failed:', error)
-    throw new Error(`API接続に失敗しました: ${error}`)
+    console.error('API call failed:', error);
+    throw new Error(`API接続に失敗しました: ${error}`);
   }
 }
 
@@ -366,22 +367,29 @@ export default function () {
   showUI({
     width: 400,
     height: 600,
-  })
+  });
 
   // UIからのイベントを受信
-  on('EVALUATE_SELECTION', handleEvaluation)
-  
-  on('SELECT_NODE', async ({ nodeId, nodeHierarchy, rootNodeId }: { 
-    nodeId: string; 
-    nodeHierarchy?: string[]; 
-    rootNodeId?: string;
-  }) => {
-    if (nodeId) {
-      await selectNodeWithFallback(nodeId, nodeHierarchy, rootNodeId)
+  on('EVALUATE_SELECTION', handleEvaluation);
+
+  on(
+    'SELECT_NODE',
+    async ({
+      nodeId,
+      nodeHierarchy,
+      rootNodeId,
+    }: {
+      nodeId: string;
+      nodeHierarchy?: string[];
+      rootNodeId?: string;
+    }) => {
+      if (nodeId) {
+        await selectNodeWithFallback(nodeId, nodeHierarchy, rootNodeId);
+      }
     }
-  })
+  );
 
   on('CANCEL', () => {
-    figma.closePlugin()
-  })
+    figma.closePlugin();
+  });
 }

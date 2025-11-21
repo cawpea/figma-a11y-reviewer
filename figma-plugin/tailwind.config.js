@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'inter': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        inter: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       fontSize: {
         '11px': '11px',
       },
       animation: {
-        'spin': 'spin 1s linear infinite',
+        spin: 'spin 1s linear infinite',
       },
     },
   },
   plugins: [],
-  darkMode: ['class', '.figma-dark']
-}
+  darkMode: ['class', '.figma-dark'],
+};

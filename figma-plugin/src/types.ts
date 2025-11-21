@@ -80,8 +80,16 @@ export interface FigmaNodeData {
   strokeWeight?: number;
   effects?: Array<{
     type: string;
-    color?: any;
-    offset?: any;
+    color?: {
+      r: number;
+      g: number;
+      b: number;
+      a: number;
+    };
+    offset?: {
+      x: number;
+      y: number;
+    };
     radius?: number;
     spread?: number;
   }>;
@@ -93,8 +101,18 @@ export interface FigmaNodeData {
     family: string;
     style: string;
   };
-  lineHeight?: any;
-  letterSpacing?: any;
+  lineHeight?:
+    | {
+        value: number;
+        unit: 'PIXELS' | 'PERCENT';
+      }
+    | {
+        unit: 'AUTO';
+      };
+  letterSpacing?: {
+    value: number;
+    unit: 'PIXELS' | 'PERCENT';
+  };
   textAlignHorizontal?: string;
   textAlignVertical?: string;
   mainComponent?: {
