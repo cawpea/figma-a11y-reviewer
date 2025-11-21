@@ -1,4 +1,5 @@
 import { h } from 'preact';
+
 import type { Issue } from '../../../../shared/src/types';
 import Badge from '../Badge';
 

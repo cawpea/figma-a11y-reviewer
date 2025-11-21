@@ -1,4 +1,5 @@
 import { h } from 'preact';
+
 import Spinner from '../Spinner';
 
 interface LoadingSpinnerProps {
@@ -6,7 +7,10 @@ interface LoadingSpinnerProps {
   estimatedTime: number;
 }
 
-export default function LoadingSpinner({ selectedAgentsCount, estimatedTime }: LoadingSpinnerProps) {
+export default function LoadingSpinner({
+  selectedAgentsCount,
+  estimatedTime,
+}: LoadingSpinnerProps) {
   return (
     <div className="text-center py-5 text-gray-600">
       <Spinner className="mx-auto mb-3" />

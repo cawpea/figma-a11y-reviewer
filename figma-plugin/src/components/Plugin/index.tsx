@@ -1,40 +1,32 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
-import Header from '../Header';
+
+import { agentOptions, AGENT_TIME_ESTIMATE } from '../../constants/agents';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import ControlPanel from '../ControlPanel';
-import SettingsPopover from '../SettingsPopover';
 import ErrorDisplay from '../ErrorDisplay';
+import Header from '../Header';
 import LoadingSpinner from '../LoadingSpinner';
 import ResultView from '../ResultView';
+import SettingsPopover from '../SettingsPopover';
+
 import { useAgentSelection } from './hooks/useAgentSelection';
 import { useEvaluation } from './hooks/useEvaluation';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { agentOptions, AGENT_TIME_ESTIMATE } from '../../constants/agents';
+
 import '!../../output.css';
 
 export default function Plugin() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const {
-    selectedAgents,
-    handleAgentChange,
-    handleSelectAll,
-    handleDeselectAll
-  } = useAgentSelection(agentOptions);
+  const { selectedAgents, handleAgentChange, handleSelectAll, handleDeselectAll } =
+    useAgentSelection(agentOptions);
 
-  const {
-    error,
-    isLoading,
-    result,
-    handleEvaluate,
-    handleIssueClick
-  } = useEvaluation();
+  const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation();
 
-  useOutsideClick(
-    isSettingsOpen,
-    () => setIsSettingsOpen(false),
-    ['.settings-popover', '.settings-btn']
-  );
+  useOutsideClick(isSettingsOpen, () => setIsSettingsOpen(false), [
+    '.settings-popover',
+    '.settings-btn',
+  ]);
 
   const estimatedTime = selectedAgents.length * AGENT_TIME_ESTIMATE;
 
@@ -69,18 +61,10 @@ export default function Plugin() {
       <ErrorDisplay error={error} />
 
       {isLoading && (
-        <LoadingSpinner
-          selectedAgentsCount={selectedAgents.length}
-          estimatedTime={estimatedTime}
-        />
+        <LoadingSpinner selectedAgentsCount={selectedAgents.length} estimatedTime={estimatedTime} />
       )}
 
-      {result && (
-        <ResultView
-          result={result}
-          onIssueClick={handleIssueClick}
-        />
-      )}
+      {result && <ResultView result={result} onIssueClick={handleIssueClick} />}
     </div>
   );
 }

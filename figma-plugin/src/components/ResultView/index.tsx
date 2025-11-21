@@ -1,4 +1,5 @@
 import { h } from 'preact';
+
 import type { CategoryResult, EvaluationResult, Issue } from '../../../../shared/src/types';
 import { categoryLabels } from '../../constants/agents';
 import CategorySection from '../CategorySection';

@@ -1,4 +1,5 @@
 import { h } from 'preact';
+
 import type { EvaluationResult } from '../../../../shared/src/types';
 
 interface MetadataDisplayProps {

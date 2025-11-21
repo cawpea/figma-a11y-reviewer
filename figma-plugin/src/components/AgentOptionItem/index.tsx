@@ -1,6 +1,7 @@
 import { h } from 'preact';
-import Checkbox from '../Checkbox';
+
 import type { AgentOption } from '../../constants/agents';
+import Checkbox from '../Checkbox';
 
 interface AgentOptionItemProps {
   agent: AgentOption;
@@ -17,16 +18,11 @@ export default function AgentOptionItem({ agent, checked, onChange }: AgentOptio
           checked={checked}
           onChange={(isChecked) => onChange(agent.id, isChecked)}
         />
-        <label
-          htmlFor={`agent-${agent.id}`}
-          className="flex-1 font-medium text-xs cursor-pointer"
-        >
+        <label htmlFor={`agent-${agent.id}`} className="flex-1 font-medium text-xs cursor-pointer">
           {agent.label}
         </label>
       </div>
-      <div className="text-[10px] text-gray-500 leading-tight ml-6">
-        {agent.description}
-      </div>
+      <div className="text-[10px] text-gray-500 leading-tight ml-6">{agent.description}</div>
     </div>
   );
 }

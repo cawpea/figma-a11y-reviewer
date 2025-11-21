@@ -1,5 +1,6 @@
 import { h } from 'preact';
 import type { ComponentChildren } from 'preact';
+
 import Button from '../Button';
 
 interface ControlPanelProps {
@@ -14,16 +15,12 @@ export default function ControlPanel({
   selectedAgentsCount,
   onEvaluate,
   onSettingsToggle,
-  isSettingsOpen,
-  children
+  isSettingsOpen: _isSettingsOpen,
+  children,
 }: ControlPanelProps) {
   return (
     <div className="flex gap-2 mb-5 relative">
-      <Button
-        onClick={onEvaluate}
-        disabled={selectedAgentsCount === 0}
-        variant="primary"
-      >
+      <Button onClick={onEvaluate} disabled={selectedAgentsCount === 0} variant="primary">
         評価を開始
       </Button>
       <Button

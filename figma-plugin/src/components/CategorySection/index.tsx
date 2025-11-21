@@ -1,4 +1,5 @@
 import { h } from 'preact';
+
 import type { CategoryResult, Issue } from '../../../../shared/src/types';
 import IssueItem from '../IssueItem';
 import PositiveItem from '../PositiveItem';
@@ -12,7 +13,7 @@ interface CategorySectionProps {
 }
 
 export default function CategorySection({
-  categoryKey,
+  categoryKey: _categoryKey,
   category,
   categoryLabel,
   rootNodeId,

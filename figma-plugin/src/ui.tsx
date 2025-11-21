@@ -1,4 +1,6 @@
-import { render } from '@create-figma-plugin/ui'
-import Plugin from './components/Plugin'
+import { render } from '@create-figma-plugin/ui';
+import { h } from 'preact';
 
-export default render(Plugin)
+import Plugin from './components/Plugin';
+
+export default render(Plugin);

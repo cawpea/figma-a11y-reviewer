@@ -1,8 +1,9 @@
 import { h } from 'preact';
-import Button from '../Button';
-import AgentOptionItem from '../AgentOptionItem';
-import TimeEstimate from '../TimeEstimate';
+
 import type { AgentOption } from '../../constants/agents';
+import AgentOptionItem from '../AgentOptionItem';
+import Button from '../Button';
+import TimeEstimate from '../TimeEstimate';
 
 interface SettingsPopoverProps {
   selectedAgents: string[];
@@ -21,7 +22,7 @@ export default function SettingsPopover({
   onSelectAll,
   onDeselectAll,
   onClose,
-  estimatedTime
+  estimatedTime,
 }: SettingsPopoverProps) {
   return (
     <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 w-80 max-h-96 overflow-y-auto settings-popover">
@@ -36,7 +37,7 @@ export default function SettingsPopover({
       </div>
 
       {/* エージェントオプション */}
-      {agentOptions.map(agent => (
+      {agentOptions.map((agent) => (
         <AgentOptionItem
           key={agent.id}
           agent={agent}
