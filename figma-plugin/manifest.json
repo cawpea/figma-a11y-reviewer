@@ -1,13 +1,8 @@
 {
-  "name": "Review.ai - Review your designs with AI",
-  "id": "ui-reviewer",
   "api": "1.0.0",
-  "main": "dist/code.js",
-  "ui": "dist/ui.html",
   "editorType": ["figma"],
-  "documentAccess": "dynamic-page",
-  "networkAccess": {
-    "allowedDomains": ["http://localhost:3000"],
-    "reasoning": "Will be added in Phase 3"
-  }
+  "id": "figma-ui-reviewer",
+  "name": "Figma UI Reviewer",
+  "main": "build/main.js",
+  "ui": "build/ui.js"
 }

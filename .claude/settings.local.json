@@ -10,7 +10,10 @@
       "Bash(npm run format:check:*)",
       "Bash(npm run lint:*)",
       "Bash(npm run lint:fix:*)",
-      "Bash(npm run format:*)"
+      "Bash(npm run format:*)",
+      "Bash(npm run check:*)",
+      "Bash(cat:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

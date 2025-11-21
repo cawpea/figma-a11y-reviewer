@@ -7,8 +7,17 @@ module.exports = [
   // グローバル無視設定
   {
     ignores: [
-      '**/dist/**',
       '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/logs/**',
+      '**/*.log',
+      '**/debug-*.json',
+      '**/.env',
+      '**/.env.*',
+      '**/.DS_Store',
+      '**/coverage/**',
+      '**/*.min.js',
       '**/*.js',
       '!eslint.config.js',
       '!.prettierrc.js',
@@ -16,12 +25,15 @@ module.exports = [
   },
   // TypeScriptファイル用の設定
   {
-    files: ['**/*.ts'],
+    files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
       parser: tsparser,
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
     plugins: {
@@ -35,12 +47,18 @@ module.exports = [
 
       // 未使用変数の検出
       '@typescript-eslint/no-unused-vars': 'off',
-      'unused-imports/no-unused-imports': 'error',
+      'unused-imports/no-unused-imports': [
+        'error',
+        {
+          // PreactのJSX変換に必要な 'h' を無視
+          varsIgnorePattern: '^h$',
+        },
+      ],
       'unused-imports/no-unused-vars': [
         'warn',
         {
           vars: 'all',
-          varsIgnorePattern: '^_',
+          varsIgnorePattern: '^_|^h$',
           args: 'after-used',
           argsIgnorePattern: '^_',
         },
@@ -62,6 +80,14 @@ module.exports = [
       // TypeScript設定
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
+
+      // Preactの 'h' をグローバル変数として認識
+      'no-undef': 'off',
+    },
+    settings: {
+      react: {
+        pragma: 'h',
+      },
     },
   },
 ];

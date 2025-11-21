@@ -1,6 +1,4 @@
-// src/code.ts
-
-// 共通の型定義をインポート
+import { emit, on, showUI } from '@create-figma-plugin/utilities';
 import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from '@shared/types';
 
 // 設定
@@ -13,13 +11,6 @@ const ERROR_MESSAGES = {
   MULTIPLE_SELECTION: '評価できるのは1つのフレームのみです',
   INVALID_NODE_TYPE: 'フレーム、コンポーネント、またはインスタンスを選択してください',
 } as const;
-
-// プラグインUI表示
-figma.showUI(__html__, {
-  width: 400,
-  height: 600,
-  themeColors: true,
-});
 
 /**
  * フォールバック付きノード選択
@@ -96,37 +87,17 @@ async function selectNodeWithFallback(
   }
 }
 
-// UIからのメッセージを受信
-figma.ui.onmessage = async (msg) => {
-  if (msg.type === 'evaluate-selection') {
-    await handleEvaluation(msg.evaluationTypes);
-  } else if (msg.type === 'select-node') {
-    // Issueクリック時のノード選択処理（フォールバック付き）
-    if (msg.nodeId) {
-      await selectNodeWithFallback(msg.nodeId, msg.nodeHierarchy, msg.rootNodeId);
-    }
-  } else if (msg.type === 'cancel') {
-    figma.closePlugin();
-  }
-};
-
 async function handleEvaluation(evaluationTypes?: string[]) {
   const selection = figma.currentPage.selection;
 
   // 選択チェック
   if (selection.length === 0) {
-    figma.ui.postMessage({
-      type: 'error',
-      message: ERROR_MESSAGES.NO_SELECTION,
-    });
+    emit('ERROR', ERROR_MESSAGES.NO_SELECTION);
     return;
   }
 
   if (selection.length > 1) {
-    figma.ui.postMessage({
-      type: 'error',
-      message: ERROR_MESSAGES.MULTIPLE_SELECTION,
-    });
+    emit('ERROR', ERROR_MESSAGES.MULTIPLE_SELECTION);
     return;
   }
 
@@ -138,17 +109,12 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     selectedNode.type !== 'COMPONENT' &&
     selectedNode.type !== 'INSTANCE'
   ) {
-    figma.ui.postMessage({
-      type: 'error',
-      message: ERROR_MESSAGES.INVALID_NODE_TYPE,
-    });
+    emit('ERROR', ERROR_MESSAGES.INVALID_NODE_TYPE);
     return;
   }
 
   // 評価開始を通知
-  figma.ui.postMessage({
-    type: 'evaluation-started',
-  });
+  emit('EVALUATION_STARTED');
 
   try {
     // ノードデータを抽出（再帰的に子要素も取得）
@@ -159,16 +125,10 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     // バックエンドAPIに送信
     const result = await callEvaluationAPI(nodeData, evaluationTypes);
 
-    figma.ui.postMessage({
-      type: 'evaluation-complete',
-      result: result,
-    });
+    emit('EVALUATION_COMPLETE', result);
   } catch (error) {
     console.error('Evaluation error:', error);
-    figma.ui.postMessage({
-      type: 'error',
-      message: `評価中にエラーが発生しました: ${error}`,
-    });
+    emit('ERROR', `評価中にエラーが発生しました: ${error}`);
   }
 }
 
@@ -399,4 +359,36 @@ async function callEvaluationAPI(
     console.error('API call failed:', error);
     throw new Error(`API接続に失敗しました: ${error}`);
   }
+}
+
+export default function () {
+  // UIを表示
+  showUI({
+    width: 400,
+    height: 600,
+  });
+
+  // UIからのイベントを受信
+  on('EVALUATE_SELECTION', handleEvaluation);
+
+  on(
+    'SELECT_NODE',
+    async ({
+      nodeId,
+      nodeHierarchy,
+      rootNodeId,
+    }: {
+      nodeId: string;
+      nodeHierarchy?: string[];
+      rootNodeId?: string;
+    }) => {
+      if (nodeId) {
+        await selectNodeWithFallback(nodeId, nodeHierarchy, rootNodeId);
+      }
+    }
+  );
+
+  on('CANCEL', () => {
+    figma.closePlugin();
+  });
 }

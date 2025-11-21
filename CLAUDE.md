@@ -13,10 +13,19 @@ APIを使ってAIによる自動評価を行うシステムです。Figmaプラ�
 ### システム構成
 
 ```
-figma-plugin/          # Figmaプラグイン（TypeScript）
-├── src/code.ts       # メインロジック（Figma API連携）
-├── src/ui.html       # プラグインUI
-└── manifest.json     # プラグイン設定
+figma-plugin/          # Figmaプラグイン(Preact + TailwindCSS)
+├── src/
+│   ├── main.ts       # メインロジック(Figma API連携)
+│   ├── ui.tsx        # プラグインUI(Preact)
+│   ├── types.ts      # 型定義
+│   ├── input.css     # TailwindCSS入力
+│   ├── output.css    # TailwindCSS出力
+│   ├── components/   # UIコンポーネント
+│   ├── hooks/        # カスタムフック
+│   └── constants/    # 定数
+├── manifest.json     # プラグイン設定
+├── tailwind.config.js  # TailwindCSS設定
+└── package.json
 
 backend/              # Express.js バックエンド API
 ├── src/
@@ -40,18 +49,19 @@ backend/              # Express.js バックエンド API
 
 1. **Figmaプラグイン → バックエンド**
    - ユーザーがFigmaでフレームを選択してプラグインを実行
-   - `figma-plugin/src/code.ts`の`extractNodeData()`が選択されたノードの情報を再帰的に抽出
-   - 抽出されたノードデータを`POST /api/evaluate`に送信
+   - `figma-plugin/src/main.ts`の`extractNodeData()`が選択されたノードの情報を再帰的に抽出
+   - `useEvaluation`フックが選択されたエージェントと共に抽出データを`POST /api/evaluate`に送信
 
 2. **バックエンド → Claude API**
-   - `backend/src/services/evaluation.service.ts`が各評価エージェント（accessibility,
-     designSystem）を並列実行
-   - 各エージェント（`base.agent.ts`を継承）がClaude APIを呼び出し
+   - `backend/src/services/evaluation.service.ts`が各評価エージェント(accessibility,
+     designSystem, usability, consistency, performance)を並列実行
+   - 各エージェント(`base.agent.ts`を継承)がClaude APIを呼び出し
    - システムプロンプトとノードデータを使って評価を実行
 
 3. **レスポンス → Figmaプラグイン**
-   - 評価結果（スコア、問題点、提案）をJSON形式で返却
-   - プラグインUIに結果を表示
+   - 評価結果(スコア、問題点、提案)をJSON形式で返却
+   - `ResultView`コンポーネントが結果を整形して表示
+   - カテゴリごとに`CategorySection`でスコア、問題点、ポジティブ項目を表示
 
 ### 評価エージェントシステム
 
@@ -88,12 +98,22 @@ npm start
 ### Figmaプラグイン
 
 ```bash
-# ビルド（TypeScriptコンパイル + HTMLコピー）
 cd figma-plugin
+
+# ビルド(TailwindCSS + TypeScriptコンパイル)
 npm run build
 
-# 開発時は watch モード推奨
+# 開発時は watch モード推奨(CSS + JSを並行ウォッチ)
 npm run watch
+
+# TailwindCSSのみビルド
+npm run build:css
+
+# TypeScriptのみビルド
+npm run build:js
+
+# 型チェック
+npm run type-check
 ```
 
 **Figmaでの確認手順**:
@@ -103,7 +123,37 @@ npm run watch
 3. `figma-plugin/manifest.json`を選択
 4. フレームを選択してプラグインを実行
 
+**技術スタック**:
+
+- **Preact**: 軽量なReact代替ライブラリ (3KB)
+- **TailwindCSS**: ユーティリティファーストのCSSフレームワーク
+- **Create Figma Plugin**: Figmaプラグイン開発フレームワーク
+- **TypeScript**: 型安全性の確保
+
 ## 開発時の重要ポイント
+
+### Figmaプラグインの開発
+
+#### コンポーネント追加時の手順
+
+1. `figma-plugin/src/components/`に新しいコンポーネントディレクトリを作成
+2. `index.tsx`でコンポーネントを実装
+3. TailwindCSSのユーティリティクラスでスタイリング
+4. 必要に応じてカスタムフックを`hooks/`に作成
+
+#### ビルドシステム
+
+- **TailwindCSS**: `input.css` → `output.css`への変換
+- **TypeScript**: `src/main.ts`と`src/ui.tsx`をコンパイル
+- **Create Figma Plugin**: `manifest.json`の生成と`build/`ディレクトリへの出力
+- **Watch モード**: `concurrently`でCSS/JSの同時ウォッチ
+
+#### スタイリングのベストプラクティス
+
+- TailwindCSSのユーティリティクラスを優先的に使用
+- カスタムCSSが必要な場合は`input.css`に追加
+- レスポンシブデザインは不要(Figmaプラグインは固定サイズ)
+- Figmaのデザインガイドラインに従った色・タイポグラフィを使用
 
 ### デバッグログ
 
@@ -122,15 +172,67 @@ npm run watch
 - `temperature: 0`: 評価の一貫性を確保するため
 - `maxTokens: 4000`: 長い評価結果に対応
 
+### Figmaプラグインのアーキテクチャ
+
+#### UIコンポーネント構造
+
+プラグインUIは**Preact**と**TailwindCSS**を使用して構築されており、以下のコンポーネント階層を持ちます:
+
+```
+Plugin (src/components/Plugin/index.tsx)
+├── Header                    # プラグインヘッダー
+├── ControlPanel              # 評価開始コントロール
+│   ├── Button                # 評価開始ボタン
+│   ├── TimeEstimate          # 推定時間表示
+│   └── SettingsPopover       # 設定ポップオーバー
+│       └── AgentOptionItem   # エージェント選択項目
+│           └── Checkbox      # チェックボックス
+├── LoadingSpinner            # 評価中の表示
+│   └── Spinner               # スピナーアニメーション
+├── ErrorDisplay              # エラー表示
+└── ResultView                # 評価結果表示
+    ├── ScoreCard             # 総合スコア
+    └── CategorySection[]     # カテゴリ別結果
+        ├── Badge             # カテゴリバッジ
+        ├── IssueItem[]       # 問題項目リスト
+        └── PositiveItem[]    # ポジティブ項目リスト
+```
+
+#### カスタムフック
+
+- **useEvaluation** (`src/components/Plugin/hooks/useEvaluation.ts`)
+  - 評価処理の状態管理
+  - バックエンドAPIとの通信
+  - ローディング・エラー・結果の状態管理
+
+- **useAgentSelection** (`src/components/Plugin/hooks/useAgentSelection.ts`)
+  - 評価エージェントの選択状態管理
+  - 選択されたエージェントの保存・読み込み
+  - 推定時間の計算
+
+- **useOutsideClick** (`src/hooks/useOutsideClick.ts`)
+  - 要素外クリックの検出
+  - ポップオーバーなどの閉じる処理
+
+#### エージェント定義
+
+`src/constants/agents.ts`でサポートされる評価エージェントを定義:
+
+- **accessibility**: アクセシビリティ評価 (推定15秒)
+- **designSystem**: デザインシステム評価 (推定18秒)
+- **usability**: ユーザビリティ評価 (推定20秒)
+- **consistency**: 一貫性評価 (推定15秒)
+- **performance**: パフォーマンス評価 (推定15秒)
+
 ### Figmaノードデータの抽出
 
-`figma-plugin/src/code.ts`の`extractNodeData()`は最大深度10まで再帰的にノード情報を取得します。以下の情報を抽出：
+`figma-plugin/src/main.ts`の`extractNodeData()`は最大深度10まで再帰的にノード情報を取得します。以下の情報を抽出:
 
-- レイアウト（Auto Layout）: `layoutMode`, `padding`, `itemSpacing`など
+- レイアウト(Auto Layout): `layoutMode`, `padding`, `itemSpacing`など
 - スタイル: `fills`, `strokes`, `effects`, `cornerRadius`
 - テキスト: `characters`, `fontSize`, `fontName`, `lineHeight`
 - サイズと位置: `absoluteBoundingBox`
-- 子要素: `children`配列（再帰）
+- 子要素: `children`配列(再帰)
 
 ### 評価結果の構造
 
