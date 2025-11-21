@@ -1,9 +1,9 @@
 import { h } from 'preact';
-import ScoreCard from '../ScoreCard';
+import type { CategoryResult, EvaluationResult, Issue } from '../../../../shared/src/types';
+import { categoryLabels } from '../../constants/agents';
 import CategorySection from '../CategorySection';
 import MetadataDisplay from '../MetadataDisplay';
-import { categoryLabels } from '../../constants/agents';
-import type { EvaluationResult, Issue, Category } from '../../types';
+import ScoreCard from '../ScoreCard';
 
 interface ResultViewProps {
   result: EvaluationResult;
@@ -15,7 +15,7 @@ export default function ResultView({ result, onIssueClick }: ResultViewProps) {
     <div>
       <ScoreCard score={result.overallScore} />
 
-      {Object.entries(result.categories).map(([key, category]: [string, Category]) => (
+      {Object.entries(result.categories).map(([key, category]: [string, CategoryResult]) => (
         <CategorySection
           key={key}
           categoryKey={key}

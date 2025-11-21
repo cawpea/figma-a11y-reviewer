@@ -1,7 +1,7 @@
 import { emit, on } from '@create-figma-plugin/utilities';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-import type { EvaluationResult, Issue } from '../../../types';
+import type { EvaluationResult, Issue } from '../../../../../shared/src/types';
 
 interface UseEvaluationReturn {
   error: string;

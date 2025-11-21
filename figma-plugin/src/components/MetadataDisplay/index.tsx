@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import type { EvaluationResult } from '../../types';
+import type { EvaluationResult } from '../../../../shared/src/types';
 
 interface MetadataDisplayProps {
   metadata: EvaluationResult['metadata'];
@@ -15,8 +15,10 @@ export default function MetadataDisplay({ metadata }: MetadataDisplayProps) {
         {metadata.usage && (
           <div>
             <br />
-            トークン使用量: {metadata.usage.totalInputTokens.toLocaleString()} 入力 / {metadata.usage.totalOutputTokens.toLocaleString()} 出力
-            {metadata.usage.totalCachedTokens > 0 && ` / ${metadata.usage.totalCachedTokens.toLocaleString()} キャッシュ`}
+            トークン使用量: {metadata.usage.totalInputTokens.toLocaleString()} 入力 /{' '}
+            {metadata.usage.totalOutputTokens.toLocaleString()} 出力
+            {metadata.usage.totalCachedTokens > 0 &&
+              ` / ${metadata.usage.totalCachedTokens.toLocaleString()} キャッシュ`}
             <br />
             推定コスト: ${metadata.usage.estimatedCost.toFixed(4)}
           </div>

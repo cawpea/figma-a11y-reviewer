@@ -1,11 +1,11 @@
 import { h } from 'preact';
+import type { CategoryResult, Issue } from '../../../../shared/src/types';
 import IssueItem from '../IssueItem';
 import PositiveItem from '../PositiveItem';
-import type { Category, Issue } from '../../types';
 
 interface CategorySectionProps {
   categoryKey: string;
-  category: Category;
+  category: CategoryResult;
   categoryLabel: string;
   rootNodeId?: string;
   onIssueClick: (issue: Issue, rootNodeId?: string) => void;
@@ -16,7 +16,7 @@ export default function CategorySection({
   category,
   categoryLabel,
   rootNodeId,
-  onIssueClick
+  onIssueClick,
 }: CategorySectionProps) {
   return (
     <div className="bg-gray-50 rounded-md p-3 mb-3">
@@ -27,12 +27,7 @@ export default function CategorySection({
 
       {/* Issues */}
       {category.issues.map((issue: Issue, index: number) => (
-        <IssueItem
-          key={index}
-          issue={issue}
-          rootNodeId={rootNodeId}
-          onIssueClick={onIssueClick}
-        />
+        <IssueItem key={index} issue={issue} rootNodeId={rootNodeId} onIssueClick={onIssueClick} />
       ))}
 
       {/* Positives */}

@@ -1,6 +1,6 @@
 import { emit, on, showUI } from '@create-figma-plugin/utilities';
 
-import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from './types';
+import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from '../../shared/src/types';
 
 // 設定
 const API_BASE_URL = 'http://localhost:3000/api';

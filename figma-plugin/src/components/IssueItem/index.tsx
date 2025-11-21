@@ -1,6 +1,6 @@
 import { h } from 'preact';
+import type { Issue } from '../../../../shared/src/types';
 import Badge from '../Badge';
-import type { Issue } from '../../types';
 
 interface IssueItemProps {
   issue: Issue;
@@ -14,7 +14,7 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
   const severityColors = {
     high: 'border-l-red-500',
     medium: 'border-l-yellow-500',
-    low: 'border-l-green-500'
+    low: 'border-l-green-500',
   } as const;
 
   return (
@@ -31,9 +31,7 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
       <Badge severity={issue.severity} className="mr-1.5" />
       {issue.message}
       {issue.suggestion && (
-        <div className="text-gray-600 mt-1 text-[10px]">
-          💡 {issue.suggestion}
-        </div>
+        <div className="text-gray-600 mt-1 text-[10px]">💡 {issue.suggestion}</div>
       )}
     </button>
   );
