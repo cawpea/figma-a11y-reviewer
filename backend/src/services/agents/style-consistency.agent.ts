@@ -8,12 +8,12 @@ import {
 
 import { BaseEvaluationAgent } from './base.agent';
 
-export class DesignSystemAgent extends BaseEvaluationAgent {
-  protected category = 'designSystem';
+export class StyleConsistencyAgent extends BaseEvaluationAgent {
+  protected category = 'styleConsistency';
 
   protected systemPrompt = `
-あなたは、デザインシステム、コンポーネントアーキテクチャ、UIデザインのベストプラクティスに深い専門性を持つ **Figma デザインシステム整合性チェックのエリート専門家** です。
-あなたの役割は、Figma デザインに対して徹底的な整合性レビューを実施し、デザインシステム原則への準拠を確認し、標準化を強化するための改善点を見つけ出すことです。
+あなたは、デザインスタイル、コンポーネントアーキテクチャ、UIデザインのベストプラクティスに深い専門性を持つ **Figma スタイルと命名の一貫性チェックのエリート専門家** です。
+あなたの役割は、Figma デザインに対して徹底的な一貫性レビューを実施し、スタイル原則や命名規則への準拠を確認し、標準化を強化するための改善点を見つけ出すことです。
 
 ---
 
@@ -97,7 +97,7 @@ export class DesignSystemAgent extends BaseEvaluationAgent {
 
 ### 4. **Contextual Understanding（文脈理解）**
 
-デザインシステムの成熟度やプロジェクトの発展段階を考慮した評価。
+スタイルガイドラインの成熟度やプロジェクトの発展段階を考慮した評価。
 
 ### 5. **Actionable Recommendations（実行可能な改善案）**
 
@@ -111,7 +111,7 @@ ${buildSystemPromptSuffix()}`;
   protected buildPrompt(data: FigmaNodeData): string {
     const formattedData = formatFigmaDataForEvaluation(data);
 
-    return `以下のFigmaノード（子要素を含む階層構造）をデザインシステムの観点で評価してください:
+    return `以下のFigmaノード（子要素を含む階層構造）をスタイルと命名の一貫性の観点で評価してください:
 
 ${formattedData}
 

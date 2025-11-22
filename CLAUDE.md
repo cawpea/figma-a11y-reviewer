@@ -36,7 +36,7 @@ backend/              # Express.js バックエンド API
 │   │   └── agents/
 │   │       ├── base.agent.ts        # 評価エージェントの基底クラス
 │   │       ├── accessibility.agent.ts    # アクセシビリティ評価
-│   │       └── design-system.agent.ts    # デザインシステム評価
+│   │       └── style-consistency.agent.ts    # スタイルや命名の一貫性評価
 │   ├── config/anthropic.ts          # Claude API設定
 │   ├── types/index.ts               # 型定義
 │   └── utils/
@@ -54,7 +54,7 @@ backend/              # Express.js バックエンド API
 
 2. **バックエンド → Claude API**
    - `backend/src/services/evaluation.service.ts`が各評価エージェント(accessibility,
-     designSystem, usability, consistency, performance)を並列実行
+     styleConsistency, usability)を並列実行
    - 各エージェント(`base.agent.ts`を継承)がClaude APIを呼び出し
    - システムプロンプトとノードデータを使って評価を実行
 
@@ -219,10 +219,8 @@ Plugin (src/components/Plugin/index.tsx)
 `src/constants/agents.ts`でサポートされる評価エージェントを定義:
 
 - **accessibility**: アクセシビリティ評価 (推定15秒)
-- **designSystem**: デザインシステム評価 (推定18秒)
+- **styleConsistency**: スタイルや命名の一貫性評価 (推定18秒)
 - **usability**: ユーザビリティ評価 (推定20秒)
-- **consistency**: 一貫性評価 (推定15秒)
-- **performance**: パフォーマンス評価 (推定15秒)
 
 ### Figmaノードデータの抽出
 
@@ -245,7 +243,7 @@ Plugin (src/components/Plugin/index.tsx)
       issues: Issue[],
       positives?: string[]
     },
-    designSystem: { ... }
+    styleConsistency: { ... }
   },
   suggestions: Suggestion[],      // 重要度順にソート済み
   metadata: {

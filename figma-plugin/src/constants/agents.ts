@@ -14,9 +14,9 @@ export const agentOptions: AgentOption[] = [
     description: 'WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズを評価',
   },
   {
-    id: 'designSystem',
-    label: 'デザインシステム',
-    description: '8pxグリッド、スペーシング、タイポグラフィの一貫性を評価',
+    id: 'styleConsistency',
+    label: 'スタイルや命名の一貫性',
+    description: 'カラー、テキスト、エフェクトスタイル、命名規則の一貫性を評価',
   },
   {
     id: 'usability',
@@ -27,7 +27,7 @@ export const agentOptions: AgentOption[] = [
 
 export const categoryLabels: Record<string, string> = {
   accessibility: 'アクセシビリティ',
-  designSystem: 'デザインシステム',
+  styleConsistency: 'スタイルや命名の一貫性',
   usability: 'ユーザビリティ',
   layout: 'レイアウト',
   naming: '命名規則',

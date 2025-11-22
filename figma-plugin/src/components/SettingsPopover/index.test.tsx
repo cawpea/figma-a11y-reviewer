@@ -9,7 +9,11 @@ import SettingsPopover from './index';
 describe('SettingsPopover', () => {
   const mockAgentOptions: AgentOption[] = [
     { id: 'accessibility', label: 'アクセシビリティ', description: 'WCAG準拠を評価' },
-    { id: 'designSystem', label: 'デザインシステム', description: 'デザインの一貫性を評価' },
+    {
+      id: 'styleConsistency',
+      label: 'スタイルや命名の一貫性',
+      description: 'デザインの一貫性を評価',
+    },
   ];
 
   const defaultProps = {
@@ -36,7 +40,7 @@ describe('SettingsPopover', () => {
     render(<SettingsPopover {...defaultProps} />);
 
     expect(screen.getByText('アクセシビリティ')).toBeInTheDocument();
-    expect(screen.getByText('デザインシステム')).toBeInTheDocument();
+    expect(screen.getByText('スタイルや命名の一貫性')).toBeInTheDocument();
   });
 
   it('閉じるボタンがクリックされたときonCloseを呼び出す', async () => {
@@ -77,7 +81,7 @@ describe('SettingsPopover', () => {
 
   it('選択されたエージェントをハイライトする', () => {
     render(
-      <SettingsPopover {...defaultProps} selectedAgents={['accessibility', 'designSystem']} />
+      <SettingsPopover {...defaultProps} selectedAgents={['accessibility', 'styleConsistency']} />
     );
 
     // AgentOptionItemがチェックされた状態で表示される
@@ -93,7 +97,7 @@ describe('SettingsPopover', () => {
 
   it('すべてのエージェントが選択された状態でレンダリングする', () => {
     render(
-      <SettingsPopover {...defaultProps} selectedAgents={['accessibility', 'designSystem']} />
+      <SettingsPopover {...defaultProps} selectedAgents={['accessibility', 'styleConsistency']} />
     );
 
     expect(screen.getByText('評価項目の選択')).toBeInTheDocument();

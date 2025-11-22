@@ -29,7 +29,7 @@ describe('EvaluationService', () => {
       expect(result.overallScore).toBeGreaterThanOrEqual(0);
       expect(result.overallScore).toBeLessThanOrEqual(100);
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).toHaveProperty('designSystem');
+      expect(result.categories).toHaveProperty('styleConsistency');
       expect(result.categories).toHaveProperty('usability');
       expect(Array.isArray(result.suggestions)).toBe(true);
       expect(result.metadata).toHaveProperty('evaluatedAt');
@@ -41,7 +41,7 @@ describe('EvaluationService', () => {
       const result = await service.evaluateDesign(mockData, ['accessibility']);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).not.toHaveProperty('designSystem');
+      expect(result.categories).not.toHaveProperty('styleConsistency');
       expect(result.categories).not.toHaveProperty('usability');
     });
 
@@ -50,7 +50,7 @@ describe('EvaluationService', () => {
 
       expect(result.categories).toHaveProperty('accessibility');
       expect(result.categories).toHaveProperty('usability');
-      expect(result.categories).not.toHaveProperty('designSystem');
+      expect(result.categories).not.toHaveProperty('styleConsistency');
     });
 
     it('有効な評価タイプが提供されていないときにエラーをスローする', async () => {
@@ -175,7 +175,7 @@ describe('EvaluationService', () => {
       const agents = (service as any).agents;
 
       expect(agents).toHaveProperty('accessibility');
-      expect(agents).toHaveProperty('designSystem');
+      expect(agents).toHaveProperty('styleConsistency');
       expect(agents).toHaveProperty('usability');
     });
   });
