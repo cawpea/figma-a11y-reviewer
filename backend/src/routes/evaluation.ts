@@ -1,5 +1,5 @@
 import { ApiResponse, EvaluationResult } from '@shared/types';
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
 import { EvaluationService } from '../services/evaluation.service';
@@ -32,6 +32,7 @@ router.post('/evaluate', async (req: Request, res: Response) => {
     console.log('Received evaluation request:', {
       nodeId: req.body.nodeId,
       nodeName: req.body.nodeData?.name,
+      evaluationTypes: req.body.evaluationTypes,
     });
 
     // デバッグ用: データをファイルに保存
