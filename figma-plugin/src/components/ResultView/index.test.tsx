@@ -1,5 +1,6 @@
 import type { EvaluationResult } from '@shared/types';
 import { render, screen } from '@testing-library/preact';
+import { h } from 'preact';
 
 import ResultView from './index';
 

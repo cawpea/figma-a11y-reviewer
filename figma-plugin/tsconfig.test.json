@@ -6,11 +6,18 @@
     "jsxFactory": "h",
     "jsxFragmentFactory": "Fragment",
     "esModuleInterop": true,
+    "moduleResolution": "node",
     "lib": ["DOM", "ES2020"],
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src/**/*", "../shared/src/**/*"]
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/test-setup.ts",
+    "../shared/src/**/*"
+  ],
+  "exclude": ["node_modules", "build"]
 }

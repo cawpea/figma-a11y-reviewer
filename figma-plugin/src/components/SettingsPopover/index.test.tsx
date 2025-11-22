@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/preact';
 import userEvent from '@testing-library/user-event';
+import { h } from 'preact';
 
 import type { AgentOption } from '../../constants/agents';
 
