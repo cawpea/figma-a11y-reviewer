@@ -1,4 +1,4 @@
-import { CategoryResult, FigmaNodeData } from '@shared/types';
+import { CategoryResult, FigmaNodeData, FigmaStylesData } from '@shared/types';
 
 import { calculateWCAGContrast, rgbToHex } from './accessibility';
 
@@ -150,6 +150,314 @@ function formatNodeRecursive(
   }
 
   return output;
+}
+
+/**
+ * スタイル適用状況マップを生成
+ * Variables、TextStyle、ColorStyleなどのスタイル定義と実際の適用状況を可視化
+ */
+export function buildStylesApplicationMap(
+  nodeData: FigmaNodeData,
+  stylesData?: FigmaStylesData
+): string {
+  if (!stylesData) {
+    return '⚠️ スタイル情報が取得されていません。';
+  }
+
+  let output = '## スタイル定義と適用状況\n\n';
+
+  // メタ情報の表示
+  if (stylesData.meta.truncated) {
+    output +=
+      '> **注意**: スタイル情報が100件を超えたため、各カテゴリ最初の100件のみ表示しています。\n\n';
+  }
+
+  // ファイル全体で定義されているスタイル一覧
+  output += '### 1. ファイル内で定義されているスタイル\n\n';
+
+  // Variables
+  output += `#### Variables（デザイントークン）: ${stylesData.meta.variablesCount}件\n`;
+  if (stylesData.variables.length > 0) {
+    stylesData.variables.forEach((v, index) => {
+      output += `${index + 1}. **${v.name}** (${v.resolvedType}) - ID: ${v.id}\n`;
+    });
+    output += '\n';
+  } else {
+    output += '_Variablesは定義されていません_\n\n';
+  }
+
+  // TextStyles
+  output += `#### TextStyles: ${stylesData.meta.textStylesCount}件\n`;
+  if (stylesData.textStyles.length > 0) {
+    stylesData.textStyles.forEach((s, index) => {
+      output += `${index + 1}. **${s.name}**${s.description ? ` - ${s.description}` : ''} - ID: ${s.id}\n`;
+    });
+    output += '\n';
+  } else {
+    output += '_TextStylesは定義されていません_\n\n';
+  }
+
+  // ColorStyles
+  output += `#### ColorStyles: ${stylesData.meta.colorStylesCount}件\n`;
+  if (stylesData.colorStyles.length > 0) {
+    stylesData.colorStyles.forEach((s, index) => {
+      output += `${index + 1}. **${s.name}**${s.description ? ` - ${s.description}` : ''} - ID: ${s.id}\n`;
+    });
+    output += '\n';
+  } else {
+    output += '_ColorStylesは定義されていません_\n\n';
+  }
+
+  // EffectStyles
+  output += `#### EffectStyles（シャドウ/ブラー）: ${stylesData.meta.effectStylesCount}件\n`;
+  if (stylesData.effectStyles.length > 0) {
+    stylesData.effectStyles.forEach((s, index) => {
+      output += `${index + 1}. **${s.name}**${s.description ? ` - ${s.description}` : ''} - ID: ${s.id}\n`;
+    });
+    output += '\n';
+  } else {
+    output += '_EffectStylesは定義されていません_\n\n';
+  }
+
+  // 実際の適用状況を収集
+  const usageStats = collectStyleUsage(nodeData, stylesData);
+
+  output += '### 2. 選択されたノード内でのスタイル適用状況\n\n';
+
+  // Variables使用状況
+  output += `#### Variables適用状況\n`;
+  if (usageStats.variablesUsed.length > 0) {
+    output += `✅ **使用されているVariables (${usageStats.variablesUsed.length}件):**\n`;
+    usageStats.variablesUsed.forEach((usage) => {
+      output += `- **${usage.variableName}** → ${usage.nodeName} (ID: ${usage.nodeId}) [${usage.property}]\n`;
+    });
+    output += '\n';
+  } else {
+    output += '⚠️ _Variablesは使用されていません_\n\n';
+  }
+
+  // TextStyle使用状況
+  output += `#### TextStyle適用状況\n`;
+  if (usageStats.textStylesUsed.length > 0) {
+    output += `✅ **使用されているTextStyles (${usageStats.textStylesUsed.length}件):**\n`;
+    usageStats.textStylesUsed.forEach((usage) => {
+      output += `- **${usage.styleName}** → ${usage.nodeName} (ID: ${usage.nodeId})\n`;
+    });
+    output += '\n';
+  } else {
+    output += '⚠️ _TextStylesは使用されていません_\n\n';
+  }
+  if (usageStats.textNodesWithoutStyle.length > 0) {
+    output += `❌ **TextStyleが未適用のテキスト (${usageStats.textNodesWithoutStyle.length}件):**\n`;
+    usageStats.textNodesWithoutStyle.forEach((node) => {
+      output += `- ${node.name} (ID: ${node.id}) - フォント: ${node.fontFamily} ${node.fontSize}px\n`;
+    });
+    output += '\n';
+  }
+
+  // ColorStyle使用状況
+  output += `#### ColorStyle適用状況\n`;
+  if (usageStats.colorStylesUsed.length > 0) {
+    output += `✅ **使用されているColorStyles (${usageStats.colorStylesUsed.length}件):**\n`;
+    usageStats.colorStylesUsed.forEach((usage) => {
+      output += `- **${usage.styleName}** → ${usage.nodeName} (ID: ${usage.nodeId}) [${usage.type}]\n`;
+    });
+    output += '\n';
+  } else {
+    output += '⚠️ _ColorStylesは使用されていません_\n\n';
+  }
+  if (usageStats.hardcodedColors.length > 0) {
+    output += `❌ **ハードコードされた色 (${usageStats.hardcodedColors.length}件):**\n`;
+    usageStats.hardcodedColors.forEach((item) => {
+      output += `- ${item.nodeName} (ID: ${item.nodeId}) - ${item.type}: ${item.color}\n`;
+    });
+    output += '\n';
+  }
+
+  // EffectStyle使用状況
+  output += `#### EffectStyle適用状況\n`;
+  if (usageStats.effectStylesUsed.length > 0) {
+    output += `✅ **使用されているEffectStyles (${usageStats.effectStylesUsed.length}件):**\n`;
+    usageStats.effectStylesUsed.forEach((usage) => {
+      output += `- **${usage.styleName}** → ${usage.nodeName} (ID: ${usage.nodeId})\n`;
+    });
+    output += '\n';
+  } else {
+    output += '⚠️ _EffectStylesは使用されていません_\n\n';
+  }
+
+  output += '---\n\n';
+  output += '**評価時の参考情報:**\n';
+  output += '- 上記の情報を基に、スタイルの一貫性と適切な適用を評価してください\n';
+  output += '- ハードコードされた値がある場合は、適切なスタイルの使用を提案してください\n';
+  output += '- 未使用のスタイル定義がある場合は、削除または活用を検討してください\n';
+
+  return output;
+}
+
+/**
+ * スタイル使用状況の統計情報
+ */
+interface StyleUsageStats {
+  variablesUsed: Array<{
+    variableName: string;
+    nodeId: string;
+    nodeName: string;
+    property: string;
+  }>;
+  textStylesUsed: Array<{
+    styleName: string;
+    nodeId: string;
+    nodeName: string;
+  }>;
+  textNodesWithoutStyle: Array<{
+    id: string;
+    name: string;
+    fontFamily?: string;
+    fontSize?: number;
+  }>;
+  colorStylesUsed: Array<{
+    styleName: string;
+    nodeId: string;
+    nodeName: string;
+    type: 'fill' | 'stroke';
+  }>;
+  hardcodedColors: Array<{
+    nodeId: string;
+    nodeName: string;
+    color: string;
+    type: 'fill' | 'stroke';
+  }>;
+  effectStylesUsed: Array<{
+    styleName: string;
+    nodeId: string;
+    nodeName: string;
+  }>;
+}
+
+/**
+ * ノードツリーからスタイル使用状況を収集
+ */
+function collectStyleUsage(
+  node: FigmaNodeData,
+  stylesData: FigmaStylesData,
+  stats: StyleUsageStats = {
+    variablesUsed: [],
+    textStylesUsed: [],
+    textNodesWithoutStyle: [],
+    colorStylesUsed: [],
+    hardcodedColors: [],
+    effectStylesUsed: [],
+  },
+  visited: Set<string> = new Set()
+): StyleUsageStats {
+  // 循環参照チェック
+  if (visited.has(node.id)) {
+    return stats;
+  }
+  visited.add(node.id);
+
+  // Variables使用状況
+  if (node.boundVariables) {
+    Object.entries(node.boundVariables).forEach(([property, alias]) => {
+      const aliases = Array.isArray(alias) ? alias : [alias];
+      aliases.forEach((a) => {
+        if (a.type === 'VARIABLE_ALIAS') {
+          const variable = stylesData.variables.find((v) => v.id === a.id);
+          if (variable) {
+            stats.variablesUsed.push({
+              variableName: variable.name,
+              nodeId: node.id,
+              nodeName: node.name,
+              property,
+            });
+          }
+        }
+      });
+    });
+  }
+
+  // TextStyle使用状況
+  if (node.type === 'TEXT') {
+    if (node.textStyleId && node.textStyleName) {
+      stats.textStylesUsed.push({
+        styleName: node.textStyleName,
+        nodeId: node.id,
+        nodeName: node.name,
+      });
+    } else if (!node.textStyleId) {
+      // TextStyleが未適用
+      stats.textNodesWithoutStyle.push({
+        id: node.id,
+        name: node.name,
+        fontFamily: node.fontName?.family,
+        fontSize: node.fontSize,
+      });
+    }
+  }
+
+  // ColorStyle使用状況
+  if (node.fillStyleId && node.fillStyleName) {
+    stats.colorStylesUsed.push({
+      styleName: node.fillStyleName,
+      nodeId: node.id,
+      nodeName: node.name,
+      type: 'fill',
+    });
+  } else if (node.fills && node.fills.length > 0) {
+    // ハードコードされた色を検出
+    node.fills.forEach((fill) => {
+      if (fill.type === 'SOLID' && fill.color) {
+        const color = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+        stats.hardcodedColors.push({
+          nodeId: node.id,
+          nodeName: node.name,
+          color,
+          type: 'fill',
+        });
+      }
+    });
+  }
+
+  if (node.strokeStyleId && node.strokeStyleName) {
+    stats.colorStylesUsed.push({
+      styleName: node.strokeStyleName,
+      nodeId: node.id,
+      nodeName: node.name,
+      type: 'stroke',
+    });
+  } else if (node.strokes && node.strokes.length > 0) {
+    // ハードコードされたストローク色を検出
+    node.strokes.forEach((stroke) => {
+      if (stroke.type === 'SOLID' && stroke.color) {
+        const color = rgbToHex(stroke.color.r, stroke.color.g, stroke.color.b);
+        stats.hardcodedColors.push({
+          nodeId: node.id,
+          nodeName: node.name,
+          color,
+          type: 'stroke',
+        });
+      }
+    });
+  }
+
+  // EffectStyle使用状況
+  if (node.effectStyleId && node.effectStyleName) {
+    stats.effectStylesUsed.push({
+      styleName: node.effectStyleName,
+      nodeId: node.id,
+      nodeName: node.name,
+    });
+  }
+
+  // 子要素を再帰的に処理
+  if (node.children && node.children.length > 0) {
+    node.children.forEach((child) => {
+      collectStyleUsage(child, stylesData, stats, visited);
+    });
+  }
+
+  return stats;
 }
 
 /**

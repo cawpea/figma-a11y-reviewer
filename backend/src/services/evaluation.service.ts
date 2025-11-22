@@ -1,5 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { CategoryResult, EvaluationResult, FigmaNodeData, Suggestion } from '@shared/types';
+import {
+  CategoryResult,
+  EvaluationResult,
+  FigmaNodeData,
+  FigmaStylesData,
+  Suggestion,
+} from '@shared/types';
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
 import { StyleConsistencyAgent } from './agents/style-consistency.agent';
@@ -25,6 +31,7 @@ export class EvaluationService {
    */
   async evaluateDesign(
     data: FigmaNodeData,
+    stylesData?: FigmaStylesData,
     evaluationTypes?: string[],
     rootNodeId?: string
   ): Promise<EvaluationResult> {
@@ -47,6 +54,11 @@ export class EvaluationService {
       if (!agent) {
         console.warn(`Unknown evaluation type: ${type}`);
         return null;
+      }
+
+      // StyleConsistencyAgentにスタイル情報を渡す
+      if (type === 'styleConsistency' && agent instanceof StyleConsistencyAgent) {
+        agent.setStylesData(stylesData);
       }
 
       try {

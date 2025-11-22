@@ -19,6 +19,21 @@ const evaluationRequestSchema = z.object({
       type: z.string(),
     })
     .passthrough(), // 追加のプロパティを許可
+  stylesData: z
+    .object({
+      variables: z.array(z.any()),
+      textStyles: z.array(z.any()),
+      colorStyles: z.array(z.any()),
+      effectStyles: z.array(z.any()),
+      meta: z.object({
+        variablesCount: z.number(),
+        textStylesCount: z.number(),
+        colorStylesCount: z.number(),
+        effectStylesCount: z.number(),
+        truncated: z.boolean(),
+      }),
+    })
+    .optional(),
   evaluationTypes: z.array(z.string()).optional(),
   userId: z.string().optional(),
 });
@@ -46,6 +61,7 @@ router.post('/evaluate', async (req: Request, res: Response) => {
     // 評価実行
     const result = await evaluationService.evaluateDesign(
       validatedData.nodeData,
+      validatedData.stylesData,
       validatedData.evaluationTypes,
       validatedData.nodeId
     );

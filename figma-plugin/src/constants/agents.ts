@@ -20,14 +20,14 @@ export const agentOptions: AgentOption[] = [
   },
   {
     id: 'styleConsistency',
-    label: 'スタイルや命名の一貫性',
+    label: 'スタイルの一貫性',
     description: 'カラー、テキスト、エフェクトスタイル、命名規則の一貫性を評価',
   },
 ];
 
 export const categoryLabels: Record<string, string> = {
   accessibility: 'アクセシビリティ',
-  styleConsistency: 'スタイルや命名の一貫性',
+  styleConsistency: 'スタイルの一貫性',
   usability: 'ユーザビリティ',
   layout: 'レイアウト',
   naming: '命名規則',

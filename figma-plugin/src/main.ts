@@ -1,9 +1,18 @@
 import { emit, on, showUI } from '@create-figma-plugin/utilities';
-import type { EvaluationRequest, EvaluationResult, FigmaNodeData } from '@shared/types';
+import type {
+  EvaluationRequest,
+  EvaluationResult,
+  FigmaNodeData,
+  FigmaStylesData,
+  StyleInfo,
+  VariableAlias,
+  VariableInfo,
+} from '@shared/types';
 
 // 設定
 const API_BASE_URL = 'http://localhost:3000/api';
-const MAX_DEPTH = 10; // 再帰の最大深さ（無限ループ防止）
+const MAX_DEPTH = 10; // 再帰の最大深さ(無限ループ防止)
+const MAX_STYLES_PER_CATEGORY = 100; // 各カテゴリの最大スタイル数
 
 // エラーメッセージ定数
 const ERROR_MESSAGES = {
@@ -122,13 +131,97 @@ async function handleEvaluation(evaluationTypes?: string[]) {
 
     console.log('Extracted node data:', JSON.stringify(nodeData, null, 2));
 
+    // ファイル全体のスタイル情報を取得
+    const stylesData = await extractFileStyles();
+
+    console.log('Extracted styles data:', JSON.stringify(stylesData, null, 2));
+
     // バックエンドAPIに送信
-    const result = await callEvaluationAPI(nodeData, evaluationTypes);
+    const result = await callEvaluationAPI(nodeData, stylesData, evaluationTypes);
 
     emit('EVALUATION_COMPLETE', result);
   } catch (error) {
     console.error('Evaluation error:', error);
     emit('ERROR', `評価中にエラーが発生しました: ${error}`);
+  }
+}
+
+/**
+ * ファイル全体のスタイル定義情報を取得
+ * 各カテゴリ最大100個に制限
+ */
+async function extractFileStyles(): Promise<FigmaStylesData> {
+  try {
+    // Variables取得
+    const allVariables = await figma.variables.getLocalVariablesAsync();
+    const variables: VariableInfo[] = allVariables.slice(0, MAX_STYLES_PER_CATEGORY).map((v) => ({
+      id: v.id,
+      name: v.name,
+      resolvedType: v.resolvedType,
+      valuesByMode: v.valuesByMode,
+    }));
+
+    // TextStyles取得
+    const allTextStyles = figma.getLocalTextStyles();
+    const textStyles: StyleInfo[] = allTextStyles.slice(0, MAX_STYLES_PER_CATEGORY).map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+    }));
+
+    // ColorStyles(PaintStyles)取得
+    const allPaintStyles = figma.getLocalPaintStyles();
+    const colorStyles: StyleInfo[] = allPaintStyles.slice(0, MAX_STYLES_PER_CATEGORY).map((s) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+    }));
+
+    // EffectStyles取得
+    const allEffectStyles = figma.getLocalEffectStyles();
+    const effectStyles: StyleInfo[] = allEffectStyles
+      .slice(0, MAX_STYLES_PER_CATEGORY)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        description: s.description,
+      }));
+
+    const truncated =
+      allVariables.length > MAX_STYLES_PER_CATEGORY ||
+      allTextStyles.length > MAX_STYLES_PER_CATEGORY ||
+      allPaintStyles.length > MAX_STYLES_PER_CATEGORY ||
+      allEffectStyles.length > MAX_STYLES_PER_CATEGORY;
+
+    return {
+      variables,
+      textStyles,
+      colorStyles,
+      effectStyles,
+      meta: {
+        variablesCount: variables.length,
+        textStylesCount: textStyles.length,
+        colorStylesCount: colorStyles.length,
+        effectStylesCount: effectStyles.length,
+        truncated,
+      },
+    };
+  } catch (error) {
+    console.error('Failed to extract file styles:', error);
+    // エラーの場合は空の情報を返す
+    return {
+      variables: [],
+      textStyles: [],
+      colorStyles: [],
+      effectStyles: [],
+      meta: {
+        variablesCount: 0,
+        textStylesCount: 0,
+        colorStylesCount: 0,
+        effectStylesCount: 0,
+        truncated: false,
+      },
+    };
   }
 }
 
@@ -151,6 +244,64 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
     name: node.name,
     type: node.type,
   };
+
+  // スタイル参照情報を取得
+  // Variables バインド情報
+  if ('boundVariables' in node && node.boundVariables) {
+    data.boundVariables = node.boundVariables as Record<string, VariableAlias | VariableAlias[]>;
+  }
+
+  // TextStyle参照
+  if (node.type === 'TEXT' && node.textStyleId && node.textStyleId !== figma.mixed) {
+    data.textStyleId = node.textStyleId;
+    try {
+      const style = figma.getStyleById(node.textStyleId);
+      if (style) {
+        data.textStyleName = style.name;
+      }
+    } catch (error) {
+      console.warn('Failed to get text style name:', error);
+    }
+  }
+
+  // ColorStyle(FillStyle)参照
+  if ('fillStyleId' in node && node.fillStyleId) {
+    data.fillStyleId = node.fillStyleId as string;
+    try {
+      const style = figma.getStyleById(node.fillStyleId as string);
+      if (style) {
+        data.fillStyleName = style.name;
+      }
+    } catch (error) {
+      console.warn('Failed to get fill style name:', error);
+    }
+  }
+
+  // StrokeStyle参照
+  if ('strokeStyleId' in node && node.strokeStyleId) {
+    data.strokeStyleId = node.strokeStyleId as string;
+    try {
+      const style = figma.getStyleById(node.strokeStyleId as string);
+      if (style) {
+        data.strokeStyleName = style.name;
+      }
+    } catch (error) {
+      console.warn('Failed to get stroke style name:', error);
+    }
+  }
+
+  // EffectStyle参照
+  if ('effectStyleId' in node && node.effectStyleId) {
+    data.effectStyleId = node.effectStyleId as string;
+    try {
+      const style = figma.getStyleById(node.effectStyleId as string);
+      if (style) {
+        data.effectStyleName = style.name;
+      }
+    } catch (error) {
+      console.warn('Failed to get effect style name:', error);
+    }
+  }
 
   // バウンディングボックス（サイズと位置）
   if ('absoluteBoundingBox' in node && node.absoluteBoundingBox) {
@@ -320,12 +471,14 @@ async function extractNodeData(node: SceneNode, depth: number = 0): Promise<Figm
 // バックエンドAPIを呼び出す
 async function callEvaluationAPI(
   nodeData: FigmaNodeData,
+  stylesData: FigmaStylesData,
   evaluationTypes?: string[]
 ): Promise<EvaluationResult> {
   const requestBody: Partial<EvaluationRequest> = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
     nodeData: nodeData,
+    stylesData: stylesData,
   };
 
   if (evaluationTypes) {

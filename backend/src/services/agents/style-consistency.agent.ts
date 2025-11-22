@@ -1,6 +1,7 @@
-import { FigmaNodeData } from '@shared/types';
+import { FigmaNodeData, FigmaStylesData } from '@shared/types';
 
 import {
+  buildStylesApplicationMap,
   buildSystemPromptSuffix,
   formatFigmaDataForEvaluation,
   getNodeIdReminder,
@@ -10,6 +11,7 @@ import { BaseEvaluationAgent } from './base.agent';
 
 export class StyleConsistencyAgent extends BaseEvaluationAgent {
   protected category = 'styleConsistency';
+  private stylesData?: FigmaStylesData;
 
   protected systemPrompt = `
 あなたは、デザインスタイル、コンポーネントアーキテクチャ、UIデザインのベストプラクティスに深い専門性を持つ **Figma スタイルと命名の一貫性チェックのエリート専門家** です。
@@ -30,7 +32,7 @@ export class StyleConsistencyAgent extends BaseEvaluationAgent {
 
 ## 2. Color Style Consistency（カラースタイル）
 
-* すべてのカラーがローカル値ではなく、定義済みのカラースタイルを参照しているか
+* 指定されたカラーがローカル値ではなく、定義済みのカラースタイルを参照しているか
 * 重複または類似色のスタイルが存在しないか
 * 未使用／孤立したカラースタイルを検出
 
@@ -89,17 +91,13 @@ export class StyleConsistencyAgent extends BaseEvaluationAgent {
 
 ### 3. **Severity Assessment（重大度評価）**
 
-問題を以下の段階で分類：
+問題を以下の段階で分類し、優先度順にソートする。
 
 * **High**：重大な不整合、保守が難しくなる
 * **Medium**：軽微な逸脱、修正しやすい
 * **Low**：スタイル上の問題、影響は小さい
 
-### 4. **Contextual Understanding（文脈理解）**
-
-スタイルガイドラインの成熟度やプロジェクトの発展段階を考慮した評価。
-
-### 5. **Actionable Recommendations（実行可能な改善案）**
+### 4. **Actionable Recommendations（実行可能な改善案）**
 
 具体的で実装可能なステップとして改善案を提示。
 
@@ -108,12 +106,33 @@ export class StyleConsistencyAgent extends BaseEvaluationAgent {
 階層構造全体を見て、一貫性を評価してください。
 ${buildSystemPromptSuffix()}`;
 
+  /**
+   * スタイル情報を設定
+   */
+  setStylesData(stylesData?: FigmaStylesData): void {
+    this.stylesData = stylesData;
+  }
+
   protected buildPrompt(data: FigmaNodeData): string {
     const formattedData = formatFigmaDataForEvaluation(data);
+    const stylesMap = buildStylesApplicationMap(data, this.stylesData);
 
     return `以下のFigmaノード（子要素を含む階層構造）をスタイルと命名の一貫性の観点で評価してください:
 
 ${formattedData}
+
+---
+
+${stylesMap}
+
+---
+
+**評価時の重要な注意事項:**
+- 指摘は１つの問題につき１つに留め、過度に冗長にならないように注意してください
+- 上記の「スタイル定義と適用状況」セクションを必ず参照してください
+- Variables、TextStyle、ColorStyleが適切に使用されているか評価してください
+- ハードコードされた値がある場合は、どのスタイルを使うべきか具体的に提案してください
+- 未使用のスタイル定義がある場合は、その旨を指摘してください
 
 ${getNodeIdReminder()}
 

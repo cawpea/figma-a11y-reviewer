@@ -36,7 +36,7 @@ backend/              # Express.js バックエンド API
 │   │   └── agents/
 │   │       ├── base.agent.ts        # 評価エージェントの基底クラス
 │   │       ├── accessibility.agent.ts    # アクセシビリティ評価
-│   │       └── style-consistency.agent.ts    # スタイルや命名の一貫性評価
+│   │       └── style-consistency.agent.ts    # スタイルの一貫性評価
 │   ├── config/anthropic.ts          # Claude API設定
 │   ├── types/index.ts               # 型定義
 │   └── utils/
@@ -219,7 +219,7 @@ Plugin (src/components/Plugin/index.tsx)
 `src/constants/agents.ts`でサポートされる評価エージェントを定義:
 
 - **accessibility**: アクセシビリティ評価 (推定15秒)
-- **styleConsistency**: スタイルや命名の一貫性評価 (推定18秒)
+- **styleConsistency**: スタイルの一貫性評価 (推定18秒)
 - **usability**: ユーザビリティ評価 (推定20秒)
 
 ### Figmaノードデータの抽出

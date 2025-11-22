@@ -11,7 +11,7 @@ describe('SettingsPopover', () => {
     { id: 'accessibility', label: 'アクセシビリティ', description: 'WCAG準拠を評価' },
     {
       id: 'styleConsistency',
-      label: 'スタイルや命名の一貫性',
+      label: 'スタイルの一貫性',
       description: 'デザインの一貫性を評価',
     },
   ];
@@ -40,7 +40,7 @@ describe('SettingsPopover', () => {
     render(<SettingsPopover {...defaultProps} />);
 
     expect(screen.getByText('アクセシビリティ')).toBeInTheDocument();
-    expect(screen.getByText('スタイルや命名の一貫性')).toBeInTheDocument();
+    expect(screen.getByText('スタイルの一貫性')).toBeInTheDocument();
   });
 
   it('閉じるボタンがクリックされたときonCloseを呼び出す', async () => {
