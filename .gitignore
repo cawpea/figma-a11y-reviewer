@@ -9,3 +9,5 @@ debug-*.json
 # figma-plugin
 *.css.d.ts
 figma-plugin/build/
+
+coverage/

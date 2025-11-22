@@ -1,12 +1,18 @@
 {
   "extends": "@create-figma-plugin/tsconfig",
   "compilerOptions": {
-    "typeRoots": ["node_modules/@figma", "node_modules/@types"],
-    "lib": ["ES2020"],
+    "typeRoots": [
+      "node_modules/@figma",
+      "node_modules/@types",
+      "../node_modules/@types"
+    ],
+    "lib": ["ES2020", "DOM"],
     "skipLibCheck": true,
+    "baseUrl": ".",
     "paths": {
       "@shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "build", "src/**/test-setup.ts"]
 }
