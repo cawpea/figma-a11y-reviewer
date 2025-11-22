@@ -283,3 +283,107 @@ PORT=3000                    # デフォルト: 3000
 NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 ```
+
+## テスト方針
+
+### テストフレームワーク
+
+- **Jest**: ユニットテスト・統合テストフレームワーク
+- **Testing Library**: コンポーネントテスト用（Preact対応）
+- **@testing-library/user-event**: ユーザーインタラクションのシミュレーション
+
+### テストコマンド
+
+```bash
+# バックエンドのテスト
+cd backend
+npm test                  # 全テスト実行
+npm run test:watch        # ウォッチモード
+npm run test:coverage     # カバレッジレポート生成
+
+# Figmaプラグインのテスト
+cd figma-plugin
+npm test                  # 全テスト実行
+npm run test:watch        # ウォッチモード
+npm run test:coverage     # カバレッジレポート生成
+```
+
+### テストの命名規則
+
+- **describe**: 日本語でテスト対象を記述（例: `describe('Badge', () => ...)`）
+- **it**: 日本語で期待する動作を記述（例:
+  `it('高重要度バッジをレンダリングする', () => ...)`）
+- テストケースは動詞で始める（「〜する」「〜される」）
+
+### バックエンドのテスト構造
+
+```
+backend/src/
+├── services/
+│   ├── evaluation.service.test.ts       # 評価サービス全体のテスト
+│   └── agents/
+│       ├── accessibility.agent.test.ts  # アクセシビリティエージェントのテスト
+│       └── base.agent.test.ts           # 基底エージェントクラスのテスト
+└── utils/
+    └── prompt.utils.test.ts             # プロンプトユーティリティのテスト
+```
+
+**テスト観点**:
+
+- 評価ロジックの正確性
+- Claude APIレスポンスのパース処理
+- エラーハンドリング
+- ノードID検証（Figmaの正規ID形式のバリデーション）
+- カラーコントラスト計算
+
+### Figmaプラグインのテスト構造
+
+```
+figma-plugin/src/
+├── components/
+│   ├── Badge/index.test.tsx             # バッジコンポーネント
+│   ├── Button/index.test.tsx            # ボタンコンポーネント
+│   ├── Checkbox/index.test.tsx          # チェックボックスコンポーネント
+│   ├── ResultView/index.test.tsx        # 結果表示コンポーネント
+│   ├── SettingsPopover/index.test.tsx   # 設定ポップオーバー
+│   └── Plugin/hooks/
+│       ├── useEvaluation.test.ts        # 評価フック
+│       └── useAgentSelection.test.ts    # エージェント選択フック
+```
+
+**テスト観点**:
+
+- UIコンポーネントの正しいレンダリング
+- ユーザーインタラクション（クリック、入力）の動作
+- 状態管理の正確性
+- イベントハンドラーの呼び出し確認
+- LocalStorageとの連携
+
+### テストのベストプラクティス
+
+1. **ユーザー視点でテストする**
+   - `getByRole`, `getByText`などのアクセシビリティクエリを優先
+   - 実装の詳細ではなく、ユーザーの視点で検証
+
+2. **モック戦略**
+   - 外部依存（API、localStorage）は適切にモック化
+   - `@create-figma-plugin/utilities`のイベントシステムをモック
+
+3. **カバレッジ目標**
+   - 新規コードは80%以上のカバレッジを目指す
+   - クリティカルパス（評価ロジック、データパース）は100%
+
+4. **テストの独立性**
+   - 各テストは独立して実行可能
+   - `beforeEach`で状態をクリーンアップ
+   - モックは各テストでリセット
+
+5. **非同期処理のテスト**
+   - `async/await`と`waitFor`を使用
+   - タイムアウトは適切に設定
+
+### CI/CD統合
+
+- Pull Request作成時に自動テスト実行
+- カバレッジレポートの自動生成
+- テスト失敗時はマージをブロック
