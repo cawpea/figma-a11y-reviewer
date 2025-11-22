@@ -5,13 +5,13 @@ import { h } from 'preact';
 import Button from './index';
 
 describe('Button', () => {
-  it('renders children correctly', () => {
+  it('childrenを正しくレンダリングする', () => {
     render(<Button onClick={() => {}}>Click me</Button>);
 
     expect(screen.getByText('Click me')).toBeInTheDocument();
   });
 
-  it('calls onClick when clicked', async () => {
+  it('クリック時にonClickを呼び出す', async () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click me</Button>);
 
@@ -20,7 +20,7 @@ describe('Button', () => {
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('is disabled when disabled prop is true', () => {
+  it('disabledプロパティがtrueのときに無効化される', () => {
     render(
       <Button onClick={() => {}} disabled>
         Click me
@@ -30,7 +30,7 @@ describe('Button', () => {
     expect(screen.getByText('Click me')).toBeDisabled();
   });
 
-  it('does not call onClick when disabled', async () => {
+  it('無効状態ではonClickを呼び出さない', async () => {
     const handleClick = jest.fn();
     render(
       <Button onClick={handleClick} disabled>
@@ -43,14 +43,14 @@ describe('Button', () => {
     expect(handleClick).not.toHaveBeenCalled();
   });
 
-  it('applies primary variant classes by default', () => {
+  it('デフォルトでprimaryバリアントクラスを適用する', () => {
     render(<Button onClick={() => {}}>Primary</Button>);
 
     const button = screen.getByText('Primary');
     expect(button).toHaveClass('bg-blue-500');
   });
 
-  it('applies secondary variant classes', () => {
+  it('secondaryバリアントクラスを適用する', () => {
     render(
       <Button onClick={() => {}} variant="secondary">
         Secondary
@@ -61,7 +61,7 @@ describe('Button', () => {
     expect(button).toHaveClass('bg-gray-100');
   });
 
-  it('applies icon variant classes', () => {
+  it('iconバリアントクラスを適用する', () => {
     render(
       <Button onClick={() => {}} variant="icon">
         Icon
@@ -72,7 +72,7 @@ describe('Button', () => {
     expect(button).toHaveClass('w-10');
   });
 
-  it('applies custom className', () => {
+  it('カスタムclassNameを適用する', () => {
     render(
       <Button onClick={() => {}} className="custom-class">
         Custom
@@ -83,7 +83,7 @@ describe('Button', () => {
     expect(button).toHaveClass('custom-class');
   });
 
-  it('applies title attribute', () => {
+  it('title属性を適用する', () => {
     render(
       <Button onClick={() => {}} title="Button title">
         Button
@@ -94,7 +94,7 @@ describe('Button', () => {
     expect(button).toHaveAttribute('title', 'Button title');
   });
 
-  it('renders complex children', () => {
+  it('複雑なchildrenをレンダリングする', () => {
     render(
       <Button onClick={() => {}}>
         <span>Icon</span> Text

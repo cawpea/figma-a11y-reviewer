@@ -12,7 +12,7 @@ import {
 
 describe('prompt.utils', () => {
   describe('extractJsonFromResponse', () => {
-    it('should extract JSON from code block', () => {
+    it('コードブロックからJSONを抽出する', () => {
       const text = '```json\n{"score": 85, "issues": [], "positives": []}\n```';
       const result = extractJsonFromResponse(text);
 
@@ -23,7 +23,7 @@ describe('prompt.utils', () => {
       });
     });
 
-    it('should extract JSON without code block', () => {
+    it('コードブロックなしでJSONを抽出する', () => {
       const text = 'Here is the result: {"score": 90, "issues": [], "positives": ["Good"]}';
       const result = extractJsonFromResponse(text);
 
@@ -34,13 +34,13 @@ describe('prompt.utils', () => {
       });
     });
 
-    it('should throw error when no JSON found', () => {
+    it('JSONが見つからないときにエラーをスローする', () => {
       const text = 'No JSON here';
 
       expect(() => extractJsonFromResponse(text)).toThrow('No valid JSON found in response');
     });
 
-    it('should handle nested JSON objects', () => {
+    it('ネストされたJSONオブジェクトを処理する', () => {
       const text =
         '```json\n{"score": 75, "issues": [{"severity": "high", "message": "Test"}], "positives": []}\n```';
       const result = extractJsonFromResponse(text);
@@ -77,31 +77,31 @@ describe('prompt.utils', () => {
       ],
     };
 
-    it('should find root node path', () => {
+    it('ルートノードパスを見つける', () => {
       const path = extractNodeHierarchyPath(mockData, 'root');
 
       expect(path).toEqual(['root']);
     });
 
-    it('should find direct child path', () => {
+    it('直接の子パスを見つける', () => {
       const path = extractNodeHierarchyPath(mockData, 'child1');
 
       expect(path).toEqual(['root', 'child1']);
     });
 
-    it('should find nested child path', () => {
+    it('ネストされた子パスを見つける', () => {
       const path = extractNodeHierarchyPath(mockData, 'grandchild1');
 
       expect(path).toEqual(['root', 'child1', 'grandchild1']);
     });
 
-    it('should return null when node not found', () => {
+    it('ノードが見つからないときnullを返す', () => {
       const path = extractNodeHierarchyPath(mockData, 'nonexistent');
 
       expect(path).toBeNull();
     });
 
-    it('should handle circular references', () => {
+    it('循環参照を処理する', () => {
       const circularData: FigmaNodeData = {
         id: 'node1',
         name: 'Node 1',
@@ -118,7 +118,7 @@ describe('prompt.utils', () => {
   });
 
   describe('formatFigmaDataForEvaluation', () => {
-    it('should format simple node', () => {
+    it('シンプルなノードをフォーマットする', () => {
       const node: FigmaNodeData = {
         id: '1:1',
         name: 'Button',
@@ -137,7 +137,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('サイズ: 100×40px');
     });
 
-    it('should format node with Auto Layout', () => {
+    it('Auto Layoutを持つノードをフォーマットする', () => {
       const node: FigmaNodeData = {
         id: '1:2',
         name: 'Container',
@@ -159,7 +159,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('itemSpacing: 8px');
     });
 
-    it('should format text node', () => {
+    it('テキストノードをフォーマットする', () => {
       const node: FigmaNodeData = {
         id: '1:3',
         name: 'Label',
@@ -182,7 +182,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('フォントサイズ: 16px');
     });
 
-    it('should handle nested children', () => {
+    it('ネストされた子要素を処理する', () => {
       const node: FigmaNodeData = {
         id: 'parent',
         name: 'Parent',
@@ -209,7 +209,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('【TEXT】 Child 2 (ID: child2)');
     });
 
-    it('should detect circular references', () => {
+    it('循環参照を検出する', () => {
       const node: FigmaNodeData = {
         id: 'circular',
         name: 'Circular',
@@ -224,7 +224,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('[循環参照を検出: Circular (ID: circular)]');
     });
 
-    it('should respect max depth limit', () => {
+    it('最大深度制限を尊重する', () => {
       // 深いネスト構造を作成
       const createNestedNode = (depth: number): FigmaNodeData => {
         const node: FigmaNodeData = {
@@ -248,7 +248,7 @@ describe('prompt.utils', () => {
   });
 
   describe('getJsonSchemaTemplate', () => {
-    it('should return JSON schema template', () => {
+    it('JSONスキーマテンプレートを返す', () => {
       const template = getJsonSchemaTemplate();
 
       expect(template).toContain('必ず以下のJSON形式で結果を返してください');
@@ -262,7 +262,7 @@ describe('prompt.utils', () => {
   });
 
   describe('getNodeIdInstructions', () => {
-    it('should return node ID instructions', () => {
+    it('ノードIDの指示を返す', () => {
       const instructions = getNodeIdInstructions();
 
       expect(instructions).toContain('**重要なnodeIdの指定方法:**');
@@ -274,7 +274,7 @@ describe('prompt.utils', () => {
   });
 
   describe('buildColorContrastMap', () => {
-    it('should return message when no text elements found', () => {
+    it('テキスト要素が見つからないときにメッセージを返す', () => {
       const node: FigmaNodeData = {
         id: 'frame',
         name: 'Frame',
@@ -286,7 +286,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('テキスト要素が見つかりませんでした');
     });
 
-    it('should generate contrast map for text nodes with colors', () => {
+    it('色を持つテキストノードのコントラストマップを生成する', () => {
       const node: FigmaNodeData = {
         id: 'root',
         name: 'Root',
@@ -323,7 +323,7 @@ describe('prompt.utils', () => {
       expect(result).toContain('コントラスト比:');
     });
 
-    it('should limit results to maxItems', () => {
+    it('結果をmaxItemsに制限する', () => {
       // 多数のテキストノードを作成
       const children: FigmaNodeData[] = [];
       for (let i = 0; i < 150; i++) {

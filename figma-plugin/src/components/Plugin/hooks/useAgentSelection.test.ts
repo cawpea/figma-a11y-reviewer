@@ -37,13 +37,13 @@ describe('useAgentSelection', () => {
     localStorageMock.clear();
   });
 
-  it('initializes with default selected agents', () => {
+  it('デフォルトで選択されたエージェントで初期化される', () => {
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
     expect(result.current.selectedAgents).toEqual(['accessibility', 'designSystem', 'usability']);
   });
 
-  it('loads saved selection from localStorage', () => {
+  it('localStorageから保存された選択を読み込む', () => {
     localStorageMock.setItem(
       'figma-ui-reviewer-selected-agents',
       JSON.stringify(['accessibility'])
@@ -54,7 +54,7 @@ describe('useAgentSelection', () => {
     expect(result.current.selectedAgents).toEqual(['accessibility']);
   });
 
-  it('handles localStorage parse error gracefully', () => {
+  it('localStorageのパースエラーを適切に処理する', () => {
     localStorageMock.setItem('figma-ui-reviewer-selected-agents', 'invalid json');
 
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
@@ -64,7 +64,7 @@ describe('useAgentSelection', () => {
   });
 
   describe('handleAgentChange', () => {
-    it('adds agent when checked is true', () => {
+    it('checkedがtrueのときにエージェントを追加する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -82,7 +82,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toContain('accessibility');
     });
 
-    it('removes agent when checked is false', () => {
+    it('checkedがfalseのときにエージェントを削除する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -94,7 +94,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toContain('usability');
     });
 
-    it('saves selection to localStorage', () => {
+    it('選択をlocalStorageに保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -105,7 +105,7 @@ describe('useAgentSelection', () => {
       expect(JSON.parse(saved!)).toEqual(['accessibility', 'usability']);
     });
 
-    it('handles multiple changes', () => {
+    it('複数の変更を処理する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -121,7 +121,7 @@ describe('useAgentSelection', () => {
   });
 
   describe('handleSelectAll', () => {
-    it('selects all available agents', () => {
+    it('利用可能なすべてのエージェントを選択する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       // First deselect all
@@ -139,7 +139,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual(['accessibility', 'designSystem', 'usability']);
     });
 
-    it('saves all selected agents to localStorage', () => {
+    it('選択されたすべてのエージェントをlocalStorageに保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -152,7 +152,7 @@ describe('useAgentSelection', () => {
   });
 
   describe('handleDeselectAll', () => {
-    it('deselects all agents', () => {
+    it('すべてのエージェントの選択を解除する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -162,7 +162,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual([]);
     });
 
-    it('saves empty selection to localStorage', () => {
+    it('空の選択をlocalStorageに保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
@@ -174,7 +174,7 @@ describe('useAgentSelection', () => {
     });
   });
 
-  it('maintains selection state across multiple operations', () => {
+  it('複数の操作を通じて選択状態を維持する', () => {
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
     act(() => {

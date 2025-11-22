@@ -26,20 +26,20 @@ describe('SettingsPopover', () => {
     jest.clearAllMocks();
   });
 
-  it('renders popover with title', () => {
+  it('タイトル付きでポップオーバーをレンダリングする', () => {
     render(<SettingsPopover {...defaultProps} />);
 
     expect(screen.getByText('評価項目の選択')).toBeInTheDocument();
   });
 
-  it('renders all agent options', () => {
+  it('すべてのエージェントオプションをレンダリングする', () => {
     render(<SettingsPopover {...defaultProps} />);
 
     expect(screen.getByText('アクセシビリティ')).toBeInTheDocument();
     expect(screen.getByText('デザインシステム')).toBeInTheDocument();
   });
 
-  it('calls onClose when close button is clicked', async () => {
+  it('閉じるボタンがクリックされたときonCloseを呼び出す', async () => {
     render(<SettingsPopover {...defaultProps} />);
 
     const closeButton = screen.getByText('×');
@@ -48,7 +48,7 @@ describe('SettingsPopover', () => {
     expect(defaultProps.onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onSelectAll when select all button is clicked', async () => {
+  it('全選択ボタンがクリックされたときonSelectAllを呼び出す', async () => {
     render(<SettingsPopover {...defaultProps} />);
 
     const selectAllButton = screen.getByText('全選択');
@@ -57,7 +57,7 @@ describe('SettingsPopover', () => {
     expect(defaultProps.onSelectAll).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onDeselectAll when deselect all button is clicked', async () => {
+  it('全解除ボタンがクリックされたときonDeselectAllを呼び出す', async () => {
     render(<SettingsPopover {...defaultProps} />);
 
     const deselectAllButton = screen.getByText('全解除');
@@ -66,7 +66,7 @@ describe('SettingsPopover', () => {
     expect(defaultProps.onDeselectAll).toHaveBeenCalledTimes(1);
   });
 
-  it('displays estimated time', () => {
+  it('推定時間を表示する', () => {
     render(<SettingsPopover {...defaultProps} estimatedTime={33} />);
 
     // TimeEstimateコンポーネントが表示されることを確認
@@ -75,7 +75,7 @@ describe('SettingsPopover', () => {
     expect(popover).toBeInTheDocument();
   });
 
-  it('highlights selected agents', () => {
+  it('選択されたエージェントをハイライトする', () => {
     render(
       <SettingsPopover {...defaultProps} selectedAgents={['accessibility', 'designSystem']} />
     );
@@ -85,13 +85,13 @@ describe('SettingsPopover', () => {
     expect(checkboxes).toHaveLength(2);
   });
 
-  it('renders with empty selected agents', () => {
+  it('選択されたエージェントが空の状態でレンダリングする', () => {
     render(<SettingsPopover {...defaultProps} selectedAgents={[]} />);
 
     expect(screen.getByText('アクセシビリティ')).toBeInTheDocument();
   });
 
-  it('renders with all agents selected', () => {
+  it('すべてのエージェントが選択された状態でレンダリングする', () => {
     render(
       <SettingsPopover {...defaultProps} selectedAgents={['accessibility', 'designSystem']} />
     );

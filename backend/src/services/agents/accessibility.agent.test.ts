@@ -11,7 +11,7 @@ describe('AccessibilityAgent', () => {
   });
 
   describe('evaluate', () => {
-    it('should include formatted Figma data in evaluation', async () => {
+    it('評価にフォーマットされたFigmaデータを含む', async () => {
       const mockData: FigmaNodeData = {
         id: '1:1',
         name: 'Button',
@@ -30,7 +30,7 @@ describe('AccessibilityAgent', () => {
       expect(result.result.score).toBeLessThanOrEqual(100);
     });
 
-    it('should handle text node with low contrast', async () => {
+    it('低コントラストのテキストノードを処理する', async () => {
       const mockData: FigmaNodeData = {
         id: 'root',
         name: 'Container',
@@ -66,13 +66,13 @@ describe('AccessibilityAgent', () => {
   });
 
   describe('category', () => {
-    it('should have accessibility category', () => {
+    it('accessibilityカテゴリを持つ', () => {
       expect((agent as any).category).toBe('accessibility');
     });
   });
 
   describe('systemPrompt', () => {
-    it('should include WCAG guidelines', () => {
+    it('WCAGガイドラインを含む', () => {
       const systemPrompt = (agent as any).systemPrompt;
 
       expect(systemPrompt).toContain('WCAG');
@@ -81,7 +81,7 @@ describe('AccessibilityAgent', () => {
       expect(systemPrompt).toContain('44x44px');
     });
 
-    it('should include accessibility evaluation criteria', () => {
+    it('アクセシビリティ評価基準を含む', () => {
       const systemPrompt = (agent as any).systemPrompt;
 
       expect(systemPrompt).toContain('カラーコントラスト比');

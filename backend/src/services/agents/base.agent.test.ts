@@ -48,7 +48,7 @@ describe('BaseEvaluationAgent', () => {
       agent = new TestEvaluationAgent();
     });
 
-    it('should accept valid regular node IDs', () => {
+    it('有効な通常のノードIDを受け入れる', () => {
       const mockData: FigmaNodeData = {
         id: '1809:1836',
         name: 'Test Node',
@@ -77,7 +77,7 @@ describe('BaseEvaluationAgent', () => {
       expect(result.issues[0].nodeHierarchy).toEqual(['1809:1836']);
     });
 
-    it('should accept valid instance node IDs', () => {
+    it('有効なインスタンスノードIDを受け入れる', () => {
       const mockData: FigmaNodeData = {
         id: 'I1806:932;589:1207',
         name: 'Button Instance',
@@ -105,7 +105,7 @@ describe('BaseEvaluationAgent', () => {
       expect(result.issues[0].nodeHierarchy).toEqual(['I1806:932;589:1207']);
     });
 
-    it('should accept nested instance node IDs', () => {
+    it('ネストされたインスタンスノードIDを受け入れる', () => {
       const mockData: FigmaNodeData = {
         id: 'I1806:984;1809:902;105:1169',
         name: 'Nested Instance',
@@ -132,7 +132,7 @@ describe('BaseEvaluationAgent', () => {
       expect(result.issues[0].nodeId).toBe('I1806:984;1809:902;105:1169');
     });
 
-    it('should reject invalid node ID formats', () => {
+    it('無効なノードIDフォーマットを拒否する', () => {
       const mockData: FigmaNodeData = {
         id: '1809:1836',
         name: 'Test Node',
@@ -172,7 +172,7 @@ describe('BaseEvaluationAgent', () => {
       });
     });
 
-    it('should reject extremely long node IDs', () => {
+    it('非常に長いノードIDを拒否する', () => {
       const mockData: FigmaNodeData = {
         id: '1809:1836',
         name: 'Test Node',
@@ -210,7 +210,7 @@ describe('BaseEvaluationAgent', () => {
       agent = new TestEvaluationAgent();
     });
 
-    it('should parse valid response', () => {
+    it('有効なレスポンスをパースする', () => {
       const mockData: FigmaNodeData = {
         id: '1:1',
         name: 'Test',
@@ -228,7 +228,7 @@ describe('BaseEvaluationAgent', () => {
       expect(result.positives).toEqual(['Good design']);
     });
 
-    it('should throw error when no text content', () => {
+    it('テキストコンテンツがないときにエラーをスローする', () => {
       const mockData: FigmaNodeData = {
         id: '1:1',
         name: 'Test',
@@ -244,7 +244,7 @@ describe('BaseEvaluationAgent', () => {
       );
     });
 
-    it('should throw error when invalid format', () => {
+    it('無効なフォーマットのときにエラーをスローする', () => {
       const mockData: FigmaNodeData = {
         id: '1:1',
         name: 'Test',
@@ -266,7 +266,7 @@ describe('BaseEvaluationAgent', () => {
       agent = new TestEvaluationAgent();
     });
 
-    it('should return evaluation result with usage', async () => {
+    it('使用量を含む評価結果を返す', async () => {
       const mockData: FigmaNodeData = {
         id: '1:1',
         name: 'Test Node',
@@ -290,7 +290,7 @@ describe('BaseEvaluationAgent', () => {
       agent = new TestEvaluationAgent();
     });
 
-    it('should build prompt with node name', () => {
+    it('ノード名を含むプロンプトを構築する', () => {
       const mockData: FigmaNodeData = {
         id: '1:1',
         name: 'Button Component',

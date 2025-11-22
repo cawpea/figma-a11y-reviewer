@@ -6,7 +6,7 @@ import { h } from 'preact';
 import Checkbox from './index';
 
 describe('Checkbox', () => {
-  it('renders checkbox with given id', () => {
+  it('指定されたidでチェックボックスをレンダリングする', () => {
     render(<Checkbox id="test-checkbox" checked={false} onChange={() => {}} />);
 
     const input = screen.getByRole('checkbox');
@@ -14,21 +14,21 @@ describe('Checkbox', () => {
     expect(input).toHaveAttribute('id', 'test-checkbox');
   });
 
-  it('is checked when checked prop is true', () => {
+  it('checkedプロパティがtrueのときにチェックされる', () => {
     render(<Checkbox id="test" checked={true} onChange={() => {}} />);
 
     const input = screen.getByRole('checkbox');
     expect(input).toBeChecked();
   });
 
-  it('is unchecked when checked prop is false', () => {
+  it('checkedプロパティがfalseのときにチェックが外れる', () => {
     render(<Checkbox id="test" checked={false} onChange={() => {}} />);
 
     const input = screen.getByRole('checkbox');
     expect(input).not.toBeChecked();
   });
 
-  it('calls onChange with true when clicked while unchecked', async () => {
+  it('未チェック状態でクリックされたときtrueでonChangeを呼び出す', async () => {
     const handleChange = jest.fn();
     render(<Checkbox id="test" checked={false} onChange={handleChange} />);
 
@@ -38,7 +38,7 @@ describe('Checkbox', () => {
     expect(handleChange).toHaveBeenCalledWith(true);
   });
 
-  it('calls onChange with false when clicked while checked', async () => {
+  it('チェック状態でクリックされたときfalseでonChangeを呼び出す', async () => {
     const handleChange = jest.fn();
     render(<Checkbox id="test" checked={true} onChange={handleChange} />);
 
@@ -48,21 +48,21 @@ describe('Checkbox', () => {
     expect(handleChange).toHaveBeenCalledWith(false);
   });
 
-  it('displays checkmark icon when checked', () => {
+  it('チェック時にチェックマークアイコンを表示する', () => {
     const { container } = render(<Checkbox id="test" checked={true} onChange={() => {}} />);
 
     const svg = container.querySelector('svg');
     expect(svg).toBeInTheDocument();
   });
 
-  it('does not display checkmark icon when unchecked', () => {
+  it('未チェック時にチェックマークアイコンを表示しない', () => {
     const { container } = render(<Checkbox id="test" checked={false} onChange={() => {}} />);
 
     const svg = container.querySelector('svg');
     expect(svg).not.toBeInTheDocument();
   });
 
-  it('applies custom className to label', () => {
+  it('labelにカスタムclassNameを適用する', () => {
     const { container } = render(
       <Checkbox id="test" checked={false} onChange={() => {}} className="custom-class" />
     );
@@ -71,7 +71,7 @@ describe('Checkbox', () => {
     expect(label).toHaveClass('custom-class');
   });
 
-  it('has proper styling classes', () => {
+  it('適切なスタイルクラスを持つ', () => {
     const { container } = render(<Checkbox id="test" checked={false} onChange={() => {}} />);
 
     const label = container.querySelector('label');
@@ -80,7 +80,7 @@ describe('Checkbox', () => {
     expect(label).toHaveClass('cursor-pointer');
   });
 
-  it('changes style when checked', () => {
+  it('チェック時にスタイルが変わる', () => {
     const { container, rerender } = render(
       <Checkbox id="test" checked={false} onChange={() => {}} />
     );

@@ -23,7 +23,7 @@ describe('EvaluationService', () => {
       },
     };
 
-    it('should evaluate all agents by default', async () => {
+    it('デフォルトですべてのエージェントを評価する', async () => {
       const result = await service.evaluateDesign(mockData);
 
       expect(result.overallScore).toBeGreaterThanOrEqual(0);
@@ -37,7 +37,7 @@ describe('EvaluationService', () => {
       expect(result.metadata.rootNodeId).toBe('1:1');
     });
 
-    it('should evaluate only specified types', async () => {
+    it('指定されたタイプのみを評価する', async () => {
       const result = await service.evaluateDesign(mockData, ['accessibility']);
 
       expect(result.categories).toHaveProperty('accessibility');
@@ -45,7 +45,7 @@ describe('EvaluationService', () => {
       expect(result.categories).not.toHaveProperty('usability');
     });
 
-    it('should evaluate multiple specified types', async () => {
+    it('複数の指定されたタイプを評価する', async () => {
       const result = await service.evaluateDesign(mockData, ['accessibility', 'usability']);
 
       expect(result.categories).toHaveProperty('accessibility');
@@ -53,13 +53,13 @@ describe('EvaluationService', () => {
       expect(result.categories).not.toHaveProperty('designSystem');
     });
 
-    it('should throw error when no valid evaluation types provided', async () => {
+    it('有効な評価タイプが提供されていないときにエラーをスローする', async () => {
       await expect(service.evaluateDesign(mockData, ['invalid'])).rejects.toThrow(
         'No valid evaluation types provided'
       );
     });
 
-    it('should calculate overall score as average', async () => {
+    it('総合スコアを平均として計算する', async () => {
       const result = await service.evaluateDesign(mockData);
 
       const scores = Object.values(result.categories).map((c) => c.score);
@@ -68,7 +68,7 @@ describe('EvaluationService', () => {
       expect(result.overallScore).toBe(expectedAvg);
     });
 
-    it('should sort suggestions by severity', async () => {
+    it('提案を重要度でソートする', async () => {
       const result = await service.evaluateDesign(mockData);
 
       if (result.suggestions.length > 1) {
@@ -82,7 +82,7 @@ describe('EvaluationService', () => {
       }
     });
 
-    it('should include category in suggestions', async () => {
+    it('提案にカテゴリを含む', async () => {
       const result = await service.evaluateDesign(mockData);
 
       result.suggestions.forEach((suggestion) => {
@@ -91,7 +91,7 @@ describe('EvaluationService', () => {
       });
     });
 
-    it('should calculate usage and cost', async () => {
+    it('使用量とコストを計算する', async () => {
       const result = await service.evaluateDesign(mockData);
 
       expect(result.metadata.usage).toHaveProperty('totalInputTokens');
@@ -102,21 +102,21 @@ describe('EvaluationService', () => {
       expect(result.metadata.usage?.estimatedCost).toBeGreaterThan(0);
     });
 
-    it('should use custom rootNodeId when provided', async () => {
+    it('指定された場合にカスタムrootNodeIdを使用する', async () => {
       const customRootId = 'custom-root-123';
       const result = await service.evaluateDesign(mockData, undefined, customRootId);
 
       expect(result.metadata.rootNodeId).toBe(customRootId);
     });
 
-    it('should track evaluation duration', async () => {
+    it('評価期間を追跡する', async () => {
       const result = await service.evaluateDesign(mockData);
 
       expect(result.metadata.duration).toBeGreaterThanOrEqual(0);
       expect(typeof result.metadata.duration).toBe('number');
     });
 
-    it('should handle complex node structure', async () => {
+    it('複雑なノード構造を処理する', async () => {
       const complexData: FigmaNodeData = {
         id: 'root',
         name: 'App',
@@ -151,7 +151,7 @@ describe('EvaluationService', () => {
       expect(result.overallScore).toBeLessThanOrEqual(100);
     });
 
-    it('should filter out invalid evaluation types', async () => {
+    it('無効な評価タイプをフィルタリングする', async () => {
       const result = await service.evaluateDesign(mockData, [
         'accessibility',
         'invalid',
@@ -163,15 +163,15 @@ describe('EvaluationService', () => {
       expect(result.categories).not.toHaveProperty('invalid');
     });
 
-    it('should handle empty evaluation types array', async () => {
+    it('空の評価タイプ配列を処理する', async () => {
       await expect(service.evaluateDesign(mockData, [])).rejects.toThrow(
         'No valid evaluation types provided'
       );
     });
   });
 
-  describe('Agent initialization', () => {
-    it('should have all required agents', () => {
+  describe('エージェント初期化', () => {
+    it('すべての必要なエージェントを持つ', () => {
       const agents = (service as any).agents;
 
       expect(agents).toHaveProperty('accessibility');

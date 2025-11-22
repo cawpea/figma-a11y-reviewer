@@ -4,7 +4,7 @@ import { h } from 'preact';
 import Badge from './index';
 
 describe('Badge', () => {
-  it('renders high severity badge', () => {
+  it('高重要度バッジをレンダリングする', () => {
     render(<Badge severity="high" />);
 
     const badge = screen.getByText('HIGH');
@@ -13,7 +13,7 @@ describe('Badge', () => {
     expect(badge).toHaveClass('text-red-600');
   });
 
-  it('renders medium severity badge', () => {
+  it('中重要度バッジをレンダリングする', () => {
     render(<Badge severity="medium" />);
 
     const badge = screen.getByText('MEDIUM');
@@ -22,7 +22,7 @@ describe('Badge', () => {
     expect(badge).toHaveClass('text-yellow-700');
   });
 
-  it('renders low severity badge', () => {
+  it('低重要度バッジをレンダリングする', () => {
     render(<Badge severity="low" />);
 
     const badge = screen.getByText('LOW');
@@ -31,21 +31,21 @@ describe('Badge', () => {
     expect(badge).toHaveClass('text-green-600');
   });
 
-  it('applies custom className', () => {
+  it('カスタムclassNameを適用する', () => {
     render(<Badge severity="high" className="custom-class" />);
 
     const badge = screen.getByText('HIGH');
     expect(badge).toHaveClass('custom-class');
   });
 
-  it('displays severity text in uppercase', () => {
+  it('重要度テキストを大文字で表示する', () => {
     render(<Badge severity="high" />);
 
     expect(screen.getByText('HIGH')).toBeInTheDocument();
     expect(screen.queryByText('high')).not.toBeInTheDocument();
   });
 
-  it('has correct base classes', () => {
+  it('正しい基本クラスを持つ', () => {
     render(<Badge severity="medium" />);
 
     const badge = screen.getByText('MEDIUM');

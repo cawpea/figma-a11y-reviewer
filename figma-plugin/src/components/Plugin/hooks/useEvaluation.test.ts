@@ -36,7 +36,7 @@ describe('useEvaluation', () => {
     evaluationCompleteHandler = null;
   });
 
-  it('initializes with default values', () => {
+  it('デフォルト値で初期化される', () => {
     const { result } = renderHook(() => useEvaluation());
 
     expect(result.current.error).toBe('');
@@ -44,7 +44,7 @@ describe('useEvaluation', () => {
     expect(result.current.result).toBeNull();
   });
 
-  it('sets up event listeners on mount', () => {
+  it('マウント時にイベントリスナーを設定する', () => {
     renderHook(() => useEvaluation());
 
     expect(mockOn).toHaveBeenCalledWith('ERROR', expect.any(Function));
@@ -53,7 +53,7 @@ describe('useEvaluation', () => {
   });
 
   describe('handleEvaluate', () => {
-    it('emits EVALUATE_SELECTION with selected agents', () => {
+    it('選択されたエージェントとともにEVALUATE_SELECTIONを発行する', () => {
       const { result } = renderHook(() => useEvaluation());
 
       act(() => {
@@ -66,7 +66,7 @@ describe('useEvaluation', () => {
       ]);
     });
 
-    it('sets error when no agents are selected', () => {
+    it('エージェントが選択されていないときにエラーを設定する', () => {
       const { result } = renderHook(() => useEvaluation());
 
       act(() => {
@@ -78,8 +78,8 @@ describe('useEvaluation', () => {
     });
   });
 
-  describe('Error handling', () => {
-    it('sets error and clears loading state on ERROR event', async () => {
+  describe('エラーハンドリング', () => {
+    it('ERRORイベントでエラーを設定しローディング状態をクリアする', async () => {
       const { result } = renderHook(() => useEvaluation());
 
       // Start loading first
@@ -102,8 +102,8 @@ describe('useEvaluation', () => {
     });
   });
 
-  describe('EVALUATION_STARTED event', () => {
-    it('sets loading state and clears error', async () => {
+  describe('EVALUATION_STARTEDイベント', () => {
+    it('ローディング状態を設定しエラーをクリアする', async () => {
       const { result } = renderHook(() => useEvaluation());
 
       // Set initial error
@@ -126,8 +126,8 @@ describe('useEvaluation', () => {
     });
   });
 
-  describe('EVALUATION_COMPLETE event', () => {
-    it('sets result and clears loading state', async () => {
+  describe('EVALUATION_COMPLETEイベント', () => {
+    it('結果を設定しローディング状態をクリアする', async () => {
       const { result } = renderHook(() => useEvaluation());
 
       const mockResult: EvaluationResult = {
@@ -165,7 +165,7 @@ describe('useEvaluation', () => {
   });
 
   describe('handleIssueClick', () => {
-    it('emits SELECT_NODE with nodeId when issue has nodeId', () => {
+    it('問題にnodeIdがあるときnodeIdとともにSELECT_NODEを発行する', () => {
       const { result } = renderHook(() => useEvaluation());
 
       const issue = {
@@ -188,7 +188,7 @@ describe('useEvaluation', () => {
       });
     });
 
-    it('emits SELECT_NODE with rootNodeId when issue has no nodeId', () => {
+    it('問題にnodeIdがないときrootNodeIdとともにSELECT_NODEを発行する', () => {
       const { result } = renderHook(() => useEvaluation());
 
       const issue = {
@@ -209,7 +209,7 @@ describe('useEvaluation', () => {
       });
     });
 
-    it('does not emit when no nodeId or rootNodeId', () => {
+    it('nodeIdもrootNodeIdもないときは発行しない', () => {
       const { result } = renderHook(() => useEvaluation());
 
       const issue = {

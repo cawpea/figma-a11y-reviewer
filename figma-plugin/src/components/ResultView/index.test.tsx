@@ -46,7 +46,7 @@ describe('ResultView', () => {
     jest.clearAllMocks();
   });
 
-  it('renders overall score card', () => {
+  it('総合スコアカードをレンダリングする', () => {
     render(<ResultView result={mockResult} onIssueClick={mockOnIssueClick} />);
 
     // ScoreCardコンポーネントが表示されることを確認
@@ -54,7 +54,7 @@ describe('ResultView', () => {
     expect(score).toBeInTheDocument();
   });
 
-  it('renders all category sections', () => {
+  it('すべてのカテゴリセクションをレンダリングする', () => {
     render(<ResultView result={mockResult} onIssueClick={mockOnIssueClick} />);
 
     // カテゴリが表示されることを確認
@@ -63,7 +63,7 @@ describe('ResultView', () => {
     expect(screen.getByText('Good font sizes')).toBeInTheDocument();
   });
 
-  it('renders metadata display', () => {
+  it('メタデータ表示をレンダリングする', () => {
     render(<ResultView result={mockResult} onIssueClick={mockOnIssueClick} />);
 
     // MetadataDisplayコンポーネントが表示されることを確認
@@ -71,7 +71,7 @@ describe('ResultView', () => {
     expect(screen.getByText(/1.5/)).toBeInTheDocument();
   });
 
-  it('passes onIssueClick to category sections', () => {
+  it('onIssueClickをカテゴリセクションに渡す', () => {
     render(<ResultView result={mockResult} onIssueClick={mockOnIssueClick} />);
 
     // CategorySectionがクリック可能な要素を持つことを確認
@@ -79,7 +79,7 @@ describe('ResultView', () => {
     expect(issueElement).toBeInTheDocument();
   });
 
-  it('renders with empty categories', () => {
+  it('空のカテゴリでレンダリングする', () => {
     const emptyResult: EvaluationResult = {
       ...mockResult,
       categories: {},
@@ -91,7 +91,7 @@ describe('ResultView', () => {
     expect(screen.getByText('85', { exact: false })).toBeInTheDocument();
   });
 
-  it('renders with multiple issues in a category', () => {
+  it('カテゴリ内の複数の問題でレンダリングする', () => {
     const multiIssueResult: EvaluationResult = {
       ...mockResult,
       categories: {
@@ -128,7 +128,7 @@ describe('ResultView', () => {
     expect(screen.getByText('Issue 3')).toBeInTheDocument();
   });
 
-  it('passes rootNodeId to category sections', () => {
+  it('rootNodeIdをカテゴリセクションに渡す', () => {
     render(<ResultView result={mockResult} onIssueClick={mockOnIssueClick} />);
 
     // CategorySectionにrootNodeIdが渡されることを確認
