@@ -90,4 +90,82 @@ module.exports = [
       },
     },
   },
+  // テストファイル用の設定
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/test-setup.ts'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        test: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      import: importPlugin,
+      'unused-imports': unusedImports,
+    },
+    rules: {
+      // TypeScript推奨ルール
+      ...tseslint.configs.recommended.rules,
+
+      // テストファイルでは any を許容
+      '@typescript-eslint/no-explicit-any': 'off',
+
+      // テストファイルでは外部依存関係のインポートを許可
+      'import/no-extraneous-dependencies': 'off',
+
+      // 未使用変数の検出（テストでは緩め）
+      '@typescript-eslint/no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': [
+        'error',
+        {
+          varsIgnorePattern: '^h$',
+        },
+      ],
+      'unused-imports/no-unused-vars': [
+        'warn',
+        {
+          vars: 'all',
+          varsIgnorePattern: '^_|^h$',
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+        },
+      ],
+
+      // import文の自動ソート
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'parent', 'sibling', 'index'],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+
+      'no-undef': 'off',
+    },
+    settings: {
+      react: {
+        pragma: 'h',
+      },
+    },
+  },
 ];
