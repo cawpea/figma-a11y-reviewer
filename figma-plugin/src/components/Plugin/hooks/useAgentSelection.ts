@@ -11,9 +11,9 @@ interface UseAgentSelectionReturn {
 
 export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectionReturn {
   const [selectedAgents, setSelectedAgents] = useState<string[]>([
-    'usability',
     'accessibility',
     'styleConsistency',
+    'usability',
   ]);
 
   // 初期化：保存された選択状態を復元
