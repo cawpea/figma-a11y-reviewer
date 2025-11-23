@@ -38,7 +38,7 @@ describe('EvaluationService', () => {
     });
 
     it('指定されたタイプのみを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, ['accessibility']);
+      const result = await service.evaluateDesign(mockData, undefined, ['accessibility']);
 
       expect(result.categories).toHaveProperty('accessibility');
       expect(result.categories).not.toHaveProperty('styleConsistency');
@@ -46,7 +46,10 @@ describe('EvaluationService', () => {
     });
 
     it('複数の指定されたタイプを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, ['accessibility', 'usability']);
+      const result = await service.evaluateDesign(mockData, undefined, [
+        'accessibility',
+        'usability',
+      ]);
 
       expect(result.categories).toHaveProperty('accessibility');
       expect(result.categories).toHaveProperty('usability');
@@ -54,7 +57,7 @@ describe('EvaluationService', () => {
     });
 
     it('有効な評価タイプが提供されていないときにエラーをスローする', async () => {
-      await expect(service.evaluateDesign(mockData, ['invalid'])).rejects.toThrow(
+      await expect(service.evaluateDesign(mockData, undefined, ['invalid'])).rejects.toThrow(
         'No valid evaluation types provided'
       );
     });
@@ -104,7 +107,7 @@ describe('EvaluationService', () => {
 
     it('指定された場合にカスタムrootNodeIdを使用する', async () => {
       const customRootId = 'custom-root-123';
-      const result = await service.evaluateDesign(mockData, undefined, customRootId);
+      const result = await service.evaluateDesign(mockData, undefined, undefined, customRootId);
 
       expect(result.metadata.rootNodeId).toBe(customRootId);
     });
@@ -152,7 +155,7 @@ describe('EvaluationService', () => {
     });
 
     it('無効な評価タイプをフィルタリングする', async () => {
-      const result = await service.evaluateDesign(mockData, [
+      const result = await service.evaluateDesign(mockData, undefined, [
         'accessibility',
         'invalid',
         'usability',
@@ -164,7 +167,7 @@ describe('EvaluationService', () => {
     });
 
     it('空の評価タイプ配列を処理する', async () => {
-      await expect(service.evaluateDesign(mockData, [])).rejects.toThrow(
+      await expect(service.evaluateDesign(mockData, undefined, [])).rejects.toThrow(
         'No valid evaluation types provided'
       );
     });
