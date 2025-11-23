@@ -22,7 +22,9 @@ figma-plugin/          # Figmaプラグイン(Preact + TailwindCSS)
 │   ├── output.css    # TailwindCSS出力
 │   ├── components/   # UIコンポーネント
 │   ├── hooks/        # カスタムフック
-│   └── constants/    # 定数
+│   ├── constants/    # 定数
+│   └── utils/
+│       └── figma.utils.ts  # Figmaノード・スタイル抽出ユーティリティ
 ├── manifest.json     # プラグイン設定
 ├── tailwind.config.js  # TailwindCSS設定
 └── package.json
@@ -49,7 +51,8 @@ backend/              # Express.js バックエンド API
 
 1. **Figmaプラグイン → バックエンド**
    - ユーザーがFigmaでフレームを選択してプラグインを実行
-   - `figma-plugin/src/main.ts`の`extractNodeData()`が選択されたノードの情報を再帰的に抽出
+   - `figma-plugin/src/utils/figma.utils.ts`の`extractNodeData()`が選択されたノードの情報を再帰的に抽出
+   - `extractFileStyles()`がファイル全体のスタイル定義情報を取得
    - `useEvaluation`フックが選択されたエージェントと共に抽出データを`POST /api/evaluate`に送信
 
 2. **バックエンド → Claude API**
@@ -224,13 +227,51 @@ Plugin (src/components/Plugin/index.tsx)
 
 ### Figmaノードデータの抽出
 
-`figma-plugin/src/main.ts`の`extractNodeData()`は最大深度10まで再帰的にノード情報を取得します。以下の情報を抽出:
+`figma-plugin/src/utils/figma.utils.ts`にノード情報の抽出ロジックが実装されています。
 
-- レイアウト(Auto Layout): `layoutMode`, `padding`, `itemSpacing`など
-- スタイル: `fills`, `strokes`, `effects`, `cornerRadius`
-- テキスト: `characters`, `fontSize`, `fontName`, `lineHeight`
-- サイズと位置: `absoluteBoundingBox`
-- 子要素: `children`配列(再帰)
+#### extractNodeData()
+
+最大深度10まで再帰的にノード情報を取得します。以下の情報を抽出:
+
+- **基本情報**: `id`, `name`, `type`
+- **スタイル参照**: Variables, TextStyle, FillStyle, StrokeStyle, EffectStyle
+- **レイアウト(Auto Layout)**: `layoutMode`, `padding`, `itemSpacing`,
+  `counterAxisSpacing`
+- **スタイル**: `fills`, `strokes`, `effects`, `cornerRadius`, `opacity`
+- **テキスト**: `characters`, `fontSize`, `fontName`, `lineHeight`,
+  `letterSpacing`, `textAlign`
+- **サイズと位置**: `absoluteBoundingBox`
+- **コンポーネント**: INSTANCEノードの`mainComponent`情報
+- **子要素**: `children`配列(再帰)、`childrenCount`
+
+**制限事項**:
+
+- 再帰の最大深度: 10階層（無限ループ防止）
+- 最大深度に達した場合、`note: 'Max depth reached'`が付与される
+
+**エラーハンドリング**:
+
+- スタイル取得失敗時は警告を出力し、処理を継続
+- `figma.mixed`の場合は該当フィールドを抽出しない
+
+#### extractFileStyles()
+
+ファイル全体のスタイル定義情報を取得します。
+
+- **Variables**: ローカル変数（色、数値など）
+- **TextStyles**: テキストスタイル
+- **ColorStyles**: ペイントスタイル
+- **EffectStyles**: エフェクトスタイル
+
+**制限事項**:
+
+- 各カテゴリ最大100個に制限
+- 100個を超える場合、`meta.truncated: true`が設定される
+
+**エラーハンドリング**:
+
+- API呼び出し失敗時は空のデータを返す
+- エラーログを出力
 
 ### 評価結果の構造
 
@@ -347,6 +388,8 @@ figma-plugin/src/
 │   └── Plugin/hooks/
 │       ├── useEvaluation.test.ts        # 評価フック
 │       └── useAgentSelection.test.ts    # エージェント選択フック
+└── utils/
+    └── figma.utils.test.ts              # Figmaユーティリティ関数（30テストケース、98.34%カバレッジ）
 ```
 
 **テスト観点**:
@@ -356,6 +399,12 @@ figma-plugin/src/
 - 状態管理の正確性
 - イベントハンドラーの呼び出し確認
 - LocalStorageとの連携
+- Figmaノードデータの抽出ロジック
+  - 再帰的な子要素の抽出
+  - 最大深度の制限
+  - スタイル情報の取得
+  - エラーハンドリング（スタイル取得失敗、API呼び出しエラー）
+  - エッジケース（mixed値、null値、未定義フィールド）
 
 ### テストのベストプラクティス
 
