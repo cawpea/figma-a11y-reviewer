@@ -1,5 +1,5 @@
 import { ApiResponse, EvaluationResult } from '@shared/types';
-import { Router, Request, Response } from 'express';
+import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
 import { EvaluationService } from '../services/evaluation.service';
@@ -7,6 +7,19 @@ import { saveDebugData } from '../utils/debug';
 
 const router = Router();
 const evaluationService = new EvaluationService();
+
+const variableInfoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  resolvedType: z.string(),
+  valuesByMode: z.record(z.string(), z.unknown()).optional(),
+});
+
+const styleInfoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+});
 
 // リクエストボディのバリデーションスキーマ
 const evaluationRequestSchema = z.object({
@@ -19,6 +32,21 @@ const evaluationRequestSchema = z.object({
       type: z.string(),
     })
     .passthrough(), // 追加のプロパティを許可
+  stylesData: z
+    .object({
+      variables: z.array(variableInfoSchema),
+      textStyles: z.array(styleInfoSchema),
+      colorStyles: z.array(styleInfoSchema),
+      effectStyles: z.array(styleInfoSchema),
+      meta: z.object({
+        variablesCount: z.number(),
+        textStylesCount: z.number(),
+        colorStylesCount: z.number(),
+        effectStylesCount: z.number(),
+        truncated: z.boolean(),
+      }),
+    })
+    .optional(),
   evaluationTypes: z.array(z.string()).optional(),
   userId: z.string().optional(),
 });
@@ -32,6 +60,7 @@ router.post('/evaluate', async (req: Request, res: Response) => {
     console.log('Received evaluation request:', {
       nodeId: req.body.nodeId,
       nodeName: req.body.nodeData?.name,
+      evaluationTypes: req.body.evaluationTypes,
     });
 
     // デバッグ用: データをファイルに保存
@@ -45,6 +74,7 @@ router.post('/evaluate', async (req: Request, res: Response) => {
     // 評価実行
     const result = await evaluationService.evaluateDesign(
       validatedData.nodeData,
+      validatedData.stylesData,
       validatedData.evaluationTypes,
       validatedData.nodeId
     );

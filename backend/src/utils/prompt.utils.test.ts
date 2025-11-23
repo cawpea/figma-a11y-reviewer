@@ -1,8 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
-import { FigmaNodeData } from '@shared/types';
+import { FigmaNodeData, FigmaStylesData } from '@shared/types';
 
 import {
   buildColorContrastMap,
+  buildStylesApplicationMap,
   extractJsonFromResponse,
   extractNodeHierarchyPath,
   formatFigmaDataForEvaluation,
@@ -359,6 +360,364 @@ describe('prompt.utils', () => {
 
       expect(result).toContain('最初の50件のみを表示');
       expect(result).toContain('省略されています');
+    });
+  });
+
+  describe('buildStylesApplicationMap', () => {
+    it('スタイル情報がないときに警告メッセージを返す', () => {
+      const node: FigmaNodeData = {
+        id: 'frame',
+        name: 'Frame',
+        type: 'FRAME',
+      };
+
+      const result = buildStylesApplicationMap(node, undefined);
+
+      expect(result).toContain('⚠️ スタイル情報が取得されていません');
+    });
+
+    it('空のスタイルデータでマップを生成する', () => {
+      const node: FigmaNodeData = {
+        id: 'frame',
+        name: 'Frame',
+        type: 'FRAME',
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [],
+        textStyles: [],
+        colorStyles: [],
+        effectStyles: [],
+        meta: {
+          variablesCount: 0,
+          textStylesCount: 0,
+          colorStylesCount: 0,
+          effectStylesCount: 0,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('## スタイル定義と適用状況');
+      expect(result).toContain('Variables（デザイントークン）: 0件');
+      expect(result).toContain('TextStyles: 0件');
+      expect(result).toContain('ColorStyles: 0件');
+      expect(result).toContain('EffectStyles（シャドウ/ブラー）: 0件');
+      expect(result).toContain('_Variablesは定義されていません_');
+    });
+
+    it('Variablesの定義と使用状況を表示する', () => {
+      const node: FigmaNodeData = {
+        id: 'rect',
+        name: 'Rectangle',
+        type: 'RECTANGLE',
+        boundVariables: {
+          fills: {
+            type: 'VARIABLE_ALIAS',
+            id: 'V:1',
+          },
+        },
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [
+          {
+            id: 'V:1',
+            name: 'color/primary',
+            resolvedType: 'COLOR',
+          },
+          {
+            id: 'V:2',
+            name: 'spacing/medium',
+            resolvedType: 'FLOAT',
+          },
+        ],
+        textStyles: [],
+        colorStyles: [],
+        effectStyles: [],
+        meta: {
+          variablesCount: 2,
+          textStylesCount: 0,
+          colorStylesCount: 0,
+          effectStylesCount: 0,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('Variables（デザイントークン）: 2件');
+      expect(result).toContain('**color/primary** (COLOR) - ID: V:1');
+      expect(result).toContain('**spacing/medium** (FLOAT) - ID: V:2');
+      expect(result).toContain('✅ **使用されているVariables (1件):**');
+      expect(result).toContain('**color/primary** → Rectangle (ID: rect) [fills]');
+    });
+
+    it('TextStyleの適用状況を表示する', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'text1',
+            name: 'Styled Text',
+            type: 'TEXT',
+            characters: 'Hello',
+            textStyleId: 'S:1',
+            textStyleName: 'Body/Regular',
+            fontSize: 16,
+            fontName: {
+              family: 'Inter',
+              style: 'Regular',
+            },
+          },
+          {
+            id: 'text2',
+            name: 'Unstyled Text',
+            type: 'TEXT',
+            characters: 'World',
+            fontSize: 14,
+            fontName: {
+              family: 'Arial',
+              style: 'Bold',
+            },
+          },
+        ],
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [],
+        textStyles: [
+          {
+            id: 'S:1',
+            name: 'Body/Regular',
+            description: 'Body text style',
+          },
+        ],
+        colorStyles: [],
+        effectStyles: [],
+        meta: {
+          variablesCount: 0,
+          textStylesCount: 1,
+          colorStylesCount: 0,
+          effectStylesCount: 0,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('TextStyles: 1件');
+      expect(result).toContain('**Body/Regular** - Body text style - ID: S:1');
+      expect(result).toContain('✅ **使用されているTextStyles (1件):**');
+      expect(result).toContain('**Body/Regular** → Styled Text (ID: text1)');
+      expect(result).toContain('❌ **TextStyleが未適用のテキスト (1件):**');
+      expect(result).toContain('Unstyled Text (ID: text2) - フォント: Arial 14px');
+    });
+
+    it('ColorStyleとハードコードされた色を検出する', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'rect1',
+            name: 'Styled Rectangle',
+            type: 'RECTANGLE',
+            fillStyleId: 'C:1',
+            fillStyleName: 'Fill/Primary',
+          },
+          {
+            id: 'rect2',
+            name: 'Hardcoded Rectangle',
+            type: 'RECTANGLE',
+            fills: [
+              {
+                type: 'SOLID',
+                color: { r: 1, g: 0, b: 0 },
+                opacity: 1,
+              },
+            ],
+          },
+        ],
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [],
+        textStyles: [],
+        colorStyles: [
+          {
+            id: 'C:1',
+            name: 'Fill/Primary',
+          },
+        ],
+        effectStyles: [],
+        meta: {
+          variablesCount: 0,
+          textStylesCount: 0,
+          colorStylesCount: 1,
+          effectStylesCount: 0,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('ColorStyles: 1件');
+      expect(result).toContain('**Fill/Primary** - ID: C:1');
+      expect(result).toContain('✅ **使用されているColorStyles (1件):**');
+      expect(result).toContain('**Fill/Primary** → Styled Rectangle (ID: rect1) [fill]');
+      expect(result).toContain('❌ **ハードコードされた色 (1件):**');
+      expect(result).toContain('Hardcoded Rectangle (ID: rect2) - fill: #FF0000');
+    });
+
+    it('EffectStyleの使用状況を表示する', () => {
+      const node: FigmaNodeData = {
+        id: 'card',
+        name: 'Card',
+        type: 'FRAME',
+        effectStyleId: 'E:1',
+        effectStyleName: 'Shadow/Medium',
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [],
+        textStyles: [],
+        colorStyles: [],
+        effectStyles: [
+          {
+            id: 'E:1',
+            name: 'Shadow/Medium',
+          },
+        ],
+        meta: {
+          variablesCount: 0,
+          textStylesCount: 0,
+          colorStylesCount: 0,
+          effectStylesCount: 1,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('EffectStyles（シャドウ/ブラー）: 1件');
+      expect(result).toContain('**Shadow/Medium** - ID: E:1');
+      expect(result).toContain('✅ **使用されているEffectStyles (1件):**');
+      expect(result).toContain('**Shadow/Medium** → Card (ID: card)');
+    });
+
+    it('切り捨てフラグが立っているときに警告を表示する', () => {
+      const node: FigmaNodeData = {
+        id: 'frame',
+        name: 'Frame',
+        type: 'FRAME',
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [],
+        textStyles: [],
+        colorStyles: [],
+        effectStyles: [],
+        meta: {
+          variablesCount: 150,
+          textStylesCount: 120,
+          colorStylesCount: 110,
+          effectStylesCount: 50,
+          truncated: true,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('**注意**: スタイル情報が100件を超えたため');
+      expect(result).toContain('各カテゴリ最初の100件のみ表示');
+    });
+
+    it('ストロークスタイルを検出する', () => {
+      const node: FigmaNodeData = {
+        id: 'rect',
+        name: 'Rectangle',
+        type: 'RECTANGLE',
+        strokeStyleId: 'C:2',
+        strokeStyleName: 'Stroke/Border',
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [],
+        textStyles: [],
+        colorStyles: [
+          {
+            id: 'C:2',
+            name: 'Stroke/Border',
+          },
+        ],
+        effectStyles: [],
+        meta: {
+          variablesCount: 0,
+          textStylesCount: 0,
+          colorStylesCount: 1,
+          effectStylesCount: 0,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('**Stroke/Border** → Rectangle (ID: rect) [stroke]');
+    });
+
+    it('配列のVariable aliasを処理する', () => {
+      const node: FigmaNodeData = {
+        id: 'frame',
+        name: 'Frame',
+        type: 'FRAME',
+        boundVariables: {
+          fills: [
+            {
+              type: 'VARIABLE_ALIAS',
+              id: 'V:1',
+            },
+            {
+              type: 'VARIABLE_ALIAS',
+              id: 'V:2',
+            },
+          ],
+        },
+      };
+
+      const stylesData: FigmaStylesData = {
+        variables: [
+          {
+            id: 'V:1',
+            name: 'color/primary',
+            resolvedType: 'COLOR',
+          },
+          {
+            id: 'V:2',
+            name: 'color/secondary',
+            resolvedType: 'COLOR',
+          },
+        ],
+        textStyles: [],
+        colorStyles: [],
+        effectStyles: [],
+        meta: {
+          variablesCount: 2,
+          textStylesCount: 0,
+          colorStylesCount: 0,
+          effectStylesCount: 0,
+          truncated: false,
+        },
+      };
+
+      const result = buildStylesApplicationMap(node, stylesData);
+
+      expect(result).toContain('**color/primary** → Frame (ID: frame) [fills]');
+      expect(result).toContain('**color/secondary** → Frame (ID: frame) [fills]');
     });
   });
 });

@@ -21,7 +21,7 @@ describe('ResultView', () => {
         ],
         positives: ['Good font sizes'],
       },
-      designSystem: {
+      styleConsistency: {
         score: 80,
         issues: [],
       },

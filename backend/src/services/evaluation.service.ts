@@ -1,8 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { CategoryResult, EvaluationResult, FigmaNodeData, Suggestion } from '@shared/types';
+import {
+  CategoryResult,
+  EvaluationResult,
+  FigmaNodeData,
+  FigmaStylesData,
+  Suggestion,
+} from '@shared/types';
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
-import { DesignSystemAgent } from './agents/design-system.agent';
+import { StyleConsistencyAgent } from './agents/style-consistency.agent';
 import { UsabilityAgent } from './agents/usability.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
@@ -16,7 +22,7 @@ const PRICING = {
 export class EvaluationService {
   private agents = {
     accessibility: new AccessibilityAgent(),
-    designSystem: new DesignSystemAgent(),
+    styleConsistency: new StyleConsistencyAgent(),
     usability: new UsabilityAgent(),
   };
 
@@ -25,6 +31,7 @@ export class EvaluationService {
    */
   async evaluateDesign(
     data: FigmaNodeData,
+    stylesData?: FigmaStylesData,
     evaluationTypes?: string[],
     rootNodeId?: string
   ): Promise<EvaluationResult> {
@@ -47,6 +54,11 @@ export class EvaluationService {
       if (!agent) {
         console.warn(`Unknown evaluation type: ${type}`);
         return null;
+      }
+
+      // StyleConsistencyAgentにスタイル情報を渡す
+      if (type === 'styleConsistency' && agent instanceof StyleConsistencyAgent) {
+        agent.setStylesData(stylesData);
       }
 
       try {

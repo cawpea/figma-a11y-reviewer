@@ -78,8 +78,61 @@ export interface FigmaNodeData {
     name?: string;
   };
 
+  // スタイル参照情報
+  boundVariables?: Record<string, VariableAlias | VariableAlias[]>;
+  textStyleId?: string;
+  textStyleName?: string;
+  fillStyleId?: string;
+  fillStyleName?: string;
+  strokeStyleId?: string;
+  strokeStyleName?: string;
+  effectStyleId?: string;
+  effectStyleName?: string;
+
   // その他
   note?: string;
+}
+
+// Variable参照情報
+export interface VariableAlias {
+  type: 'VARIABLE_ALIAS';
+  id: string;
+}
+
+// Variable情報
+export interface VariableInfo {
+  id: string;
+  name: string;
+  resolvedType: string;
+  valuesByMode?: Record<string, unknown>;
+}
+
+// Style情報
+export interface StyleInfo {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+/**
+ * ファイル全体のスタイル定義情報
+ *
+ * トークン数削減のため、各カテゴリ最大100個までに制限される
+ */
+export interface FigmaStylesData {
+  variables: VariableInfo[];
+  textStyles: StyleInfo[];
+  colorStyles: StyleInfo[];
+  effectStyles: StyleInfo[];
+  /** 取得したスタイル数の統計情報 */
+  meta: {
+    variablesCount: number;
+    textStylesCount: number;
+    colorStylesCount: number;
+    effectStylesCount: number;
+    /** いずれかのカテゴリで上限に達した場合true */
+    truncated: boolean;
+  };
 }
 
 export interface Issue {
@@ -142,6 +195,7 @@ export interface EvaluationRequest {
   fileKey: string;
   nodeId: string;
   nodeData: FigmaNodeData;
+  stylesData?: FigmaStylesData;
   evaluationTypes?: string[];
   userId?: string;
 }
@@ -152,3 +206,9 @@ export interface ApiResponse<T = unknown> {
   error?: string;
   details?: unknown;
 }
+
+/** スタイル取得時の上限定数 */
+export const STYLES_LIMIT = {
+  /** 各カテゴリごとの最大取得数 */
+  MAX_ITEMS_PER_CATEGORY: 100,
+} as const;

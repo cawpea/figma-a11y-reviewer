@@ -29,7 +29,7 @@ Object.defineProperty(window, 'localStorage', {
 describe('useAgentSelection', () => {
   const mockAgentOptions: AgentOption[] = [
     { id: 'accessibility', label: 'Accessibility', description: 'Test' },
-    { id: 'designSystem', label: 'Design System', description: 'Test' },
+    { id: 'styleConsistency', label: 'Style Consistency', description: 'Test' },
     { id: 'usability', label: 'Usability', description: 'Test' },
   ];
 
@@ -40,7 +40,11 @@ describe('useAgentSelection', () => {
   it('デフォルトで選択されたエージェントで初期化される', () => {
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
-    expect(result.current.selectedAgents).toEqual(['accessibility', 'designSystem', 'usability']);
+    expect(result.current.selectedAgents).toEqual([
+      'accessibility',
+      'styleConsistency',
+      'usability',
+    ]);
   });
 
   it('localStorageから保存された選択を読み込む', () => {
@@ -60,7 +64,11 @@ describe('useAgentSelection', () => {
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
     // Should fall back to default
-    expect(result.current.selectedAgents).toEqual(['accessibility', 'designSystem', 'usability']);
+    expect(result.current.selectedAgents).toEqual([
+      'accessibility',
+      'styleConsistency',
+      'usability',
+    ]);
   });
 
   describe('handleAgentChange', () => {
@@ -90,15 +98,14 @@ describe('useAgentSelection', () => {
       });
 
       expect(result.current.selectedAgents).not.toContain('accessibility');
-      expect(result.current.selectedAgents).toContain('designSystem');
+      expect(result.current.selectedAgents).toContain('styleConsistency');
       expect(result.current.selectedAgents).toContain('usability');
     });
-
     it('選択をlocalStorageに保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
-        result.current.handleAgentChange('designSystem', false);
+        result.current.handleAgentChange('styleConsistency', false);
       });
 
       const saved = localStorageMock.getItem('figma-ui-reviewer-selected-agents');
@@ -113,7 +120,7 @@ describe('useAgentSelection', () => {
       });
 
       act(() => {
-        result.current.handleAgentChange('designSystem', false);
+        result.current.handleAgentChange('styleConsistency', false);
       });
 
       expect(result.current.selectedAgents).toEqual(['usability']);
@@ -136,9 +143,12 @@ describe('useAgentSelection', () => {
         result.current.handleSelectAll();
       });
 
-      expect(result.current.selectedAgents).toEqual(['accessibility', 'designSystem', 'usability']);
+      expect(result.current.selectedAgents).toEqual([
+        'accessibility',
+        'styleConsistency',
+        'usability',
+      ]);
     });
-
     it('選択されたすべてのエージェントをlocalStorageに保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
@@ -147,7 +157,7 @@ describe('useAgentSelection', () => {
       });
 
       const saved = localStorageMock.getItem('figma-ui-reviewer-selected-agents');
-      expect(JSON.parse(saved!)).toEqual(['accessibility', 'designSystem', 'usability']);
+      expect(JSON.parse(saved!)).toEqual(['accessibility', 'styleConsistency', 'usability']);
     });
   });
 

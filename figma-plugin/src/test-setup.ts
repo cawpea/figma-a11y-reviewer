@@ -5,6 +5,11 @@
 
 import '@testing-library/jest-dom';
 
+// グローバル型の拡張
+declare global {
+  var figma: any;
+}
+
 // Figma APIのモック
 global.figma = {
   ui: {

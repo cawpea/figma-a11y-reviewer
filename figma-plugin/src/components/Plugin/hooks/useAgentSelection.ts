@@ -12,7 +12,7 @@ interface UseAgentSelectionReturn {
 export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectionReturn {
   const [selectedAgents, setSelectedAgents] = useState<string[]>([
     'accessibility',
-    'designSystem',
+    'styleConsistency',
     'usability',
   ]);
 
