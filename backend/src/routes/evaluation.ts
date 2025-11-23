@@ -8,6 +8,19 @@ import { saveDebugData } from '../utils/debug';
 const router = Router();
 const evaluationService = new EvaluationService();
 
+const variableInfoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  resolvedType: z.string(),
+  valuesByMode: z.record(z.string(), z.unknown()).optional(),
+});
+
+const styleInfoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string().optional(),
+});
+
 // リクエストボディのバリデーションスキーマ
 const evaluationRequestSchema = z.object({
   fileKey: z.string(),
@@ -21,10 +34,10 @@ const evaluationRequestSchema = z.object({
     .passthrough(), // 追加のプロパティを許可
   stylesData: z
     .object({
-      variables: z.array(z.any()),
-      textStyles: z.array(z.any()),
-      colorStyles: z.array(z.any()),
-      effectStyles: z.array(z.any()),
+      variables: z.array(variableInfoSchema),
+      textStyles: z.array(styleInfoSchema),
+      colorStyles: z.array(styleInfoSchema),
+      effectStyles: z.array(styleInfoSchema),
       meta: z.object({
         variablesCount: z.number(),
         textStylesCount: z.number(),
