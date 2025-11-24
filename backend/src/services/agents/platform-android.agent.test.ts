@@ -153,7 +153,7 @@ describe('PlatformAndroidAgent', () => {
     it('Material Design 3コンポーネントサイズを含む', () => {
       const systemPrompt = (agent as any).systemPrompt;
 
-      expect(systemPrompt).toContain('FAB：56x56dp');
+      expect(systemPrompt).toContain('FAB（Floating Action Button）：56x56dp');
       expect(systemPrompt).toContain('Bottom Navigation (56dp');
       expect(systemPrompt).toContain('ボタン：高さ40dp');
     });
