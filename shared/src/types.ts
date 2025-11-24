@@ -197,6 +197,7 @@ export interface EvaluationRequest {
   nodeData: FigmaNodeData;
   stylesData?: FigmaStylesData;
   evaluationTypes?: string[];
+  platformType?: 'ios' | 'android';
   userId?: string;
 }
 

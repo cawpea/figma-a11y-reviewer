@@ -60,10 +60,21 @@ describe('useEvaluation', () => {
         result.current.handleEvaluate(['accessibility', 'styleConsistency']);
       });
 
-      expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', [
-        'accessibility',
-        'styleConsistency',
-      ]);
+      expect(mockEmit).toHaveBeenCalledWith(
+        'EVALUATE_SELECTION',
+        ['accessibility', 'styleConsistency'],
+        undefined
+      );
+    });
+
+    it('platformTypeを指定してEVALUATE_SELECTIONを発行する', () => {
+      const { result } = renderHook(() => useEvaluation());
+
+      act(() => {
+        result.current.handleEvaluate(['platformCompliance'], 'ios');
+      });
+
+      expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', ['platformCompliance'], 'ios');
     });
 
     it('エージェントが選択されていないときにエラーを設定する', () => {

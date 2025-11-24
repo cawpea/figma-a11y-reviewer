@@ -8,7 +8,9 @@ import TimeEstimate from '../TimeEstimate';
 interface SettingsPopoverProps {
   selectedAgents: string[];
   agentOptions: AgentOption[];
+  selectedPlatform: string;
   onAgentChange: (agentId: string, checked: boolean) => void;
+  onPlatformChange: (platform: 'ios' | 'android') => void;
   onSelectAll: () => void;
   onDeselectAll: () => void;
   onClose: () => void;
@@ -18,7 +20,9 @@ interface SettingsPopoverProps {
 export default function SettingsPopover({
   selectedAgents,
   agentOptions,
+  selectedPlatform,
   onAgentChange,
+  onPlatformChange,
   onSelectAll,
   onDeselectAll,
   onClose,
@@ -43,6 +47,8 @@ export default function SettingsPopover({
           agent={agent}
           checked={selectedAgents.includes(agent.id)}
           onChange={onAgentChange}
+          selectedPlatform={selectedPlatform}
+          onPlatformChange={onPlatformChange}
         />
       ))}
 
