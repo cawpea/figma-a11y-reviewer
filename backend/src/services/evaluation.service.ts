@@ -13,6 +13,7 @@ import { PlatformAndroidAgent } from './agents/platform-android.agent';
 import { PlatformIosAgent } from './agents/platform-ios.agent';
 import { StyleConsistencyAgent } from './agents/style-consistency.agent';
 import { UsabilityAgent } from './agents/usability.agent';
+import { WritingAgent } from './agents/writing.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
 // 参考: https://www.anthropic.com/pricing
@@ -27,6 +28,7 @@ export class EvaluationService {
     accessibility: new AccessibilityAgent(),
     styleConsistency: new StyleConsistencyAgent(),
     usability: new UsabilityAgent(),
+    writing: new WritingAgent(),
   };
 
   /**

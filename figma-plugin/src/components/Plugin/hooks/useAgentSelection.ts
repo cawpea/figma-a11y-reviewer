@@ -12,19 +12,22 @@ interface UseAgentSelectionReturn {
 }
 
 export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectionReturn {
-  const [selectedAgents, setSelectedAgents] = useState<string[]>([
-    'accessibility',
-    'styleConsistency',
-    'usability',
-  ]);
+  const [selectedAgents, setSelectedAgents] = useState<string[]>(
+    agentOptions.map((agent) => agent.id)
+  );
   const [selectedPlatform, setSelectedPlatform] = useState<'ios' | 'android'>('ios');
 
-  // 初期化：保存された選択状態を復元
+  // 初期化:保存された選択状態を復元
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setSelectedAgents(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setSelectedAgents(parsed);
+        } else {
+          console.warn('Invalid agent selection data, using default');
+        }
       }
 
       const savedPlatform = localStorage.getItem(PLATFORM_STORAGE_KEY);

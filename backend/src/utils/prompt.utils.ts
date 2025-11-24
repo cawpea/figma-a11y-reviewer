@@ -3,6 +3,21 @@ import { CategoryResult, FigmaNodeData, FigmaStylesData } from '@shared/types';
 import { calculateWCAGContrast, rgbToHex } from './accessibility';
 
 /**
+ * プロンプトインジェクション対策: ユーザー入力をエスケープ
+ * ダブルクォート、バッククォート、改行などの特殊文字をエスケープして、
+ * プロンプトの構造が破壊されるのを防ぎます。
+ */
+export function escapeForPrompt(text: string): string {
+  return text
+    .replace(/\\/g, '\\\\') // バックスラッシュ
+    .replace(/"/g, '\\"') // ダブルクォート
+    .replace(/`/g, '\\`') // バッククォート
+    .replace(/\n/g, '\\n') // 改行
+    .replace(/\r/g, '\\r') // キャリッジリターン
+    .replace(/\t/g, '\\t'); // タブ
+}
+
+/**
  * カラーコントラスト情報
  */
 interface ColorContrastInfo {
@@ -51,7 +66,7 @@ function formatNodeRecursive(
 
   // 循環参照チェック
   if (visited.has(node.id)) {
-    output += `${indent}[循環参照を検出: ${node.name} (ID: ${node.id})]\n`;
+    output += `${indent}[循環参照を検出: ${escapeForPrompt(node.name)} (ID: ${node.id})]\n`;
     return output;
   }
 
@@ -59,7 +74,7 @@ function formatNodeRecursive(
   visited.add(node.id);
 
   // ノード基本情報
-  output += `${indent}【${node.type}】 ${node.name} (ID: ${node.id})\n`;
+  output += `${indent}【${node.type}】 ${escapeForPrompt(node.name)} (ID: ${node.id})\n`;
 
   // サイズ情報
   if (node.absoluteBoundingBox) {
@@ -105,7 +120,7 @@ function formatNodeRecursive(
 
   // テキスト情報
   if (node.type === 'TEXT') {
-    output += `${indent}  テキスト: "${node.characters}"\n`;
+    output += `${indent}  テキスト: "${escapeForPrompt(node.characters || '')}"\n`;
     output += `${indent}  フォント: ${node.fontName?.family} ${node.fontName?.style}\n`;
     output += `${indent}  フォントサイズ: ${node.fontSize}px\n`;
 
@@ -137,8 +152,8 @@ function formatNodeRecursive(
   }
 
   // コンポーネント情報
-  if (node.mainComponent) {
-    output += `${indent}  コンポーネント: ${node.mainComponent.name}\n`;
+  if (node.mainComponent && node.mainComponent.name) {
+    output += `${indent}  コンポーネント: ${escapeForPrompt(node.mainComponent.name)}\n`;
   }
 
   // 子要素を再帰的に処理
@@ -229,7 +244,7 @@ export function buildStylesApplicationMap(
   if (usageStats.variablesUsed.length > 0) {
     output += `✅ **使用されているVariables (${usageStats.variablesUsed.length}件):**\n`;
     usageStats.variablesUsed.forEach((usage) => {
-      output += `- **${usage.variableName}** → ${usage.nodeName} (ID: ${usage.nodeId}) [${usage.property}]\n`;
+      output += `- **${usage.variableName}** → ${escapeForPrompt(usage.nodeName)} (ID: ${usage.nodeId}) [${usage.property}]\n`;
     });
     output += '\n';
   } else {
@@ -241,7 +256,7 @@ export function buildStylesApplicationMap(
   if (usageStats.textStylesUsed.length > 0) {
     output += `✅ **使用されているTextStyles (${usageStats.textStylesUsed.length}件):**\n`;
     usageStats.textStylesUsed.forEach((usage) => {
-      output += `- **${usage.styleName}** → ${usage.nodeName} (ID: ${usage.nodeId})\n`;
+      output += `- **${usage.styleName}** → ${escapeForPrompt(usage.nodeName)} (ID: ${usage.nodeId})\n`;
     });
     output += '\n';
   } else {
@@ -250,7 +265,7 @@ export function buildStylesApplicationMap(
   if (usageStats.textNodesWithoutStyle.length > 0) {
     output += `❌ **TextStyleが未適用のテキスト (${usageStats.textNodesWithoutStyle.length}件):**\n`;
     usageStats.textNodesWithoutStyle.forEach((node) => {
-      output += `- ${node.name} (ID: ${node.id}) - フォント: ${node.fontFamily} ${node.fontSize}px\n`;
+      output += `- ${escapeForPrompt(node.name)} (ID: ${node.id}) - フォント: ${node.fontFamily} ${node.fontSize}px\n`;
     });
     output += '\n';
   }
@@ -260,7 +275,7 @@ export function buildStylesApplicationMap(
   if (usageStats.colorStylesUsed.length > 0) {
     output += `✅ **使用されているColorStyles (${usageStats.colorStylesUsed.length}件):**\n`;
     usageStats.colorStylesUsed.forEach((usage) => {
-      output += `- **${usage.styleName}** → ${usage.nodeName} (ID: ${usage.nodeId}) [${usage.type}]\n`;
+      output += `- **${usage.styleName}** → ${escapeForPrompt(usage.nodeName)} (ID: ${usage.nodeId}) [${usage.type}]\n`;
     });
     output += '\n';
   } else {
@@ -269,7 +284,7 @@ export function buildStylesApplicationMap(
   if (usageStats.hardcodedColors.length > 0) {
     output += `❌ **ハードコードされた色 (${usageStats.hardcodedColors.length}件):**\n`;
     usageStats.hardcodedColors.forEach((item) => {
-      output += `- ${item.nodeName} (ID: ${item.nodeId}) - ${item.type}: ${item.color}\n`;
+      output += `- ${escapeForPrompt(item.nodeName)} (ID: ${item.nodeId}) - ${item.type}: ${item.color}\n`;
     });
     output += '\n';
   }
@@ -279,7 +294,7 @@ export function buildStylesApplicationMap(
   if (usageStats.effectStylesUsed.length > 0) {
     output += `✅ **使用されているEffectStyles (${usageStats.effectStylesUsed.length}件):**\n`;
     usageStats.effectStylesUsed.forEach((usage) => {
-      output += `- **${usage.styleName}** → ${usage.nodeName} (ID: ${usage.nodeId})\n`;
+      output += `- **${usage.styleName}** → ${escapeForPrompt(usage.nodeName)} (ID: ${usage.nodeId})\n`;
     });
     output += '\n';
   } else {
@@ -743,7 +758,7 @@ export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 10
   }
 
   contrastInfos.forEach((info, index) => {
-    output += `### ${index + 1}. ${info.nodeName} (ID: ${info.nodeId})\n`;
+    output += `### ${index + 1}. ${escapeForPrompt(info.nodeName)} (ID: ${info.nodeId})\n`;
     output += `- 文字色: ${info.textColor}\n`;
     output += `- 背景色: ${info.backgroundColor}\n`;
     output += `- **コントラスト比: ${info.contrastRatio}:1**\n`;
@@ -761,4 +776,82 @@ export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 10
   }
 
   return output;
+}
+
+/**
+ * テキストノード情報（言語判定付き）
+ */
+export interface TextNodeInfo {
+  nodeId: string;
+  nodeName: string;
+  text: string;
+  language: 'japanese' | 'english' | 'mixed';
+  fontSize?: number;
+  fontFamily?: string;
+}
+
+/**
+ * ノードツリーから全テキストノードを抽出（言語判定・文字数制限付き）
+ */
+export function extractTextNodes(
+  node: FigmaNodeData,
+  results: TextNodeInfo[] = [],
+  visited: Set<string> = new Set()
+): TextNodeInfo[] {
+  // 循環参照チェック
+  if (visited.has(node.id)) {
+    return results;
+  }
+  visited.add(node.id);
+
+  // TEXTノードの場合
+  if (node.type === 'TEXT' && node.characters) {
+    const trimmed = node.characters.trim();
+
+    // 空白のみ・空文字列は除外
+    if (trimmed.length > 0) {
+      // 1000文字に切り詰め
+      const truncated = trimmed.length > 1000 ? trimmed.slice(0, 1000) : trimmed;
+
+      results.push({
+        nodeId: node.id,
+        nodeName: node.name,
+        text: truncated,
+        language: detectLanguage(truncated),
+        fontSize: node.fontSize,
+        fontFamily: node.fontName?.family,
+      });
+    }
+  }
+
+  // 子要素を再帰的に処理
+  if (node.children && node.children.length > 0) {
+    node.children.forEach((child) => {
+      extractTextNodes(child, results, visited);
+    });
+  }
+
+  return results;
+}
+
+/**
+ * テキストの言語を判定
+ * - ひらがな・カタカナ・漢字のいずれかが含まれる → 日本語
+ * - ASCII only → 英語
+ * - 両方含まれる → 混在
+ */
+export function detectLanguage(text: string): 'japanese' | 'english' | 'mixed' {
+  const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+  const hasEnglish = /[a-zA-Z]/.test(text);
+
+  if (hasJapanese && hasEnglish) {
+    return 'mixed';
+  } else if (hasJapanese) {
+    return 'japanese';
+  } else if (hasEnglish) {
+    return 'english';
+  }
+
+  // どちらでもない場合は日本語として扱う（記号のみなど）
+  return 'japanese';
 }
