@@ -29,6 +29,11 @@ export const agentOptions: AgentOption[] = [
     label: 'プラットフォーム準拠',
     description: 'iOS (HIG) または Android (Material Design) のガイドラインに準拠',
   },
+  {
+    id: 'writing',
+    label: 'ライティング',
+    description: '表記の一貫性、誤字脱字、英語品質、可読性を評価',
+  },
 ];
 
 export const categoryLabels: Record<string, string> = {
@@ -38,4 +43,5 @@ export const categoryLabels: Record<string, string> = {
   platformCompliance: 'プラットフォーム準拠',
   layout: 'レイアウト',
   naming: '命名規則',
+  writing: 'ライティング',
 };
