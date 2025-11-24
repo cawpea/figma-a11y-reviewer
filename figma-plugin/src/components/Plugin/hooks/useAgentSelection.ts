@@ -12,11 +12,9 @@ interface UseAgentSelectionReturn {
 }
 
 export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectionReturn {
-  const [selectedAgents, setSelectedAgents] = useState<string[]>([
-    'accessibility',
-    'styleConsistency',
-    'usability',
-  ]);
+  const [selectedAgents, setSelectedAgents] = useState<string[]>(
+    agentOptions.map((agent) => agent.id)
+  );
   const [selectedPlatform, setSelectedPlatform] = useState<'ios' | 'android'>('ios');
 
   // 初期化：保存された選択状態を復元
