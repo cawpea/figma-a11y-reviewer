@@ -2,6 +2,7 @@ import { FigmaNodeData } from '@shared/types';
 
 import {
   buildSystemPromptSuffix,
+  escapeForPrompt,
   extractTextNodes,
   formatFigmaDataForEvaluation,
   getNodeIdReminder,
@@ -11,6 +12,13 @@ import { BaseEvaluationAgent } from './base.agent';
 
 export class WritingAgent extends BaseEvaluationAgent {
   protected category = 'writing';
+
+  /**
+   * プロンプトインジェクション対策: テキストをエスケープ
+   */
+  private escapeForPrompt(text: string): string {
+    return escapeForPrompt(text);
+  }
 
   protected systemPrompt = `あなたはUIライティングとコピーライティングの専門家です。
 Figmaデザイン内のテキスト要素を評価し、ライティング品質の問題点を特定してください。
@@ -104,8 +112,8 @@ ${buildSystemPromptSuffix()}`;
     if (japaneseTexts.length > 0) {
       output += '### 日本語テキスト\n\n';
       japaneseTexts.forEach((node, index) => {
-        output += `${index + 1}. **${node.nodeName}** (ID: ${node.nodeId})\n`;
-        output += `   テキスト: "${node.text}"\n`;
+        output += `${index + 1}. **${this.escapeForPrompt(node.nodeName)}** (ID: ${node.nodeId})\n`;
+        output += `   テキスト: "${this.escapeForPrompt(node.text)}"\n`;
         if (node.fontFamily || node.fontSize) {
           output += `   フォント: ${node.fontFamily} ${node.fontSize}px\n`;
         }
@@ -116,8 +124,8 @@ ${buildSystemPromptSuffix()}`;
     if (englishTexts.length > 0) {
       output += '### 英語テキスト\n\n';
       englishTexts.forEach((node, index) => {
-        output += `${index + 1}. **${node.nodeName}** (ID: ${node.nodeId})\n`;
-        output += `   テキスト: "${node.text}"\n`;
+        output += `${index + 1}. **${this.escapeForPrompt(node.nodeName)}** (ID: ${node.nodeId})\n`;
+        output += `   テキスト: "${this.escapeForPrompt(node.text)}"\n`;
         if (node.fontFamily || node.fontSize) {
           output += `   フォント: ${node.fontFamily} ${node.fontSize}px\n`;
         }
@@ -128,8 +136,8 @@ ${buildSystemPromptSuffix()}`;
     if (mixedTexts.length > 0) {
       output += '### 日本語・英語混在テキスト\n\n';
       mixedTexts.forEach((node, index) => {
-        output += `${index + 1}. **${node.nodeName}** (ID: ${node.nodeId})\n`;
-        output += `   テキスト: "${node.text}"\n`;
+        output += `${index + 1}. **${this.escapeForPrompt(node.nodeName)}** (ID: ${node.nodeId})\n`;
+        output += `   テキスト: "${this.escapeForPrompt(node.text)}"\n`;
         if (node.fontFamily || node.fontSize) {
           output += `   フォント: ${node.fontFamily} ${node.fontSize}px\n`;
         }

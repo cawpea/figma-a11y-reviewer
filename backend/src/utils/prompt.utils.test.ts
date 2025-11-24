@@ -5,6 +5,7 @@ import {
   buildColorContrastMap,
   buildStylesApplicationMap,
   detectLanguage,
+  escapeForPrompt,
   extractJsonFromResponse,
   extractNodeHierarchyPath,
   extractTextNodes,
@@ -14,6 +15,62 @@ import {
 } from './prompt.utils';
 
 describe('prompt.utils', () => {
+  describe('escapeForPrompt', () => {
+    it('ダブルクォートをエスケープする', () => {
+      const input = 'テキストに"引用符"が含まれる';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('テキストに\\"引用符\\"が含まれる');
+    });
+
+    it('バックスラッシュをエスケープする', () => {
+      const input = 'パス\\名前';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('パス\\\\名前');
+    });
+
+    it('改行をエスケープする', () => {
+      const input = '1行目\n2行目';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('1行目\\n2行目');
+    });
+
+    it('キャリッジリターンをエスケープする', () => {
+      const input = '行1\r行2';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('行1\\r行2');
+    });
+
+    it('タブをエスケープする', () => {
+      const input = 'カラム1\tカラム2';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('カラム1\\tカラム2');
+    });
+
+    it('バッククォートをエスケープする', () => {
+      const input = 'コード`例`はこちら';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('コード\\`例\\`はこちら');
+    });
+
+    it('複数の特殊文字を同時にエスケープする', () => {
+      const input = '悪意のある入力:\n"プロンプト破壊`試行\\テスト"';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('悪意のある入力:\\n\\"プロンプト破壊\\`試行\\\\テスト\\"');
+    });
+
+    it('通常のテキストはそのまま返す', () => {
+      const input = '通常のテキストです';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('通常のテキストです');
+    });
+
+    it('空文字列を処理する', () => {
+      const input = '';
+      const result = escapeForPrompt(input);
+      expect(result).toBe('');
+    });
+  });
+
   describe('extractJsonFromResponse', () => {
     it('コードブロックからJSONを抽出する', () => {
       const text = '```json\n{"score": 85, "issues": [], "positives": []}\n```';
