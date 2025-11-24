@@ -17,12 +17,17 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
   );
   const [selectedPlatform, setSelectedPlatform] = useState<'ios' | 'android'>('ios');
 
-  // 初期化：保存された選択状態を復元
+  // 初期化:保存された選択状態を復元
   useEffect(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        setSelectedAgents(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setSelectedAgents(parsed);
+        } else {
+          console.warn('Invalid agent selection data, using default');
+        }
       }
 
       const savedPlatform = localStorage.getItem(PLATFORM_STORAGE_KEY);
