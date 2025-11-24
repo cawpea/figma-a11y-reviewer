@@ -8,6 +8,9 @@ import {
 } from '@shared/types';
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
+import { BaseEvaluationAgent } from './agents/base.agent';
+import { PlatformAndroidAgent } from './agents/platform-android.agent';
+import { PlatformIosAgent } from './agents/platform-ios.agent';
 import { StyleConsistencyAgent } from './agents/style-consistency.agent';
 import { UsabilityAgent } from './agents/usability.agent';
 
@@ -33,13 +36,14 @@ export class EvaluationService {
     data: FigmaNodeData,
     stylesData?: FigmaStylesData,
     evaluationTypes?: string[],
-    rootNodeId?: string
+    rootNodeId?: string,
+    platformType?: 'ios' | 'android'
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
 
     // 評価タイプが指定されていない場合は全て実行
     const typesToRun = evaluationTypes
-      ? evaluationTypes.filter((type) => type in this.agents)
+      ? evaluationTypes.filter((type) => type in this.agents || type === 'platformCompliance')
       : Object.keys(this.agents);
 
     if (evaluationTypes && typesToRun.length === 0) {
@@ -50,7 +54,19 @@ export class EvaluationService {
 
     // 並列実行
     const evaluationPromises = typesToRun.map(async (type) => {
-      const agent = this.agents[type as keyof typeof this.agents];
+      let agent: BaseEvaluationAgent | undefined;
+
+      // platformComplianceの場合、platformTypeに応じて動的にエージェントを選択
+      if (type === 'platformCompliance') {
+        const selectedPlatform = platformType || 'ios'; // デフォルトはiOS
+        agent = selectedPlatform === 'ios' ? new PlatformIosAgent() : new PlatformAndroidAgent();
+        console.log(
+          `Using ${selectedPlatform === 'ios' ? 'iOS (HIG)' : 'Android (Material Design)'} platform agent`
+        );
+      } else {
+        agent = this.agents[type as keyof typeof this.agents];
+      }
+
       if (!agent) {
         console.warn(`Unknown evaluation type: ${type}`);
         return null;

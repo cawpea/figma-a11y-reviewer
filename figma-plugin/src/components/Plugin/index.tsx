@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import { useState } from 'preact/hooks';
 
-import { agentOptions, AGENT_TIME_ESTIMATE } from '../../constants/agents';
+import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import ControlPanel from '../ControlPanel';
 import ErrorDisplay from '../ErrorDisplay';
@@ -18,8 +18,14 @@ import '!../../output.css';
 export default function Plugin() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  const { selectedAgents, handleAgentChange, handleSelectAll, handleDeselectAll } =
-    useAgentSelection(agentOptions);
+  const {
+    selectedAgents,
+    selectedPlatform,
+    handleAgentChange,
+    handlePlatformChange,
+    handleSelectAll,
+    handleDeselectAll,
+  } = useAgentSelection(agentOptions);
 
   const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation();
 
@@ -32,7 +38,7 @@ export default function Plugin() {
 
   const onEvaluate = () => {
     setIsSettingsOpen(false);
-    handleEvaluate(selectedAgents);
+    handleEvaluate(selectedAgents, selectedPlatform);
   };
 
   return (
@@ -49,7 +55,9 @@ export default function Plugin() {
           <SettingsPopover
             selectedAgents={selectedAgents}
             agentOptions={agentOptions}
+            selectedPlatform={selectedPlatform}
             onAgentChange={handleAgentChange}
+            onPlatformChange={handlePlatformChange}
             onSelectAll={handleSelectAll}
             onDeselectAll={handleDeselectAll}
             onClose={() => setIsSettingsOpen(false)}

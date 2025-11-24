@@ -7,7 +7,7 @@ interface UseEvaluationReturn {
   error: string;
   isLoading: boolean;
   result: EvaluationResult | null;
-  handleEvaluate: (selectedAgents: string[]) => void;
+  handleEvaluate: (selectedAgents: string[], platformType?: 'ios' | 'android') => void;
   handleIssueClick: (issue: Issue, rootNodeId?: string) => void;
 }
 
@@ -44,14 +44,17 @@ export function useEvaluation(): UseEvaluationReturn {
   }, []);
 
   // 評価開始
-  const handleEvaluate = useCallback((selectedAgents: string[]) => {
-    if (selectedAgents.length === 0) {
-      setError('評価項目を1つ以上選択してください');
-      return;
-    }
+  const handleEvaluate = useCallback(
+    (selectedAgents: string[], platformType?: 'ios' | 'android') => {
+      if (selectedAgents.length === 0) {
+        setError('評価項目を1つ以上選択してください');
+        return;
+      }
 
-    emit('EVALUATE_SELECTION', selectedAgents);
-  }, []);
+      emit('EVALUATE_SELECTION', selectedAgents, platformType);
+    },
+    []
+  );
 
   // Issue クリックハンドラー
   const handleIssueClick = useCallback((issue: Issue, rootNodeId?: string) => {

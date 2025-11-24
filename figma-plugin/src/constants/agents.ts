@@ -1,4 +1,5 @@
 export const STORAGE_KEY = 'figma-ui-reviewer-selected-agents';
+export const PLATFORM_STORAGE_KEY = 'figma-ui-reviewer-selected-platform';
 export const AGENT_TIME_ESTIMATE = 30; // seconds per agent
 
 export interface AgentOption {
@@ -23,12 +24,18 @@ export const agentOptions: AgentOption[] = [
     label: 'スタイルの一貫性',
     description: 'カラー、テキスト、エフェクトスタイル、命名規則の一貫性を評価',
   },
+  {
+    id: 'platformCompliance',
+    label: 'プラットフォーム準拠',
+    description: 'iOS (HIG) または Android (Material Design) のガイドラインに準拠',
+  },
 ];
 
 export const categoryLabels: Record<string, string> = {
   accessibility: 'アクセシビリティ',
   styleConsistency: 'スタイルの一貫性',
   usability: 'ユーザビリティ',
+  platformCompliance: 'プラットフォーム準拠',
   layout: 'レイアウト',
   naming: '命名規則',
 };

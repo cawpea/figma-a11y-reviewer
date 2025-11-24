@@ -93,7 +93,7 @@ async function selectNodeWithFallback(
   }
 }
 
-async function handleEvaluation(evaluationTypes?: string[]) {
+async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios' | 'android') {
   const selection = figma.currentPage.selection;
 
   // 選択チェック
@@ -134,7 +134,7 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     console.log('Extracted styles data:', JSON.stringify(stylesData, null, 2));
 
     // バックエンドAPIに送信
-    const result = await callEvaluationAPI(nodeData, stylesData, evaluationTypes);
+    const result = await callEvaluationAPI(nodeData, stylesData, evaluationTypes, platformType);
 
     emit('EVALUATION_COMPLETE', result);
   } catch (error) {
@@ -147,7 +147,8 @@ async function handleEvaluation(evaluationTypes?: string[]) {
 async function callEvaluationAPI(
   nodeData: FigmaNodeData,
   stylesData: FigmaStylesData,
-  evaluationTypes?: string[]
+  evaluationTypes?: string[],
+  platformType?: 'ios' | 'android'
 ): Promise<EvaluationResult> {
   const requestBody: Partial<EvaluationRequest> = {
     fileKey: figma.fileKey || 'unknown',
@@ -158,6 +159,10 @@ async function callEvaluationAPI(
 
   if (evaluationTypes) {
     requestBody.evaluationTypes = evaluationTypes;
+  }
+
+  if (platformType) {
+    requestBody.platformType = platformType;
   }
 
   console.log('Sending request to API:', API_BASE_URL + '/evaluate');

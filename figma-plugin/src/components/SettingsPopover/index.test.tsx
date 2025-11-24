@@ -19,7 +19,9 @@ describe('SettingsPopover', () => {
   const defaultProps = {
     selectedAgents: ['accessibility'],
     agentOptions: mockAgentOptions,
+    selectedPlatform: 'ios',
     onAgentChange: jest.fn(),
+    onPlatformChange: jest.fn(),
     onSelectAll: jest.fn(),
     onDeselectAll: jest.fn(),
     onClose: jest.fn(),
