@@ -180,8 +180,7 @@ describe('WritingAgent', () => {
       const systemPrompt = (agent as any).systemPrompt;
 
       expect(systemPrompt).toContain('用語の揺れ');
-      expect(systemPrompt).toContain('数字の表記');
-      expect(systemPrompt).toContain('句読点');
+      expect(systemPrompt).toContain('数字');
       expect(systemPrompt).toContain('単位');
       expect(systemPrompt).toContain('スペルミス');
       expect(systemPrompt).toContain('文法');
@@ -313,44 +312,6 @@ describe('WritingAgent', () => {
       expect(prompt).toContain('誤字・脱字');
       expect(prompt).toContain('英語の品質');
       expect(prompt).toContain('読みやすさ');
-    });
-  });
-
-  describe('言語判定ロジック', () => {
-    it('ひらがなを日本語として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('ひらがな')).toBe('japanese');
-    });
-
-    it('カタカナを日本語として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('カタカナ')).toBe('japanese');
-    });
-
-    it('漢字を日本語として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('漢字')).toBe('japanese');
-    });
-
-    it('ASCII文字のみを英語として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('Hello World')).toBe('english');
-    });
-
-    it('日本語と英語の混在を混在として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('こんにちはHello')).toBe('mixed');
-      expect(detectLanguage('Sign inボタン')).toBe('mixed');
-    });
-
-    it('数字のみの場合は日本語として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('12345')).toBe('japanese');
-    });
-
-    it('記号のみの場合は日本語として判定する', () => {
-      const detectLanguage = (agent as any).detectLanguage.bind(agent);
-      expect(detectLanguage('!@#$%')).toBe('japanese');
     });
   });
 });

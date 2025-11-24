@@ -762,3 +762,81 @@ export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 10
 
   return output;
 }
+
+/**
+ * テキストノード情報（言語判定付き）
+ */
+export interface TextNodeInfo {
+  nodeId: string;
+  nodeName: string;
+  text: string;
+  language: 'japanese' | 'english' | 'mixed';
+  fontSize?: number;
+  fontFamily?: string;
+}
+
+/**
+ * ノードツリーから全テキストノードを抽出（言語判定・文字数制限付き）
+ */
+export function extractTextNodes(
+  node: FigmaNodeData,
+  results: TextNodeInfo[] = [],
+  visited: Set<string> = new Set()
+): TextNodeInfo[] {
+  // 循環参照チェック
+  if (visited.has(node.id)) {
+    return results;
+  }
+  visited.add(node.id);
+
+  // TEXTノードの場合
+  if (node.type === 'TEXT' && node.characters) {
+    const trimmed = node.characters.trim();
+
+    // 空白のみ・空文字列は除外
+    if (trimmed.length > 0) {
+      // 1000文字に切り詰め
+      const truncated = trimmed.length > 1000 ? trimmed.slice(0, 1000) : trimmed;
+
+      results.push({
+        nodeId: node.id,
+        nodeName: node.name,
+        text: truncated,
+        language: detectLanguage(truncated),
+        fontSize: node.fontSize,
+        fontFamily: node.fontName?.family,
+      });
+    }
+  }
+
+  // 子要素を再帰的に処理
+  if (node.children && node.children.length > 0) {
+    node.children.forEach((child) => {
+      extractTextNodes(child, results, visited);
+    });
+  }
+
+  return results;
+}
+
+/**
+ * テキストの言語を判定
+ * - ひらがな・カタカナ・漢字のいずれかが含まれる → 日本語
+ * - ASCII only → 英語
+ * - 両方含まれる → 混在
+ */
+export function detectLanguage(text: string): 'japanese' | 'english' | 'mixed' {
+  const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text);
+  const hasEnglish = /[a-zA-Z]/.test(text);
+
+  if (hasJapanese && hasEnglish) {
+    return 'mixed';
+  } else if (hasJapanese) {
+    return 'japanese';
+  } else if (hasEnglish) {
+    return 'english';
+  }
+
+  // どちらでもない場合は日本語として扱う（記号のみなど）
+  return 'japanese';
+}

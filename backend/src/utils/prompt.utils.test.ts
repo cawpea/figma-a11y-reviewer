@@ -4,8 +4,10 @@ import { FigmaNodeData, FigmaStylesData } from '@shared/types';
 import {
   buildColorContrastMap,
   buildStylesApplicationMap,
+  detectLanguage,
   extractJsonFromResponse,
   extractNodeHierarchyPath,
+  extractTextNodes,
   formatFigmaDataForEvaluation,
   getJsonSchemaTemplate,
   getNodeIdInstructions,
@@ -718,6 +720,404 @@ describe('prompt.utils', () => {
 
       expect(result).toContain('**color/primary** → Frame (ID: frame) [fills]');
       expect(result).toContain('**color/secondary** → Frame (ID: frame) [fills]');
+    });
+  });
+
+  describe('detectLanguage', () => {
+    it('ひらがなを日本語として判定する', () => {
+      expect(detectLanguage('ひらがな')).toBe('japanese');
+      expect(detectLanguage('これはテストです')).toBe('japanese');
+    });
+
+    it('カタカナを日本語として判定する', () => {
+      expect(detectLanguage('カタカナ')).toBe('japanese');
+      expect(detectLanguage('テスト')).toBe('japanese');
+    });
+
+    it('漢字を日本語として判定する', () => {
+      expect(detectLanguage('漢字')).toBe('japanese');
+      expect(detectLanguage('日本語文章')).toBe('japanese');
+    });
+
+    it('ASCII文字のみを英語として判定する', () => {
+      expect(detectLanguage('Hello World')).toBe('english');
+      expect(detectLanguage('This is a test')).toBe('english');
+    });
+
+    it('日本語と英語の混在を混在として判定する', () => {
+      expect(detectLanguage('こんにちはHello')).toBe('mixed');
+      expect(detectLanguage('Sign inボタン')).toBe('mixed');
+      expect(detectLanguage('日本語とEnglish')).toBe('mixed');
+    });
+
+    it('数字のみの場合は日本語として判定する', () => {
+      expect(detectLanguage('12345')).toBe('japanese');
+      expect(detectLanguage('0')).toBe('japanese');
+    });
+
+    it('記号のみの場合は日本語として判定する', () => {
+      expect(detectLanguage('!@#$%')).toBe('japanese');
+      expect(detectLanguage('★☆')).toBe('japanese');
+    });
+
+    it('空文字列は日本語として判定する', () => {
+      expect(detectLanguage('')).toBe('japanese');
+    });
+  });
+
+  describe('extractTextNodes', () => {
+    it('TEXTノードからテキストを抽出する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'text1',
+        name: 'Test Text',
+        type: 'TEXT',
+        characters: 'こんにちは',
+        fontSize: 16,
+        fontName: { family: 'Noto Sans JP', style: 'Regular' },
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0]).toEqual({
+        nodeId: 'text1',
+        nodeName: 'Test Text',
+        text: 'こんにちは',
+        language: 'japanese',
+        fontSize: 16,
+        fontFamily: 'Noto Sans JP',
+      });
+    });
+
+    it('複数のTEXTノードを抽出する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Container',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'text1',
+            name: 'Japanese Text',
+            type: 'TEXT',
+            characters: 'ログイン',
+            fontSize: 16,
+            fontName: { family: 'Noto Sans JP', style: 'Regular' },
+          },
+          {
+            id: 'text2',
+            name: 'English Text',
+            type: 'TEXT',
+            characters: 'Sign in',
+            fontSize: 14,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(2);
+      expect(results[0].language).toBe('japanese');
+      expect(results[1].language).toBe('english');
+    });
+
+    it('空白のみのテキストノードを除外する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Container',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'text1',
+            name: 'Empty Text',
+            type: 'TEXT',
+            characters: '   ',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+          {
+            id: 'text2',
+            name: 'Valid Text',
+            type: 'TEXT',
+            characters: 'Hello',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].nodeId).toBe('text2');
+      expect(results[0].text).toBe('Hello');
+    });
+
+    it('空文字列のテキストノードを除外する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Container',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'text1',
+            name: 'Empty Text',
+            type: 'TEXT',
+            characters: '',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+          {
+            id: 'text2',
+            name: 'Valid Text',
+            type: 'TEXT',
+            characters: 'Test',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].nodeId).toBe('text2');
+    });
+
+    it('1000文字を超えるテキストを切り詰める', () => {
+      const longText = 'a'.repeat(1500);
+      const mockData: FigmaNodeData = {
+        id: 'text1',
+        name: 'Long Text',
+        type: 'TEXT',
+        characters: longText,
+        fontSize: 16,
+        fontName: { family: 'Arial', style: 'Regular' },
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].text).toHaveLength(1000);
+      expect(results[0].text).toBe('a'.repeat(1000));
+    });
+
+    it('1000文字以下のテキストはそのまま保持する', () => {
+      const normalText = 'a'.repeat(500);
+      const mockData: FigmaNodeData = {
+        id: 'text1',
+        name: 'Normal Text',
+        type: 'TEXT',
+        characters: normalText,
+        fontSize: 16,
+        fontName: { family: 'Arial', style: 'Regular' },
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].text).toHaveLength(500);
+      expect(results[0].text).toBe(normalText);
+    });
+
+    it('ネストされた構造から全てのテキストノードを抽出する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'frame1',
+            name: 'Frame 1',
+            type: 'FRAME',
+            children: [
+              {
+                id: 'text1',
+                name: 'Text 1',
+                type: 'TEXT',
+                characters: 'Level 2',
+                fontSize: 16,
+                fontName: { family: 'Arial', style: 'Regular' },
+              },
+            ],
+          },
+          {
+            id: 'frame2',
+            name: 'Frame 2',
+            type: 'FRAME',
+            children: [
+              {
+                id: 'frame3',
+                name: 'Frame 3',
+                type: 'FRAME',
+                children: [
+                  {
+                    id: 'text2',
+                    name: 'Text 2',
+                    type: 'TEXT',
+                    characters: 'Level 3',
+                    fontSize: 14,
+                    fontName: { family: 'Arial', style: 'Regular' },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(2);
+      expect(results[0].text).toBe('Level 2');
+      expect(results[1].text).toBe('Level 3');
+    });
+
+    it('TEXTノード以外のノードは無視する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Container',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'rect1',
+            name: 'Rectangle',
+            type: 'RECTANGLE',
+          },
+          {
+            id: 'text1',
+            name: 'Text',
+            type: 'TEXT',
+            characters: 'Only text',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+          {
+            id: 'vector1',
+            name: 'Vector',
+            type: 'VECTOR',
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].nodeId).toBe('text1');
+    });
+
+    it('循環参照を検出して無限ループを防ぐ', () => {
+      const child: FigmaNodeData = {
+        id: 'child',
+        name: 'Child',
+        type: 'TEXT',
+        characters: 'Test',
+        fontSize: 16,
+        fontName: { family: 'Arial', style: 'Regular' },
+      };
+
+      const parent: FigmaNodeData = {
+        id: 'parent',
+        name: 'Parent',
+        type: 'FRAME',
+        children: [child],
+      };
+
+      // 循環参照を作成
+      child.children = [parent];
+
+      const results = extractTextNodes(parent);
+
+      // 循環参照があっても処理が完了し、テキストが1つだけ抽出される
+      expect(results).toHaveLength(1);
+      expect(results[0].nodeId).toBe('child');
+    });
+
+    it('charactersプロパティがないTEXTノードを無視する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Container',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'text1',
+            name: 'Text without characters',
+            type: 'TEXT',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+          {
+            id: 'text2',
+            name: 'Text with characters',
+            type: 'TEXT',
+            characters: 'Valid',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].nodeId).toBe('text2');
+    });
+
+    it('前後の空白を削除してから判定する', () => {
+      const mockData: FigmaNodeData = {
+        id: 'text1',
+        name: 'Text with spaces',
+        type: 'TEXT',
+        characters: '  Hello World  ',
+        fontSize: 16,
+        fontName: { family: 'Arial', style: 'Regular' },
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].text).toBe('Hello World');
+    });
+
+    it('日本語、英語、混在の言語判定が正しく行われる', () => {
+      const mockData: FigmaNodeData = {
+        id: 'root',
+        name: 'Container',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'text1',
+            name: 'Japanese',
+            type: 'TEXT',
+            characters: 'こんにちは',
+            fontSize: 16,
+            fontName: { family: 'Noto Sans JP', style: 'Regular' },
+          },
+          {
+            id: 'text2',
+            name: 'English',
+            type: 'TEXT',
+            characters: 'Hello',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+          {
+            id: 'text3',
+            name: 'Mixed',
+            type: 'TEXT',
+            characters: 'Helloこんにちは',
+            fontSize: 16,
+            fontName: { family: 'Arial', style: 'Regular' },
+          },
+        ],
+      };
+
+      const results = extractTextNodes(mockData);
+
+      expect(results).toHaveLength(3);
+      expect(results[0].language).toBe('japanese');
+      expect(results[1].language).toBe('english');
+      expect(results[2].language).toBe('mixed');
     });
   });
 });
