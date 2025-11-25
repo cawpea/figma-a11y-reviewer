@@ -30,8 +30,6 @@ describe('WritingAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
       expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
@@ -54,8 +52,7 @@ describe('WritingAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('日本語と英語が混在するテキストを評価する', async () => {
@@ -77,8 +74,7 @@ describe('WritingAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('空白のみのテキストノードを除外する', async () => {
@@ -107,8 +103,7 @@ describe('WritingAgent', () => {
       const result = await agent.evaluate(mockData);
 
       // 評価は成功し、空白ノードは無視される
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('1000文字を超えるテキストを切り詰める', async () => {
@@ -132,8 +127,7 @@ describe('WritingAgent', () => {
       const result = await agent.evaluate(mockData);
 
       // 評価は成功し、テキストは切り詰められる
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('テキストノードがない場合も正常に評価する', async () => {
@@ -153,9 +147,8 @@ describe('WritingAgent', () => {
       const result = await agent.evaluate(mockData);
 
       // テキストノードがない場合、Claude APIに「テキスト要素なし」というプロンプトが送られるが、
-      // モックはデフォルトで85点を返すため、スコア範囲のみ確認
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      // モックは空のissuesを返すため、配列であることを確認
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
   });
 

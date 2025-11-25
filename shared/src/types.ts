@@ -155,7 +155,6 @@ export interface Issue {
 }
 
 export interface CategoryResult {
-  score: number;
   issues: Issue[];
   positives?: string[];
 }
@@ -172,7 +171,6 @@ export interface TokenUsage {
 }
 
 export interface EvaluationResult {
-  overallScore: number;
   categories: {
     [key: string]: CategoryResult;
   };

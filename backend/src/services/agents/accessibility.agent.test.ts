@@ -26,8 +26,7 @@ describe('AccessibilityAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('低コントラストのテキストノードを処理する', async () => {
@@ -60,8 +59,7 @@ describe('AccessibilityAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
   });
 

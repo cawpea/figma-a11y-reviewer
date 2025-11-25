@@ -26,8 +26,7 @@ describe('StyleConsistencyAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('スタイル情報なしで動作する', async () => {
@@ -46,8 +45,7 @@ describe('StyleConsistencyAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('スタイル情報ありで評価する', async () => {
@@ -105,8 +103,7 @@ describe('StyleConsistencyAgent', () => {
       agent.setStylesData(mockStylesData);
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
   });
 

@@ -92,7 +92,7 @@ ${buildSystemPromptSuffix()}`;
 
     if (textNodes.length === 0) {
       return `選択されたノードにはテキスト要素が含まれていません。
-評価するテキストがないため、スコア100、issues: []、positives: ["テキスト要素なし"] を返してください。`;
+評価するテキストがないため、issues: []、positives: ["テキスト要素なし"] を返してください。`;
     }
 
     let output = '以下のFigmaデザイン内のテキスト要素をライティングの観点で評価してください:\n\n';

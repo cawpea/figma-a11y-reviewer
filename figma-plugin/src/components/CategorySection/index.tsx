@@ -23,7 +23,6 @@ export default function CategorySection({
     <div className="bg-gray-50 rounded-md p-3 mb-3">
       <div className="flex justify-between items-center mb-2">
         <span className="font-semibold text-xs">{categoryLabel}</span>
-        <span className="font-semibold text-xs text-blue-500">{category.score}点</span>
       </div>
 
       {/* Issues */}

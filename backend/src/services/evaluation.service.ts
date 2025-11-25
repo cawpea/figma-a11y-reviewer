@@ -82,14 +82,13 @@ export class EvaluationService {
       try {
         console.log(`🧪 Evaluating ${type}...`);
         const { result, usage } = await agent.evaluate(data);
-        console.log(`🧪 ${type} evaluation completed. Score: ${result.score}`);
+        console.log(`🧪 ${type} evaluation completed`);
         return { type, result, usage };
       } catch (error) {
         console.error(`Error in ${type} evaluation:`, error);
         return {
           type,
           result: {
-            score: 0,
             issues: [
               {
                 severity: 'high' as const,
@@ -138,13 +137,6 @@ export class EvaluationService {
       totalCachedTokens += usage.cache_read_input_tokens || 0;
     });
 
-    // 総合スコアを計算（各カテゴリの加重平均）
-    const scores = Object.values(categories).map((c) => c.score);
-    const overallScore =
-      scores.length > 0
-        ? Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length)
-        : 0;
-
     // 重要度順にソート
     const sortedSuggestions = allSuggestions.sort((a, b) => {
       const severityOrder = { high: 0, medium: 1, low: 2 };
@@ -159,14 +151,13 @@ export class EvaluationService {
       (totalOutputTokens / 1_000_000) * PRICING.outputPerMillion +
       (totalCachedTokens / 1_000_000) * PRICING.cachedPerMillion;
 
-    console.log(`Evaluation completed in ${duration}ms. Overall score: ${overallScore}`);
+    console.log(`Evaluation completed in ${duration}ms`);
     console.log(
       `Token usage: ${totalInputTokens} input, ${totalOutputTokens} output, ${totalCachedTokens} cached`
     );
     console.log(`Estimated cost: $${estimatedCost.toFixed(4)}`);
 
     return {
-      overallScore,
       categories,
       suggestions: sortedSuggestions,
       metadata: {
