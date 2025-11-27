@@ -18,7 +18,6 @@ jest.mock('@anthropic-ai/sdk', () => {
       {
         type: 'text',
         text: JSON.stringify({
-          score: 85,
           issues: [],
           positives: ['Good design'],
         }),

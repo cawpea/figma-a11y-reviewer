@@ -6,10 +6,8 @@ import ResultView from './index';
 
 describe('ResultView', () => {
   const mockResult: EvaluationResult = {
-    overallScore: 85,
     categories: {
       accessibility: {
-        score: 90,
         issues: [
           {
             severity: 'high',
@@ -22,7 +20,6 @@ describe('ResultView', () => {
         positives: ['Good font sizes'],
       },
       styleConsistency: {
-        score: 80,
         issues: [],
       },
     },
@@ -44,14 +41,6 @@ describe('ResultView', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('総合スコアカードをレンダリングする', () => {
-    render(<ResultView result={mockResult} onIssueClick={mockOnIssueClick} />);
-
-    // ScoreCardコンポーネントが表示されることを確認
-    const score = screen.getByText('85', { exact: false });
-    expect(score).toBeInTheDocument();
   });
 
   it('すべてのカテゴリセクションをレンダリングする', () => {
@@ -87,8 +76,8 @@ describe('ResultView', () => {
 
     render(<ResultView result={emptyResult} onIssueClick={mockOnIssueClick} />);
 
-    // スコアカードとメタデータは表示される
-    expect(screen.getByText('85', { exact: false })).toBeInTheDocument();
+    // メタデータは表示される
+    expect(screen.getByText(/1.5/)).toBeInTheDocument();
   });
 
   it('カテゴリ内の複数の問題でレンダリングする', () => {
@@ -96,7 +85,6 @@ describe('ResultView', () => {
       ...mockResult,
       categories: {
         accessibility: {
-          score: 70,
           issues: [
             {
               severity: 'high',
@@ -135,6 +123,5 @@ describe('ResultView', () => {
     // rootNodeIdは内部的に使用されるが、UIには直接表示されない
     // 代わりに、結果が正常にレンダリングされることを確認
     expect(screen.getByText('Low contrast ratio')).toBeInTheDocument();
-    expect(screen.getByText('85', { exact: false })).toBeInTheDocument();
   });
 });

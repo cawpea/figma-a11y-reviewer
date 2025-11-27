@@ -73,22 +73,20 @@ describe('prompt.utils', () => {
 
   describe('extractJsonFromResponse', () => {
     it('コードブロックからJSONを抽出する', () => {
-      const text = '```json\n{"score": 85, "issues": [], "positives": []}\n```';
+      const text = '```json\n{ "issues": [], "positives": []}\n```';
       const result = extractJsonFromResponse(text);
 
       expect(result).toEqual({
-        score: 85,
         issues: [],
         positives: [],
       });
     });
 
     it('コードブロックなしでJSONを抽出する', () => {
-      const text = 'Here is the result: {"score": 90, "issues": [], "positives": ["Good"]}';
+      const text = 'Here is the result: { "issues": [], "positives": ["Good"]}';
       const result = extractJsonFromResponse(text);
 
       expect(result).toEqual({
-        score: 90,
         issues: [],
         positives: ['Good'],
       });
@@ -102,10 +100,9 @@ describe('prompt.utils', () => {
 
     it('ネストされたJSONオブジェクトを処理する', () => {
       const text =
-        '```json\n{"score": 75, "issues": [{"severity": "high", "message": "Test"}], "positives": []}\n```';
+        '```json\n{ "issues": [{"severity": "high", "message": "Test"}], "positives": []}\n```';
       const result = extractJsonFromResponse(text);
 
-      expect(result.score).toBe(75);
       expect(result.issues).toHaveLength(1);
       expect(result.issues[0].severity).toBe('high');
     });
@@ -312,7 +309,6 @@ describe('prompt.utils', () => {
       const template = getJsonSchemaTemplate();
 
       expect(template).toContain('必ず以下のJSON形式で結果を返してください');
-      expect(template).toContain('"score": 0-100の数値');
       expect(template).toContain('"issues":');
       expect(template).toContain('"severity": "high" | "medium" | "low"');
       expect(template).toContain('"nodeId"');

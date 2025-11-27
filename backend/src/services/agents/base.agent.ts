@@ -69,7 +69,7 @@ export abstract class BaseEvaluationAgent {
     try {
       const result = extractJsonFromResponse(textContent.text);
 
-      if (typeof result.score !== 'number' || !Array.isArray(result.issues)) {
+      if (!Array.isArray(result.issues)) {
         throw new Error('Invalid response format');
       }
 

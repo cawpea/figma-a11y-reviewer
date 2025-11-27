@@ -540,7 +540,6 @@ export function getJsonSchemaTemplate(): string {
   return `必ず以下のJSON形式で結果を返してください:
 \`\`\`json
 {
-  "score": 0-100の数値,
   "issues": [
     {
       "severity": "high" | "medium" | "low",

@@ -26,8 +26,7 @@ describe('PlatformIosAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('iOSナビゲーションバーを評価する', async () => {
@@ -54,8 +53,7 @@ describe('PlatformIosAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('タッチターゲットサイズ不足のボタンを処理する', async () => {
@@ -80,8 +78,7 @@ describe('PlatformIosAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
   });
 

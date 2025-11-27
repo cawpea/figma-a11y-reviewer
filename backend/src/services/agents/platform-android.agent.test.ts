@@ -26,8 +26,7 @@ describe('PlatformAndroidAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('Android FAB（Floating Action Button）を評価する', async () => {
@@ -53,8 +52,7 @@ describe('PlatformAndroidAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
 
     it('タッチターゲットサイズ不足のアイコンボタンを処理する', async () => {
@@ -79,8 +77,7 @@ describe('PlatformAndroidAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBeGreaterThanOrEqual(0);
-      expect(result.result.score).toBeLessThanOrEqual(100);
+      expect(Array.isArray(result.result.issues)).toBe(true);
     });
   });
 

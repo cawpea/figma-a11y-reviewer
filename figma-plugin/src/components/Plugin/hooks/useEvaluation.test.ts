@@ -142,10 +142,8 @@ describe('useEvaluation', () => {
       const { result } = renderHook(() => useEvaluation());
 
       const mockResult: EvaluationResult = {
-        overallScore: 85,
         categories: {
           accessibility: {
-            score: 90,
             issues: [],
           },
         },

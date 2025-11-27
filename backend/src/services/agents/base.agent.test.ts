@@ -72,7 +72,6 @@ describe('BaseEvaluationAgent', () => {
 
       const result = agent.testParseResponse(mockResponse as Anthropic.Message, mockData);
 
-      expect(result.score).toBe(80);
       expect(result.issues[0].nodeId).toBe('1809:1836');
       expect(result.issues[0].nodeHierarchy).toEqual(['1809:1836']);
     });
@@ -218,12 +217,11 @@ describe('BaseEvaluationAgent', () => {
       };
 
       const mockResponse = createMockResponse(
-        '```json\n{"score": 85, "issues": [], "positives": ["Good design"]}\n```'
+        '```json\n{ "issues": [], "positives": ["Good design"]}\n```'
       );
 
       const result = agent.testParseResponse(mockResponse as Anthropic.Message, mockData);
 
-      expect(result.score).toBe(85);
       expect(result.issues).toEqual([]);
       expect(result.positives).toEqual(['Good design']);
     });
@@ -275,7 +273,6 @@ describe('BaseEvaluationAgent', () => {
 
       const result = await agent.evaluate(mockData);
 
-      expect(result.result.score).toBe(85);
       expect(result.result.issues).toEqual([]);
       expect(result.result.positives).toEqual(['Good design']);
       expect(result.usage.input_tokens).toBe(100);

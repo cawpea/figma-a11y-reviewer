@@ -26,8 +26,6 @@ describe('EvaluationService', () => {
     it('デフォルトですべてのエージェントを評価する', async () => {
       const result = await service.evaluateDesign(mockData);
 
-      expect(result.overallScore).toBeGreaterThanOrEqual(0);
-      expect(result.overallScore).toBeLessThanOrEqual(100);
       expect(result.categories).toHaveProperty('accessibility');
       expect(result.categories).toHaveProperty('styleConsistency');
       expect(result.categories).toHaveProperty('usability');
@@ -60,15 +58,6 @@ describe('EvaluationService', () => {
       await expect(service.evaluateDesign(mockData, undefined, ['invalid'])).rejects.toThrow(
         'No valid evaluation types provided'
       );
-    });
-
-    it('総合スコアを平均として計算する', async () => {
-      const result = await service.evaluateDesign(mockData);
-
-      const scores = Object.values(result.categories).map((c) => c.score);
-      const expectedAvg = Math.round(scores.reduce((sum, s) => sum + s, 0) / scores.length);
-
-      expect(result.overallScore).toBe(expectedAvg);
     });
 
     it('提案を重要度でソートする', async () => {
@@ -150,8 +139,7 @@ describe('EvaluationService', () => {
 
       const result = await service.evaluateDesign(complexData);
 
-      expect(result.overallScore).toBeGreaterThanOrEqual(0);
-      expect(result.overallScore).toBeLessThanOrEqual(100);
+      expect(Object.keys(result.categories).length).toBeGreaterThan(0);
     });
 
     it('無効な評価タイプをフィルタリングする', async () => {
