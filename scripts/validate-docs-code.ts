@@ -1,15 +1,17 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 /**
  * ドキュメント内のコード参照（CODE_REF）の整合性をチェックするスクリプト
  *
  * 使用方法:
- *   node scripts/validate-docs.js
- *   node scripts/validate-docs.js --verbose
+ *   tsx scripts/validate-docs-code.ts
+ *   tsx scripts/validate-docs-code.ts --verbose
  */
 
-const fs = require('fs');
-const path = require('path');
+import * as fs from 'fs';
+import * as path from 'path';
+
+import type { CodeRef, CodeRefError } from './utils/types';
 
 // 設定
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
@@ -22,10 +24,10 @@ const verbose = args.includes('--verbose') || args.includes('-v');
 /**
  * ディレクトリを再帰的に走査してマークダウンファイルを取得
  */
-function findMarkdownFiles(dir) {
-  const files = [];
+function findMarkdownFiles(dir: string): string[] {
+  const files: string[] = [];
 
-  function walk(currentPath) {
+  function walk(currentPath: string): void {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });
 
     for (const entry of entries) {
@@ -46,9 +48,9 @@ function findMarkdownFiles(dir) {
 /**
  * CODE_REFコメントを抽出
  */
-function extractCodeRefs(content, filePath) {
-  const refs = [];
-  let match;
+function extractCodeRefs(content: string, filePath: string): CodeRef[] {
+  const refs: CodeRef[] = [];
+  let match: RegExpExecArray | null;
 
   while ((match = CODE_REF_PATTERN.exec(content)) !== null) {
     const [fullMatch, refPath, startLine, endLine] = match;
@@ -67,8 +69,8 @@ function extractCodeRefs(content, filePath) {
 /**
  * 参照先のファイルと行番号の存在を確認
  */
-function validateCodeRef(ref) {
-  const errors = [];
+function validateCodeRef(ref: CodeRef): CodeRefError[] {
+  const errors: CodeRefError[] = [];
 
   // 相対パスを絶対パスに変換(プロジェクトルートからの相対パス)
   const projectRoot = path.resolve(__dirname, '..');
@@ -125,9 +127,10 @@ function validateCodeRef(ref) {
         });
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       errors.push({
         type: 'READ_ERROR',
-        message: `ファイルの読み込みに失敗しました: ${error.message}`,
+        message: `ファイルの読み込みに失敗しました: ${errorMessage}`,
         ref,
       });
     }
@@ -139,7 +142,7 @@ function validateCodeRef(ref) {
 /**
  * メイン処理
  */
-function main() {
+function main(): void {
   console.log('🔍 ドキュメント内のコード参照を検証しています...\n');
 
   // マークダウンファイルを検索
@@ -148,7 +151,7 @@ function main() {
 
   // 全てのCODE_REFを抽出
   let totalRefs = 0;
-  const allRefs = [];
+  const allRefs: CodeRef[] = [];
 
   for (const file of markdownFiles) {
     const content = fs.readFileSync(file, 'utf-8');
@@ -172,7 +175,7 @@ function main() {
   }
 
   // 各参照を検証
-  const allErrors = [];
+  const allErrors: CodeRefError[] = [];
 
   for (const ref of allRefs) {
     const errors = validateCodeRef(ref);
@@ -187,7 +190,7 @@ function main() {
     console.log(`❌ ${allErrors.length} 個のエラーが見つかりました:\n`);
 
     // エラーをグループ化して表示
-    const errorsByDoc = {};
+    const errorsByDoc: Record<string, CodeRefError[]> = {};
 
     for (const error of allErrors) {
       const docFile = path.relative(DOCS_DIR, error.ref.docFile);

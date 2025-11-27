@@ -1,120 +1,31 @@
-#!/usr/bin/env node
+#!/usr/bin/env tsx
 
 /**
  * 作業ブランチのコミットログをもとにドキュメント更新を確認するスクリプト
  *
  * 使用方法:
- *   node scripts/validate-docs-update.js
- *   node scripts/validate-docs-update.js --verbose
+ *   tsx scripts/validate-docs-update.ts
+ *   tsx scripts/validate-docs-update.ts --verbose
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import * as path from 'path';
+
+import { checkMainBranchExists, getChangedFiles } from './utils/git.utils';
+import { isIgnored, loadDocsignorePatterns } from './utils/ignore-pattern.utils';
 
 // 設定
 const PROJECT_ROOT = path.join(__dirname, '..');
 const DOCSIGNORE_FILE = path.join(PROJECT_ROOT, '.docsignore');
-const DOCS_PATHS = ['CLAUDE.md', 'docs/'];
+const DOCS_PATHS = ['CLAUDE.md', 'docs/'] as const;
 
 // コマンドライン引数のパース
 const args = process.argv.slice(2);
 const verbose = args.includes('--verbose') || args.includes('-v');
 
 /**
- * .docsignoreファイルを読み込んでパターンを取得
- */
-function loadDocsignorePatterns() {
-  if (!fs.existsSync(DOCSIGNORE_FILE)) {
-    return [];
-  }
-
-  const content = fs.readFileSync(DOCSIGNORE_FILE, 'utf-8');
-  return content
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith('#')); // コメントと空行を除外
-}
-
-/**
- * ファイルパスがパターンにマッチするかチェック（シンプルなグロブマッチング）
- */
-function matchesPattern(filePath, pattern) {
-  // ディレクトリパターン（末尾が/）
-  if (pattern.endsWith('/')) {
-    return filePath.startsWith(pattern) || filePath.startsWith(pattern.slice(0, -1) + '/');
-  }
-
-  // **/ パターン（任意のディレクトリ階層）
-  if (pattern.startsWith('**/')) {
-    const suffix = pattern.slice(3);
-    // ファイル名マッチまたはパス内に含まれるかチェック
-    if (suffix.includes('*')) {
-      // ワイルドカード処理
-      const regex = new RegExp(
-        suffix.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.')
-      );
-      return (
-        regex.test(path.basename(filePath)) || filePath.split('/').some((part) => regex.test(part))
-      );
-    }
-    return filePath.endsWith(suffix) || filePath.includes('/' + suffix);
-  }
-
-  // * ワイルドカード
-  if (pattern.includes('*')) {
-    const regex = new RegExp(
-      '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
-    );
-    return regex.test(filePath);
-  }
-
-  // 完全一致またはプレフィックスマッチ
-  return filePath === pattern || filePath.startsWith(pattern + '/');
-}
-
-/**
- * ファイルが.docsignoreで除外されるかチェック
- */
-function isIgnored(filePath, patterns) {
-  return patterns.some((pattern) => matchesPattern(filePath, pattern));
-}
-
-/**
- * mainブランチの存在を確認
- */
-function checkMainBranchExists() {
-  try {
-    execSync('git rev-parse --verify main', { stdio: 'ignore' });
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-/**
- * mainブランチとの差分ファイルを取得
- */
-function getChangedFiles() {
-  try {
-    const output = execSync('git diff main...HEAD --name-only', {
-      encoding: 'utf-8',
-      cwd: PROJECT_ROOT,
-    });
-    return output
-      .trim()
-      .split('\n')
-      .filter((line) => line);
-  } catch (error) {
-    console.error('❌ git diffコマンドの実行に失敗しました:', error.message);
-    return [];
-  }
-}
-
-/**
  * ドキュメントファイルの更新を検出
  */
-function getUpdatedDocFiles(files) {
+function getUpdatedDocFiles(files: string[]): string[] {
   return files.filter((file) =>
     DOCS_PATHS.some((docPath) => {
       if (docPath.endsWith('/')) {
@@ -128,7 +39,7 @@ function getUpdatedDocFiles(files) {
 /**
  * メイン処理
  */
-function main() {
+function main(): void {
   console.log('🔍 ドキュメント更新を確認しています...\n');
 
   // mainブランチの存在確認
@@ -138,13 +49,13 @@ function main() {
   }
 
   // .docsignoreパターンを読み込み
-  const ignorePatterns = loadDocsignorePatterns();
+  const ignorePatterns = loadDocsignorePatterns(DOCSIGNORE_FILE);
   if (verbose) {
     console.log(`📋 .docsignoreから${ignorePatterns.length}個のパターンを読み込みました\n`);
   }
 
   // mainブランチとの差分を取得
-  const allChangedFiles = getChangedFiles();
+  const allChangedFiles = getChangedFiles({ cwd: PROJECT_ROOT });
 
   if (allChangedFiles.length === 0) {
     console.log('✅ mainブランチとの差分がありません');

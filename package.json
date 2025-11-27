@@ -19,16 +19,18 @@
     "format": "prettier --write \"**/*.{ts,js,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,js,json,md,css}\"",
     "type-check": "npm run type-check -w backend && npm run type-check -w figma-plugin",
+    "type-check:scripts": "tsc --project scripts/tsconfig.json --noEmit",
     "check": "npm run format:check && npm run lint && npm run type-check",
-    "validate:docs": "node scripts/validate-docs.js",
-    "validate:docs:code": "node scripts/validate-docs-code.js",
-    "validate:docs:update": "node scripts/validate-docs-update.js",
+    "validate:docs": "tsx scripts/validate-docs.ts",
+    "validate:docs:code": "tsx scripts/validate-docs-code.ts",
+    "validate:docs:update": "tsx scripts/validate-docs-update.ts",
     "backend:dev": "npm run dev -w backend",
     "backend:build": "npm run build -w backend",
     "plugin:build": "npm run build -w figma-plugin",
     "plugin:watch": "npm run watch -w figma-plugin"
   },
   "devDependencies": {
+    "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
     "eslint": "^9.17.0",
@@ -36,7 +38,9 @@
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-unused-imports": "^4.1.4",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "figma",
