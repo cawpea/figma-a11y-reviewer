@@ -246,5 +246,5 @@ npm run update:docs
 ## 参考リンク
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [ドキュメント管理ガイド](./documentation-management.md)
-- [スクリプトドキュメント](./scripts.md)
+- [ドキュメント管理ガイド](../../docs/development/documentation-management.md)
+- [スクリプトドキュメント](../../scripts/README.md)

@@ -173,7 +173,9 @@ jobs:
             ### 参考リンク
 
             - [ドキュメント管理ガイド](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/development/documentation-management.md)
-            - [スクリプトの使い方](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/docs/development/scripts.md)            ---
+            - [スクリプトの使い方](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/scripts/README.md)
+
+            ---
 
             *このコメントは自動生成されました。ドキュメントの更新が不要な場合は、このコメントを無視してください。*
             `;
