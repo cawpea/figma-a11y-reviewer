@@ -3,6 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with
 code in this repository.
 
+> **📚 詳細なドキュメント**: このファイルはクイックリファレンスです。より詳細な情報は[`docs/`ディレクトリ](docs/README.md)を参照してください。
+
 ## プロジェクト概要
 
 Figma UI Reviewerは、FigmaデザインをAnthropicのClaude
@@ -68,6 +70,9 @@ backend/              # Express.js バックエンド API
 
 ### 評価エージェントシステム
 
+> **詳細**: [docs/architecture/agent-system.md](docs/architecture/),
+> [docs/backend/agents/](docs/backend/)
+
 各評価エージェントは`BaseEvaluationAgent`を継承しており、以下の責務を持ちます：
 
 - `systemPrompt`: 評価基準とJSON出力フォーマットの定義
@@ -75,7 +80,7 @@ backend/              # Express.js バックエンド API
 - `callClaude()`: Claude APIを呼び出し（temperature=0で一貫性を保証）
 - `parseResponse()`: Claude APIのレスポンスをパースして構造化
 
-新しい評価軸を追加する場合は、`BaseEvaluationAgent`を継承したクラスを作成し、`evaluation.service.ts`の`agents`オブジェクトに追加してください。
+新しい評価軸を追加する場合は、`BaseEvaluationAgent`を継承したクラスを作成し、`evaluation.service.ts`の`agents`オブジェクトに追加してください。詳細は[新規エージェント追加ガイド](docs/guides/)を参照してください。
 
 ## 開発コマンド
 
@@ -177,6 +182,8 @@ npm run type-check
 
 ### Figmaプラグインのアーキテクチャ
 
+> **詳細**: [docs/figma-plugin/](docs/figma-plugin/)
+
 #### UIコンポーネント構造
 
 プラグインUIは**Preact**と**TailwindCSS**を使用して構築されており、以下のコンポーネント階層を持ちます:
@@ -194,7 +201,6 @@ Plugin (src/components/Plugin/index.tsx)
 │   └── Spinner               # スピナーアニメーション
 ├── ErrorDisplay              # エラー表示
 └── ResultView                # 評価結果表示
-    ├── ScoreCard             # 総合スコア
     └── CategorySection[]     # カテゴリ別結果
         ├── Badge             # カテゴリバッジ
         ├── IssueItem[]       # 問題項目リスト
@@ -226,6 +232,8 @@ Plugin (src/components/Plugin/index.tsx)
 - **usability**: ユーザビリティ評価 (推定20秒)
 
 ### Figmaノードデータの抽出
+
+> **詳細**: [docs/figma-plugin/data-extraction.md](docs/figma-plugin/)
 
 `figma-plugin/src/utils/figma.utils.ts`にノード情報の抽出ロジックが実装されています。
 
@@ -275,6 +283,9 @@ Plugin (src/components/Plugin/index.tsx)
 
 ### 評価結果の構造
 
+> **詳細**: [docs/shared/types.md](docs/shared/),
+> [docs/api/request-response.md](docs/api/)
+
 ```typescript
 {
   overallScore: number,           // 総合スコア（0-100）
@@ -296,6 +307,8 @@ Plugin (src/components/Plugin/index.tsx)
 
 ### エラーハンドリング
 
+> **詳細**: [docs/api/error-handling.md](docs/api/)
+
 - バリデーション:
   `zod`スキーマで入力を検証（`backend/src/routes/evaluation.ts`）
 - 評価エラー: 個別エージェントでエラーが発生してもスコア0で結果を返す
@@ -303,6 +316,8 @@ Plugin (src/components/Plugin/index.tsx)
   `backend/src/middleware/error-handler.ts`で共通エラーハンドリング
 
 ## テストとデプロイ
+
+> **詳細**: [docs/deployment/](docs/deployment/)
 
 ### ローカルテスト
 
@@ -324,6 +339,10 @@ CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 ```
 
 ## テスト方針
+
+> **詳細**: [docs/development/testing-guide.md](docs/development/),
+> [docs/backend/testing.md](docs/backend/),
+> [docs/figma-plugin/testing.md](docs/figma-plugin/)
 
 ### テストフレームワーク
 
