@@ -1,0 +1,52 @@
+name: Documentation Check
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+
+jobs:
+  validate-docs:
+    name: Validate Documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # mainブランチとの差分を取得するために全履歴を取得
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate code references (CODE_REF)
+        run: npm run validate:docs:code -- --verbose
+
+      - name: Check documentation updates
+        run: npm run validate:docs:update -- --verbose
+        continue-on-error: true
+
+      - name: Run all documentation validations
+        run: npm run validate:docs
+
+      - name: Post validation summary
+        if: always()
+        run: |
+          echo "## 📚 Documentation Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Validations Completed:" >> $GITHUB_STEP_SUMMARY
+          echo "- Code references (CODE_REF) validation" >> $GITHUB_STEP_SUMMARY
+          echo "- Documentation update check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "See job logs for detailed results." >> $GITHUB_STEP_SUMMARY
