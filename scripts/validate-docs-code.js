@@ -70,8 +70,19 @@ function extractCodeRefs(content, filePath) {
 function validateCodeRef(ref) {
   const errors = [];
 
-  // 相対パスを絶対パスに変換（プロジェクトルートからの相対パス）
-  const absolutePath = path.join(__dirname, '..', ref.refPath);
+  // 相対パスを絶対パスに変換(プロジェクトルートからの相対パス)
+  const projectRoot = path.resolve(__dirname, '..');
+  const absolutePath = path.resolve(projectRoot, ref.refPath);
+
+  // パストラバーサル攻撃を防ぐ: プロジェクトルート内に留まるか検証
+  if (!absolutePath.startsWith(projectRoot + path.sep)) {
+    errors.push({
+      type: 'PATH_TRAVERSAL',
+      message: `参照先のパスがプロジェクトルート外を指しています: ${ref.refPath}`,
+      ref,
+    });
+    return errors;
+  }
 
   // ファイルの存在確認
   if (!fs.existsSync(absolutePath)) {
