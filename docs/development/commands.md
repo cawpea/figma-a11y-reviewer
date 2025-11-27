@@ -97,20 +97,52 @@ npm run test:coverage
 ### ドキュメント検証
 
 ```bash
-# CODE_REF参照の検証
+# 全ての検証を実行（コード参照 + 更新確認）
 npm run validate:docs
 
-# 詳細表示付き検証
-npm run validate:docs:verbose
+# コード参照（CODE_REF）の検証のみ
+npm run validate:docs:code
+
+# ドキュメント更新確認のみ
+npm run validate:docs:update
+
+# 詳細表示モード（各コマンドで使用可能）
+npm run validate:docs -- --verbose
+npm run validate:docs:code -- --verbose
+npm run validate:docs:update -- --verbose
 ```
 
-このコマンドは`scripts/validate-docs.js`を実行し、ドキュメント内の`CODE_REF`コメントが実際のコードファイルと一致しているかを検証します。
+#### validate:docs:code
+
+ドキュメント内の`CODE_REF`コメントが実際のコードファイルと一致しているかを検証します。
 
 **検証内容**:
 
 - ファイルの存在確認
 - 行番号範囲の妥当性チェック
-- 11個以上のコード参照を検証
+- コード参照の整合性確認
+
+#### validate:docs:update
+
+mainブランチとの差分をチェックし、コード変更時にドキュメントが更新されているか確認します。
+
+**検証内容**:
+
+- `git diff main...HEAD`で変更ファイルを取得
+- `.docsignore`で除外パターンをフィルタリング
+- `CLAUDE.md`または`docs/`配下の更新を確認
+- 警告のみ表示（エラー終了しない）
+
+**除外対象**（`.docsignore`で定義）:
+
+- テストファイル（`*.test.ts`）
+- 設定ファイル（`*.config.js`、`tsconfig.json`など）
+- ビルド成果物（`dist/`、`build/`、`coverage/`）
+- ログファイル（`logs/`、`*.log`）
+
+#### validate:docs
+
+上記2つの検証を統合実行します。開発中の最終チェックに使用してください。
 
 ## 技術スタック概要
 

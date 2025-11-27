@@ -68,8 +68,9 @@ npm test             # テスト実行
 ### ルートディレクトリ
 
 ```bash
-npm run validate:docs         # ドキュメント内のCODE_REF検証
-npm run validate:docs:verbose # 詳細表示
+npm run validate:docs        # ドキュメント検証（コード参照 + 更新確認）
+npm run validate:docs:code   # コード参照（CODE_REF）の検証のみ
+npm run validate:docs:update # ドキュメント更新確認のみ
 ```
 
 ## アーキテクチャ概要
