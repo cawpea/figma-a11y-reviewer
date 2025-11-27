@@ -2,6 +2,8 @@
 
 Figmaの情報をもとにAIを使って、UIデザインのレビューを行います。
 
+> **📚 詳細なドキュメント**: より詳細な情報は[CLAUDE.md](./CLAUDE.md)および[docs/](./docs/README.md)を参照してください。
+
 ## Figma Plugin
 
 ### ビルド方法
@@ -34,3 +36,16 @@ npm run dev
 ```
 ANTHROPIC_API_KEY=***
 ```
+
+## CI/CD
+
+### GitHub Actions
+
+このプロジェクトでは、以下のワークフローが自動実行されます：
+
+- **PR Check**: コード品質チェック（lint, type-check, format）とドキュメント検証
+- **Documentation
+  Check**: コード変更時のドキュメント更新確認（mainブランチへのPRのみ）
+- **Test**: バックエンドとFigmaプラグインの自動テスト
+
+詳細は[docs/development/documentation-management.md](./docs/development/documentation-management.md#cicdでの自動化)を参照してください。
