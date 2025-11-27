@@ -139,7 +139,7 @@ node scripts/validate-docs.js --verbose
 - 参照先ファイルの存在確認
 - 行番号の妥当性チェック
 
-**詳細**: [scripts/README.md](../scripts/README.md#1-validate-docsjs)
+**詳細**: [scripts.md](./scripts.md#1-validate-docsjs)
 
 ### update-docs-from-commits.js
 
@@ -169,7 +169,7 @@ node scripts/update-docs-from-commits.js --base=develop --output=changes.md
 - 更新レポートの生成
 - CLAUDE.mdへの変更履歴追加
 
-**詳細**: [scripts/README.md](../scripts/README.md#2-update-docs-from-commitsjs)
+**詳細**: [scripts.md](./scripts.md#2-update-docs-from-commitsjs)
 
 ## コード参照の管理
 
@@ -495,9 +495,9 @@ A: 以下を検討してください:
 
 ### プロジェクト内ドキュメント
 
-- [scripts/README.md](../scripts/README.md) - スクリプトの詳細
-- [docs/README.md](../docs/README.md) - ドキュメントナビゲーション
-- [CLAUDE.md](../CLAUDE.md) - LLM向けクイックリファレンス
+- [scripts.md](./scripts.md) - スクリプトの詳細
+- [docs/README.md](../README.md) - ドキュメントナビゲーション
+- [CLAUDE.md](../../CLAUDE.md) - LLM向けクイックリファレンス
 
 ---
 

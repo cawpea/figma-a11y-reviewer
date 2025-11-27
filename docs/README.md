@@ -68,6 +68,8 @@ Figmaプラグインの実装やUI開発：
   - `debugging.md` - デバッグ方法とログ解析
   - `testing-guide.md` - テスト作成ガイド
   - `documentation-management.md` - ドキュメント管理ガイド
+  - `github-actions.md` - GitHub Actionsワークフロー
+  - `scripts.md` - ユーティリティスクリプト
   - `troubleshooting.md` - よくある問題と解決策
 
 ### デプロイメント
@@ -119,6 +121,8 @@ Figmaプラグインの実装やUI開発：
 | 「テストはどう書く?」                  | [development/testing-guide.md](./development/), [backend/testing.md](./backend/)                 |
 | 「環境構築手順は?」                    | [development/getting-started.md](./development/)                                                 |
 | 「ドキュメント管理の方法は?」          | [development/documentation-management.md](./development/)                                        |
+| 「GitHub Actionsの設定は?」            | [development/github-actions.md](./development/)                                                  |
+| 「スクリプトの使い方は?」              | [development/scripts.md](./development/)                                                         |
 | 「本番デプロイ方法は?」                | [deployment/production-deployment.md](./deployment/)                                             |
 | 「エラーハンドリングは?」              | [api/error-handling.md](./api/)                                                                  |
 | 「型定義の詳細は?」                    | [shared/types.md](./shared/), [architecture/type-system.md](./architecture/)                     |

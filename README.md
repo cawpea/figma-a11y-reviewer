@@ -48,4 +48,7 @@ ANTHROPIC_API_KEY=***
   Check**: コード変更時のドキュメント更新確認（mainブランチへのPRのみ）
 - **Test**: バックエンドとFigmaプラグインの自動テスト
 
-詳細は[docs/development/documentation-management.md](./docs/development/documentation-management.md#cicdでの自動化)を参照してください。
+詳細は以下を参照してください：
+
+- [GitHub Actions ワークフロー](./docs/development/github-actions.md)
+- [ドキュメント管理ガイド](./docs/development/documentation-management.md#cicdでの自動化)
