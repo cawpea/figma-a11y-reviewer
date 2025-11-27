@@ -67,7 +67,6 @@ Figmaプラグインの実装やUI開発：
   - `coding-standards.md` - コーディング規約
   - `debugging.md` - デバッグ方法とログ解析
   - `testing-guide.md` - テスト作成ガイド
-  - `documentation-management.md` - ドキュメント管理ガイド
   - `troubleshooting.md` - よくある問題と解決策
 
 ### デプロイメント
@@ -118,7 +117,6 @@ Figmaプラグインの実装やUI開発：
 | 「評価ロジックの実装は?」              | [backend/agents/](./backend/), [backend/services.md](./backend/)                                 |
 | 「テストはどう書く?」                  | [development/testing-guide.md](./development/), [backend/testing.md](./backend/)                 |
 | 「環境構築手順は?」                    | [development/getting-started.md](./development/)                                                 |
-| 「ドキュメント管理の方法は?」          | [development/documentation-management.md](./development/)                                        |
 | 「本番デプロイ方法は?」                | [deployment/production-deployment.md](./deployment/)                                             |
 | 「エラーハンドリングは?」              | [api/error-handling.md](./api/)                                                                  |
 | 「型定義の詳細は?」                    | [shared/types.md](./shared/), [architecture/type-system.md](./architecture/)                     |
@@ -206,33 +204,15 @@ npm run validate:docs
 
 ### validate-docs.js
 
-コード参照の整合性チェックスクリプト：
+コード参照の整合性チェックスクリプト（Phase 3で実装予定）：
 
 ```bash
 # ドキュメント内のCODE_REFを検証
 npm run validate:docs
 
 # 詳細モード（不整合の詳細を表示）
-node scripts/validate-docs.js --verbose
+npm run validate:docs -- --verbose
 ```
-
-### update-docs-from-commits.js
-
-コミットログからドキュメント更新を支援するスクリプト：
-
-```bash
-# dry-runモード（変更内容のプレビューのみ）
-npm run update:docs:dry-run
-
-# 対話的モード
-npm run update:docs
-
-# 自動適用モード
-npm run update:docs:auto
-```
-
-**詳細**:
-[development/documentation-management.md](./development/documentation-management.md)
 
 ## 💡 ドキュメント作成のベストプラクティス
 
