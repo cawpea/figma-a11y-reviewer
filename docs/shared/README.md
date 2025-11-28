@@ -46,11 +46,13 @@ export type FigmaNodeType =
 ```
 
 **利点:**
+
 - コンパイル時に無効なノードタイプを検出
 - IDEの自動補完で全40種類のノードタイプを表示
 - Zodバリデーションで実行時の型チェックも可能
 
 **使用箇所:**
+
 - `FigmaNodeData.type`
 - `SelectedLayer.type`
 - バックエンドの`figmaNodeTypeSchema`

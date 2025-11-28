@@ -36,14 +36,14 @@ description: 'ドキュメントの更新が必要か調査し、必要に応じ
 4. **更新対象ドキュメントを特定**
 
    変更内容に応じて以下を更新:
-   - `docs/api/` - API仕様変更時
-   - `docs/architecture/` - アーキテクチャ変更時
-   - `docs/backend/` - バックエンド変更時
-   - `docs/deployment/` - デプロイルール更時
-   - `docs/development/` - 開発ルール更新時
-   - `docs/figma-plugin/` - プラグイン変更時
-   - `docs/shared/` - 共通処理変更時
-   - `CLAUDE.md` - 重要な設計方針変更時（稀）
+   - `docs/api/` - API仕様
+   - `docs/architecture/` - アーキテクチャ
+   - `docs/backend/` - バックエンド
+   - `docs/deployment/` - デプロイルール
+   - `docs/development/` - 日常的な開発ルール
+   - `docs/figma-plugin/` - プラグイン
+   - `docs/shared/` - 共通処理
+   - `CLAUDE.md` - 重要な設計方針（稀）
 
 5. **ドキュメントを更新**
    - 変更内容を反映した適切な説明を追加
