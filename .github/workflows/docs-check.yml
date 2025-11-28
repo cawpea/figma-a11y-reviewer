@@ -21,6 +21,9 @@ jobs:
           # mainブランチとの差分を取得するために全履歴を取得
           fetch-depth: 0
 
+      - name: Fetch main branch
+        run: git fetch origin main:main
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
