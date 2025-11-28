@@ -41,7 +41,7 @@ Content-Type: application/json
   "nodeData": {                   // Figmaノードデータ（再帰的に抽出）
     "id": string,
     "name": string,
-    "type": string,
+    "type": FigmaNodeType,        // 厳密な型定義（40種類のFigmaノードタイプ）
     // ... その他のプロパティ（figma.utils.tsで抽出）
   },
 
@@ -334,7 +334,7 @@ const evaluationRequestSchema = z.object({
     .object({
       id: z.string(),
       name: z.string(),
-      type: z.string(),
+      type: figmaNodeTypeSchema, // 厳密な型チェック（40種類のFigmaノードタイプ）
     })
     .passthrough(), // 追加のプロパティを許可
   stylesData: z
@@ -347,6 +347,12 @@ const evaluationRequestSchema = z.object({
   userId: z.string().optional(),
 });
 ```
+
+**型安全性の向上:**
+
+バックエンドでは`FigmaNodeType`に対応する`figmaNodeTypeSchema`を使用し、リクエスト時に無効なノードタイプを検出します。これにより、実行時エラーを防ぎ、より堅牢なAPIを実現しています。
+
+<!-- CODE_REF: backend/src/routes/evaluation.ts:24-62 -->
 
 ---
 

@@ -44,8 +44,21 @@ jobs:
         id: check-docs
         run: |
           echo "Running documentation update check..."
-          npm run validate:docs:update -- --verbose > /tmp/docs-update-check.log 2>&1 || true
+
+          # 検証スクリプトを実行し、終了コードを保存
+          set +e
+          npm run validate:docs:update -- --verbose > /tmp/docs-update-check.log 2>&1
+          EXIT_CODE=$?
+          set -e
+
           cat /tmp/docs-update-check.log
+
+          # スクリプトが異常終了した場合はエラーとして扱う
+          if [ $EXIT_CODE -ne 0 ] && [ $EXIT_CODE -ne 1 ]; then
+            echo "❌ Documentation validation script failed with exit code $EXIT_CODE"
+            echo "validation_failed=true" >> $GITHUB_OUTPUT
+            exit 1
+          fi
 
           # ドキュメント未更新の警告を検出
           if grep -q "⚠️  コードが変更されていますが、ドキュメントは更新されていません" /tmp/docs-update-check.log; then
@@ -73,7 +86,7 @@ jobs:
             ${changedFiles}
 
             ### 💡 対応方法
-            - **重要な変更の場合**: \`CLAUDE.md\` または \`docs/\` 配下のドキュメントの更新を検討してください
+            - **重要な変更の場合**: Claudeコマンド\`/update-docs\`を実行してドキュメントを更新してください
             - **軽微な変更や内部実装の変更の場合**: 更新不要です
 
             このコメントは自動生成されています。必要に応じてドキュメントを更新してください。`;

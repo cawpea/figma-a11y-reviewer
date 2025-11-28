@@ -79,26 +79,6 @@ Figmaプラグインの実装やUI開発：
   - `production-deployment.md` - 本番デプロイ手順
   - `monitoring.md` - ログ管理と監視
 
-### 拡張・カスタマイズ
-
-システムの機能拡張やカスタマイズ：
-
-- **[guides/](./guides/)** - 実践的な拡張ガイド
-  - `adding-new-agent.md` - 新規評価エージェントの追加
-  - `extending-api.md` - API機能拡張
-  - `customizing-ui.md` - UIカスタマイズ
-  - `performance-optimization.md` - パフォーマンス最適化
-
-### リファレンス
-
-技術的な詳細情報とプロジェクト全体の参照資料：
-
-- **[reference/](./reference/)** - 依存関係、ファイル構造、用語集
-  - `dependencies.md` - 依存関係一覧と選定理由
-  - `file-structure.md` - ファイル構造の詳細マップ
-  - `api-costs.md` - Claude APIコスト計算
-  - `glossary.md` - 用語集
-
 ### 共通型定義
 
 フロントエンドとバックエンド間の共有型：
@@ -110,7 +90,7 @@ Figmaプラグインの実装やUI開発：
 
 | 質問の種類                             | 参照すべきドキュメント                                                                           |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| 「新しい評価エージェントを追加したい」 | [guides/adding-new-agent.md](./guides/), [architecture/agent-system.md](./architecture/)         |
+| 「新しい評価エージェントを追加したい」 | [architecture/agent-system.md](./architecture/), [backend/agents/](./backend/)                   |
 | 「APIエンドポイントの仕様は?」         | [api/endpoints.md](./api/), [api/request-response.md](./api/)                                    |
 | 「Figmaデータはどう抽出される?」       | [figma-plugin/data-extraction.md](./figma-plugin/), [figma-plugin/figma-api.md](./figma-plugin/) |
 | 「コンポーネント階層は?」              | [figma-plugin/components/](./figma-plugin/)                                                      |
@@ -158,15 +138,15 @@ npm run validate:docs
 
 ### 重要ファイルと対応ドキュメント
 
-| ファイル                                                    | 更新が必要なドキュメント                                                                     |
-| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `backend/src/services/agents/base.agent.ts`                 | `architecture/agent-system.md`, `backend/agents/base-agent.md`, `guides/adding-new-agent.md` |
-| `backend/src/services/evaluation.service.ts`                | `architecture/data-flow.md`, `backend/services.md`, `api/endpoints.md`                       |
-| `backend/src/routes/evaluation.ts`                          | `api/endpoints.md`, `api/request-response.md`                                                |
-| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`, `figma-plugin/figma-api.md`                               |
-| `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts` | `figma-plugin/hooks.md`, `architecture/data-flow.md`                                         |
-| `shared/src/types.ts`                                       | `shared/types.md`, `api/request-response.md`                                                 |
-| `backend/src/config/anthropic.ts`                           | `api/claude-integration.md`, `reference/api-costs.md`                                        |
+| ファイル                                                    | 更新が必要なドキュメント                                               |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `backend/src/services/agents/base.agent.ts`                 | `architecture/agent-system.md`, `backend/agents/base-agent.md`         |
+| `backend/src/services/evaluation.service.ts`                | `architecture/data-flow.md`, `backend/services.md`, `api/endpoints.md` |
+| `backend/src/routes/evaluation.ts`                          | `api/endpoints.md`, `api/request-response.md`                          |
+| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`, `figma-plugin/figma-api.md`         |
+| `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts` | `figma-plugin/hooks.md`, `architecture/data-flow.md`                   |
+| `shared/src/types.ts`                                       | `shared/types.md`, `api/request-response.md`                           |
+| `backend/src/config/anthropic.ts`                           | `api/claude-integration.md`                                            |
 
 ### 新機能追加時の更新手順
 

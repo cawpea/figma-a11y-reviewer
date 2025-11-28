@@ -202,7 +202,7 @@ cd backend
 npm test
 ```
 
-**詳細**: [新規エージェント追加ガイド](../guides/)参照
+**詳細**: [backend/agents/](../backend/)参照
 
 ### API動作確認
 
