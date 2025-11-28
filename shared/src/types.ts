@@ -206,6 +206,20 @@ export interface ApiResponse<T = unknown> {
   details?: unknown;
 }
 
+/** 選択されたレイヤー情報 */
+export interface SelectedLayer {
+  id: string;
+  name: string;
+  type: string;
+}
+
+/** 選択状態（検証結果含む） */
+export interface SelectionState {
+  layers: SelectedLayer[];
+  isValid: boolean;
+  errorMessage?: string;
+}
+
 /** スタイル取得時の上限定数 */
 export const STYLES_LIMIT = {
   /** 各カテゴリごとの最大取得数 */

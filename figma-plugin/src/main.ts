@@ -4,6 +4,7 @@ import type {
   EvaluationResult,
   FigmaNodeData,
   FigmaStylesData,
+  SelectionState,
 } from '@shared/types';
 
 import { extractFileStyles, extractNodeData } from './utils/figma.utils';
@@ -199,6 +200,53 @@ export default function () {
   showUI({
     width: 400,
     height: 600,
+  });
+
+  // 選択変更の監視（デバウンス付き）
+  let selectionChangeTimeout: ReturnType<typeof setTimeout> | null = null;
+  figma.on('selectionchange', () => {
+    if (selectionChangeTimeout) {
+      clearTimeout(selectionChangeTimeout);
+    }
+
+    selectionChangeTimeout = setTimeout(() => {
+      const selection = figma.currentPage.selection;
+      const layers = selection.map((node) => ({
+        id: node.id,
+        name: node.name,
+        type: node.type,
+      }));
+
+      // 選択の検証
+      let isValid = true;
+      let errorMessage: string | undefined;
+
+      if (selection.length === 0) {
+        // 空選択は有効（エラーではない）
+        isValid = true;
+      } else if (selection.length > 1) {
+        isValid = false;
+        errorMessage = ERROR_MESSAGES.MULTIPLE_SELECTION;
+      } else {
+        const selectedNode = selection[0];
+        if (
+          selectedNode.type !== 'FRAME' &&
+          selectedNode.type !== 'COMPONENT' &&
+          selectedNode.type !== 'INSTANCE'
+        ) {
+          isValid = false;
+          errorMessage = `フレーム、コンポーネント、またはインスタンスを選択してください（選択中: ${selectedNode.type}）`;
+        }
+      }
+
+      const selectionState: SelectionState = {
+        layers,
+        isValid,
+        errorMessage,
+      };
+
+      emit('SELECTION_CHANGED', selectionState);
+    }, 100);
   });
 
   // UIからのイベントを受信
