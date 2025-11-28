@@ -1,7 +1,7 @@
 /**
  * デバウンスされた関数の型定義
  */
-export interface DebouncedFunction<T extends (...args: any[]) => void> {
+export interface DebouncedFunction<T extends (...args: never[]) => void> {
   (...args: Parameters<T>): void;
   cancel(): void;
 }
@@ -10,11 +10,10 @@ export interface DebouncedFunction<T extends (...args: any[]) => void> {
  * 指定されたミリ秒だけ関数の実行を遅延させるデバウンス関数
  *
  * @param func - デバウンスする関数
- * @param delay - 遅延時間（ミリ秒）
+ * @param delay - 遅延時間(ミリ秒)
  * @returns デバウンスされた関数とcancel()メソッド
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function debounce<T extends (...args: any[]) => void>(
+export function debounce<T extends (...args: never[]) => void>(
   func: T,
   delay: number
 ): DebouncedFunction<T> {
