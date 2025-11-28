@@ -21,6 +21,43 @@ const ERROR_MESSAGES = {
 } as const;
 
 /**
+ * 選択の検証
+ * @returns 検証結果（isValid: 有効かどうか, errorMessage: エラーメッセージ）
+ */
+function validateSelection(selection: readonly SceneNode[]): {
+  isValid: boolean;
+  errorMessage?: string;
+} {
+  // 空選択は有効（エラーではない）
+  if (selection.length === 0) {
+    return { isValid: true };
+  }
+
+  // 複数選択はエラー
+  if (selection.length > 1) {
+    return {
+      isValid: false,
+      errorMessage: ERROR_MESSAGES.MULTIPLE_SELECTION,
+    };
+  }
+
+  // フレーム、コンポーネント、インスタンス以外はエラー
+  const selectedNode = selection[0];
+  if (
+    selectedNode.type !== 'FRAME' &&
+    selectedNode.type !== 'COMPONENT' &&
+    selectedNode.type !== 'INSTANCE'
+  ) {
+    return {
+      isValid: false,
+      errorMessage: `フレーム、コンポーネント、またはインスタンスを選択してください（選択中: ${selectedNode.type}）`,
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
  * フォールバック付きノード選択
  * ターゲットノードが見つからない場合、階層を逆順に辿って親ノードを選択
  * 最終的にはルートノード（評価対象フレーム）にフォールバック
@@ -98,28 +135,20 @@ async function selectNodeWithFallback(
 async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios' | 'android') {
   const selection = figma.currentPage.selection;
 
-  // 選択チェック
+  // 選択を検証
+  const validation = validateSelection(selection);
+  if (!validation.isValid) {
+    emit('ERROR', validation.errorMessage || ERROR_MESSAGES.NO_SELECTION);
+    return;
+  }
+
+  // 選択が空の場合はエラー（評価には選択が必要）
   if (selection.length === 0) {
     emit('ERROR', ERROR_MESSAGES.NO_SELECTION);
     return;
   }
 
-  if (selection.length > 1) {
-    emit('ERROR', ERROR_MESSAGES.MULTIPLE_SELECTION);
-    return;
-  }
-
   const selectedNode = selection[0];
-
-  // フレーム、コンポーネント、またはインスタンスかチェック
-  if (
-    selectedNode.type !== 'FRAME' &&
-    selectedNode.type !== 'COMPONENT' &&
-    selectedNode.type !== 'INSTANCE'
-  ) {
-    emit('ERROR', ERROR_MESSAGES.INVALID_NODE_TYPE);
-    return;
-  }
 
   // 評価開始を通知
   emit('EVALUATION_STARTED');
@@ -212,32 +241,13 @@ export default function () {
       type: node.type,
     }));
 
-    // 選択の検証
-    let isValid = true;
-    let errorMessage: string | undefined;
-
-    if (selection.length === 0) {
-      // 空選択は有効（エラーではない）
-      isValid = true;
-    } else if (selection.length > 1) {
-      isValid = false;
-      errorMessage = ERROR_MESSAGES.MULTIPLE_SELECTION;
-    } else {
-      const selectedNode = selection[0];
-      if (
-        selectedNode.type !== 'FRAME' &&
-        selectedNode.type !== 'COMPONENT' &&
-        selectedNode.type !== 'INSTANCE'
-      ) {
-        isValid = false;
-        errorMessage = `フレーム、コンポーネント、またはインスタンスを選択してください（選択中: ${selectedNode.type}）`;
-      }
-    }
+    // 選択を検証
+    const validation = validateSelection(selection);
 
     const selectionState: SelectionState = {
       layers,
-      isValid,
-      errorMessage,
+      isValid: validation.isValid,
+      errorMessage: validation.errorMessage,
     };
 
     emit('SELECTION_CHANGED', selectionState);
