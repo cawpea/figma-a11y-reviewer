@@ -285,6 +285,8 @@ export default function () {
     // Note: figma.closePluginが呼ばれた時点で自動的にクリーンアップされますが、
     // 明示的にdebounceタイマーをキャンセルすることで、ペンディング中の処理を確実に停止
     debouncedSelectionChange.cancel();
+    figma.off('selectionchange', debouncedSelectionChange); // 明示的にリスナー削除
+
     figma.closePlugin();
   });
 }
