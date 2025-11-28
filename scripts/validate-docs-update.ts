@@ -18,14 +18,10 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const DOCSIGNORE_FILE = path.join(PROJECT_ROOT, '.docsignore');
 const DOCS_PATHS = ['CLAUDE.md', 'docs/'] as const;
 
-// コマンドライン引数のパース
-const args = process.argv.slice(2);
-const verbose = args.includes('--verbose') || args.includes('-v');
-
 /**
  * ドキュメントファイルの更新を検出
  */
-function getUpdatedDocFiles(files: string[]): string[] {
+export function getUpdatedDocFiles(files: string[]): string[] {
   return files.filter((file) =>
     DOCS_PATHS.some((docPath) => {
       if (docPath.endsWith('/')) {
@@ -36,30 +32,61 @@ function getUpdatedDocFiles(files: string[]): string[] {
   );
 }
 
+export interface ValidationResult {
+  success: boolean;
+  exitCode: number;
+  hasDocUpdates: boolean;
+  updatedDocFiles: string[];
+  relevantFiles: string[];
+  allChangedFiles: string[];
+}
+
 /**
- * メイン処理
+ * ドキュメント更新検証のメインロジック
  */
-function main(): void {
-  console.log('🔍 ドキュメント更新を確認しています...\n');
+export function validateDocsUpdate(options: {
+  verbose: boolean;
+  projectRoot: string;
+  docsignoreFile: string;
+}): ValidationResult {
+  const { verbose, projectRoot, docsignoreFile } = options;
 
   // mainブランチの存在確認
   if (!checkMainBranchExists()) {
-    console.log('⚠️  mainブランチが見つかりません。ドキュメント更新チェックをスキップします。');
-    process.exit(0);
+    if (verbose) {
+      console.log('⚠️  mainブランチが見つかりません。ドキュメント更新チェックをスキップします。');
+    }
+    return {
+      success: true,
+      exitCode: 0,
+      hasDocUpdates: false,
+      updatedDocFiles: [],
+      relevantFiles: [],
+      allChangedFiles: [],
+    };
   }
 
   // .docsignoreパターンを読み込み
-  const ignorePatterns = loadDocsignorePatterns(DOCSIGNORE_FILE);
+  const ignorePatterns = loadDocsignorePatterns(docsignoreFile);
   if (verbose) {
     console.log(`📋 .docsignoreから${ignorePatterns.length}個のパターンを読み込みました\n`);
   }
 
   // mainブランチとの差分を取得
-  const allChangedFiles = getChangedFiles({ cwd: PROJECT_ROOT });
+  const allChangedFiles = getChangedFiles({ cwd: projectRoot });
 
   if (allChangedFiles.length === 0) {
-    console.log('✅ mainブランチとの差分がありません');
-    process.exit(0);
+    if (verbose) {
+      console.log('✅ mainブランチとの差分がありません');
+    }
+    return {
+      success: true,
+      exitCode: 0,
+      hasDocUpdates: false,
+      updatedDocFiles: [],
+      relevantFiles: [],
+      allChangedFiles: [],
+    };
   }
 
   if (verbose) {
@@ -70,25 +97,50 @@ function main(): void {
   const relevantFiles = allChangedFiles.filter((file) => !isIgnored(file, ignorePatterns));
 
   if (relevantFiles.length === 0) {
-    console.log('✅ ドキュメント更新が必要なコード変更はありません（すべて除外対象）');
-    process.exit(0);
+    if (verbose) {
+      console.log('✅ ドキュメント更新が必要なコード変更はありません（すべて除外対象）');
+    }
+    return {
+      success: true,
+      exitCode: 0,
+      hasDocUpdates: false,
+      updatedDocFiles: [],
+      relevantFiles: [],
+      allChangedFiles,
+    };
   }
 
   // ドキュメントファイルの更新を確認
   const updatedDocFiles = getUpdatedDocFiles(allChangedFiles);
 
-  if (verbose) {
+  return {
+    success: true,
+    exitCode: 0,
+    hasDocUpdates: updatedDocFiles.length > 0,
+    updatedDocFiles,
+    relevantFiles,
+    allChangedFiles,
+  };
+}
+
+/**
+ * 検証結果を表示
+ */
+export function displayResult(result: ValidationResult, verbose: boolean): void {
+  const { hasDocUpdates, updatedDocFiles, relevantFiles } = result;
+
+  if (verbose && relevantFiles.length > 0) {
     console.log(`📝 変更されたコードファイル (${relevantFiles.length}個):`);
     relevantFiles.forEach((file) => console.log(`  - ${file}`));
     console.log('');
   }
 
   // 結果の表示
-  if (updatedDocFiles.length > 0) {
+  if (hasDocUpdates) {
     console.log('✅ ドキュメントが更新されています:');
     updatedDocFiles.forEach((file) => console.log(`  ✓ ${file}`));
     console.log('');
-  } else {
+  } else if (relevantFiles.length > 0) {
     console.log('⚠️  コードが変更されていますが、ドキュメントは更新されていません\n');
     console.log('📝 以下のファイルが変更されています:');
     relevantFiles.slice(0, 10).forEach((file) => console.log(`  - ${file}`));
@@ -101,10 +153,31 @@ function main(): void {
     console.log('  - 軽微な変更や内部実装の変更の場合は更新不要です');
     console.log('');
   }
-
-  // 警告のみで正常終了
-  process.exit(0);
 }
 
-// 実行
-main();
+/**
+ * メイン処理
+ */
+function main(): void {
+  console.log('🔍 ドキュメント更新を確認しています...\n');
+
+  // コマンドライン引数のパース
+  const args = process.argv.slice(2);
+  const verbose = args.includes('--verbose') || args.includes('-v');
+
+  const result = validateDocsUpdate({
+    verbose,
+    projectRoot: PROJECT_ROOT,
+    docsignoreFile: DOCSIGNORE_FILE,
+  });
+
+  displayResult(result, verbose);
+
+  // 警告のみで正常終了
+  process.exit(result.exitCode);
+}
+
+// 実行 (テスト時は実行しない)
+if (require.main === module) {
+  main();
+}
