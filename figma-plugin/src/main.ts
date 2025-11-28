@@ -247,6 +247,9 @@ export default function () {
   const debouncedSelectionChange = debounce(handleSelectionChange, 100);
   figma.on('selectionchange', debouncedSelectionChange);
 
+  // プラグイン起動時の初期選択状態を送信
+  handleSelectionChange();
+
   // UIからのイベントを受信
   on('EVALUATE_SELECTION', handleEvaluation);
 
