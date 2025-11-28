@@ -1,0 +1,47 @@
+# .docsignore
+# ドキュメント更新チェックから除外するファイルパターン
+# .gitignore形式で記述
+
+# 依存関係とビルド成果物
+node_modules/
+dist/
+build/
+coverage/
+
+# ログファイル
+logs/
+**/*.log
+**/debug-*.json
+
+# テストファイル
+**/*.test.ts
+**/*.test.tsx
+**/test-setup.ts
+
+# 設定ファイル
+**/*.config.js
+**/*.config.ts
+.eslintrc*
+.prettierrc*
+tsconfig*.json
+jest.config.js
+
+# 環境変数ファイル
+.env
+.env.*
+!.env.example
+
+# システムファイル
+.DS_Store
+.vscode/
+.idea/
+
+# パッケージマネージャー関連
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# その他
+*.min.js
+*.map
+manifest.json

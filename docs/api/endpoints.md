@@ -1,0 +1,406 @@
+# API Endpoints
+
+このドキュメントでは、Figma UI
+Reviewer バックエンドAPIのエンドポイント仕様を説明します。
+
+## ベースURL
+
+- **開発環境**: `http://localhost:3000`
+- **本番環境**: （デプロイ先に応じて設定）
+
+## エンドポイント一覧
+
+| メソッド | パス            | 説明                | 認証 |
+| -------- | --------------- | ------------------- | ---- |
+| POST     | `/api/evaluate` | Figmaデザインを評価 | 不要 |
+| GET      | `/api/health`   | ヘルスチェック      | 不要 |
+
+---
+
+## POST /api/evaluate
+
+Figmaデザインを指定された評価エージェントで評価し、結果を返します。
+
+### リクエスト
+
+#### Headers
+
+```
+Content-Type: application/json
+```
+
+#### Body
+
+<!-- CODE_REF: backend/src/routes/evaluation.ts:24-51 -->
+
+```typescript
+{
+  // 必須フィールド
+  "fileKey": string,              // FigmaファイルのキーID
+  "nodeId": string,               // 評価対象ノードのID（例: "1809:1836"）
+  "nodeData": {                   // Figmaノードデータ（再帰的に抽出）
+    "id": string,
+    "name": string,
+    "type": string,
+    // ... その他のプロパティ（figma.utils.tsで抽出）
+  },
+
+  // オプションフィールド
+  "stylesData": {                 // ファイル全体のスタイル定義
+    "variables": Array<{
+      "id": string,
+      "name": string,
+      "resolvedType": string,
+      "valuesByMode"?: Record<string, unknown>
+    }>,
+    "textStyles": Array<{
+      "id": string,
+      "name": string,
+      "description"?: string
+    }>,
+    "colorStyles": Array<{
+      "id": string,
+      "name": string,
+      "description"?: string
+    }>,
+    "effectStyles": Array<{
+      "id": string,
+      "name": string,
+      "description"?: string
+    }>,
+    "meta": {
+      "variablesCount": number,
+      "textStylesCount": number,
+      "colorStylesCount": number,
+      "effectStylesCount": number,
+      "truncated": boolean          // 100個制限で切り捨てられた場合true
+    }
+  },
+  "evaluationTypes": string[],      // 実行するエージェント（省略時は全て実行）
+                                     // ["accessibility", "styleConsistency", "usability",
+                                     //  "writing", "platformCompliance"]
+  "platformType": "ios" | "android", // platformComplianceエージェント用
+  "userId": string                   // 分析用のユーザーID（オプション）
+}
+```
+
+#### evaluationTypes の指定可能な値
+
+| 値                   | 説明                                                  | 推定実行時間 |
+| -------------------- | ----------------------------------------------------- | ------------ |
+| `accessibility`      | アクセシビリティ評価（WCAG 2.2 AA）                   | ~15秒        |
+| `styleConsistency`   | スタイルの一貫性評価                                  | ~18秒        |
+| `usability`          | ユーザビリティ評価（Nielsen's 10 Heuristics）         | ~20秒        |
+| `writing`            | ライティング・コピー品質評価                          | ~15秒        |
+| `platformCompliance` | プラットフォーム準拠評価（iOS HIG / Material Design） | ~20秒        |
+
+**注**: 省略時は`accessibility`, `styleConsistency`, `usability`,
+`writing`の4つが実行されます。
+
+#### リクエスト例
+
+```json
+{
+  "fileKey": "abc123def456",
+  "nodeId": "1809:1836",
+  "nodeData": {
+    "id": "1809:1836",
+    "name": "Login Screen",
+    "type": "FRAME",
+    "width": 375,
+    "height": 812,
+    "children": [
+      {
+        "id": "1809:1837",
+        "name": "Email Input",
+        "type": "FRAME",
+        "fills": [
+          {
+            "type": "SOLID",
+            "color": { "r": 1, "g": 1, "b": 1 }
+          }
+        ]
+      }
+    ]
+  },
+  "stylesData": {
+    "variables": [],
+    "textStyles": [
+      {
+        "id": "S:1234",
+        "name": "Heading/Large",
+        "description": "Main heading style"
+      }
+    ],
+    "colorStyles": [],
+    "effectStyles": [],
+    "meta": {
+      "variablesCount": 0,
+      "textStylesCount": 1,
+      "colorStylesCount": 0,
+      "effectStylesCount": 0,
+      "truncated": false
+    }
+  },
+  "evaluationTypes": ["accessibility", "usability"],
+  "userId": "user-12345"
+}
+```
+
+### レスポンス
+
+#### 成功時（200 OK）
+
+<!-- CODE_REF: backend/src/routes/evaluation.ts:90-100 -->
+
+```typescript
+{
+  "success": true,
+  "data": {
+    "overallScore": number,           // 総合スコア（0-100）
+    "categories": {
+      "accessibility": {
+        "score": number,              // カテゴリスコア（0-100）
+        "issues": [
+          {
+            "severity": "high" | "medium" | "low",
+            "message": string,        // 問題の説明
+            "nodeId": string,         // 該当ノードのID（例: "1809:1837"）
+            "nodeHierarchy": string,  // 階層パス（例: "Login Screen > Email Input"）
+            "autoFixable": boolean,   // 自動修正可能か
+            "suggestion": string      // 改善提案
+          }
+        ],
+        "positives": string[]         // ポジティブ項目（良い点）
+      },
+      // ... 他のカテゴリ
+    },
+    "suggestions": [
+      {
+        "category": string,           // カテゴリ名
+        "priority": "high" | "medium" | "low",
+        "title": string,              // 提案タイトル
+        "description": string,        // 提案詳細
+        "impact": string              // 改善による影響
+      }
+    ],
+    "metadata": {
+      "evaluatedAt": string,          // 評価日時（ISO 8601形式）
+      "duration": number,             // 評価にかかった時間（ミリ秒）
+      "tokenUsage": {
+        "inputTokens": number,
+        "outputTokens": number,
+        "cachedTokens": number,
+        "estimatedCost": number       // 推定コスト（USD）
+      }
+    }
+  }
+}
+```
+
+#### レスポンス例
+
+```json
+{
+  "success": true,
+  "data": {
+    "overallScore": 72,
+    "categories": {
+      "accessibility": {
+        "score": 65,
+        "issues": [
+          {
+            "severity": "high",
+            "message": "テキストとバックグラウンドのコントラスト比が不足しています（2.8:1）。WCAG AA基準の4.5:1を満たしていません。",
+            "nodeId": "1809:1840",
+            "nodeHierarchy": "Login Screen > Email Label",
+            "autoFixable": false,
+            "suggestion": "テキストカラーを#333333に変更するか、バックグラウンドを明るくしてください。"
+          },
+          {
+            "severity": "medium",
+            "message": "タッチターゲットのサイズが小さすぎます（32x32px）。推奨最小サイズは44x44pxです。",
+            "nodeId": "1809:1845",
+            "nodeHierarchy": "Login Screen > Submit Button",
+            "autoFixable": true,
+            "suggestion": "ボタンのpaddingを増やして最低44x44pxを確保してください。"
+          }
+        ],
+        "positives": [
+          "適切なフォントサイズ（16px）が使用されています",
+          "テキストフィールドにplaceholderが設定されています"
+        ]
+      },
+      "usability": {
+        "score": 80,
+        "issues": [
+          {
+            "severity": "low",
+            "message": "エラーメッセージの表示位置が不明確です。",
+            "nodeId": "1809:1850",
+            "nodeHierarchy": "Login Screen > Error Message",
+            "autoFixable": false,
+            "suggestion": "エラーメッセージを入力フィールドの直下に配置してください。"
+          }
+        ],
+        "positives": [
+          "一貫した視覚的階層が保たれています",
+          "明確なCTA（行動喚起）ボタンが配置されています"
+        ]
+      }
+    },
+    "suggestions": [
+      {
+        "category": "accessibility",
+        "priority": "high",
+        "title": "カラーコントラストの改善",
+        "description": "複数の要素でWCAG AA基準を満たしていないカラーコントラストが検出されました。",
+        "impact": "視覚障害のあるユーザーや低照度環境でのユーザビリティが大幅に向上します。"
+      }
+    ],
+    "metadata": {
+      "evaluatedAt": "2025-01-15T10:30:45.123Z",
+      "duration": 28450,
+      "tokenUsage": {
+        "inputTokens": 5200,
+        "outputTokens": 1850,
+        "cachedTokens": 0,
+        "estimatedCost": 0.043
+      }
+    }
+  }
+}
+```
+
+#### エラー時（4xx, 5xx）
+
+```typescript
+{
+  "success": false,
+  "error": string,          // エラーメッセージ
+  "details"?: unknown       // 追加のエラー詳細（開発環境のみ）
+}
+```
+
+#### エラーレスポンス例
+
+**400 Bad Request** - バリデーションエラー
+
+```json
+{
+  "success": false,
+  "error": "Invalid request data",
+  "details": [
+    {
+      "path": ["nodeData", "id"],
+      "message": "Required"
+    }
+  ]
+}
+```
+
+**500 Internal Server Error** - サーバーエラー
+
+```json
+{
+  "success": false,
+  "error": "Evaluation failed",
+  "details": "Claude API request timeout"
+}
+```
+
+### 実行時間
+
+| 実行モード                          | 推定時間 | 説明                                       |
+| ----------------------------------- | -------- | ------------------------------------------ |
+| 単一エージェント                    | 15-20秒  | 1つのエージェントのみ実行                  |
+| 全エージェント（4つ）               | 20-30秒  | 並列実行のため、最も遅いエージェントに依存 |
+| 全エージェント（5つ、platform含む） | 30-40秒  | platformComplianceを含む場合               |
+
+**注**: 実行時間はノードの複雑さ、Claude APIのレスポンス時間に依存します。
+
+### バリデーション
+
+リクエストボディは以下のルールで検証されます：
+
+<!-- CODE_REF: backend/src/routes/evaluation.ts:10-51 -->
+
+```typescript
+// Zodスキーマによる厳格なバリデーション
+const evaluationRequestSchema = z.object({
+  fileKey: z.string(),
+  nodeId: z.string(),
+  nodeData: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      type: z.string(),
+    })
+    .passthrough(), // 追加のプロパティを許可
+  stylesData: z
+    .object({
+      // ... スタイルデータのスキーマ
+    })
+    .optional(),
+  evaluationTypes: z.array(z.string()).optional(),
+  platformType: z.enum(['ios', 'android']).optional(),
+  userId: z.string().optional(),
+});
+```
+
+---
+
+## GET /api/health
+
+APIサーバーのヘルスチェックエンドポイント。サーバーが正常に起動しているかを確認します。
+
+### リクエスト
+
+```
+GET /api/health
+```
+
+### レスポンス
+
+#### 成功時（200 OK）
+
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-01-15T10:30:45.123Z",
+  "version": "1.0.0"
+}
+```
+
+---
+
+## レート制限
+
+現在、レート制限は実装されていません。本番環境では、以下の制限を検討してください：
+
+- **リクエスト数**: 1ユーザーあたり10リクエスト/分
+- **同時接続数**: 最大50接続
+- **タイムアウト**: 60秒
+
+## CORS設定
+
+<!-- CODE_REF: backend/src/index.ts:20-30 -->
+
+```typescript
+// 開発環境: 全てのオリジンを許可
+// 本番環境: 環境変数CORS_ORIGINで指定されたオリジンのみ許可
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+  })
+);
+```
+
+## 次のステップ
+
+- [リクエスト/レスポンス詳細](./request-response.md)
+- [エラーハンドリング](./error-handling.md)
+- [Claude API統合](./claude-integration.md)
+- [バックエンド実装](../backend/services.md)

@@ -8,24 +8,33 @@
     "figma-plugin"
   ],
   "scripts": {
-    "test": "npm run test:backend && npm run test:plugin",
+    "test": "npm run test:backend && npm run test:plugin && npm run test:scripts",
     "test:backend": "npm run test -w backend",
     "test:plugin": "npm run test -w figma-plugin",
+    "test:scripts": "cd scripts && jest",
     "test:watch": "concurrently \"npm run test:watch -w backend\" \"npm run test:watch -w figma-plugin\"",
-    "test:coverage": "npm run test:coverage -w backend && npm run test:coverage -w figma-plugin",
-    "test:ci": "npm run test:ci -w backend && npm run test:ci -w figma-plugin",
+    "test:coverage": "npm run test:coverage -w backend && npm run test:coverage -w figma-plugin && npm run test:coverage:scripts",
+    "test:coverage:scripts": "cd scripts && jest --coverage",
+    "test:ci": "npm run test:ci -w backend && npm run test:ci -w figma-plugin && npm run test:ci:scripts",
+    "test:ci:scripts": "cd scripts && jest --ci --coverage --maxWorkers=2",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,js,json,md,css}\"",
     "type-check": "npm run type-check -w backend && npm run type-check -w figma-plugin",
+    "type-check:scripts": "tsc --project scripts/tsconfig.json --noEmit",
     "check": "npm run format:check && npm run lint && npm run type-check",
+    "validate:docs": "tsx scripts/validate-docs.ts",
+    "validate:docs:code": "tsx scripts/validate-docs-code.ts",
+    "validate:docs:update": "tsx scripts/validate-docs-update.ts",
     "backend:dev": "npm run dev -w backend",
     "backend:build": "npm run build -w backend",
     "plugin:build": "npm run build -w figma-plugin",
     "plugin:watch": "npm run watch -w figma-plugin"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
     "eslint": "^9.17.0",
@@ -33,7 +42,9 @@
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-unused-imports": "^4.1.4",
-    "prettier": "^3.4.2"
+    "prettier": "^3.4.2",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   },
   "keywords": [
     "figma",
