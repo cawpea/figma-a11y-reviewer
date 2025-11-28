@@ -267,7 +267,7 @@ const evaluationRequestSchema = z.object({
     .object({
       id: z.string(),
       name: z.string(),
-      type: z.string(),
+      type: figmaNodeTypeSchema, // 厳密な型チェック（40種類のFigmaノードタイプ）
     })
     .passthrough(), // 追加のプロパティを許可
   stylesData: z

@@ -15,7 +15,9 @@
       "Bash(cat:*)",
       "Bash(git add:*)",
       "Bash(npm test:*)",
-      "Bash(npm run test:coverage:*)"
+      "Bash(npm run test:coverage:*)",
+      "Bash(npm run validate:docs:update:*)",
+      "Bash(npm run validate:docs:*)"
     ],
     "deny": [],
     "ask": []
