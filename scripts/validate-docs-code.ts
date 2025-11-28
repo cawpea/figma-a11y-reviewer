@@ -24,7 +24,7 @@ const verbose = args.includes('--verbose') || args.includes('-v');
 /**
  * ディレクトリを再帰的に走査してマークダウンファイルを取得
  */
-function findMarkdownFiles(dir: string): string[] {
+export function findMarkdownFiles(dir: string): string[] {
   const files: string[] = [];
 
   function walk(currentPath: string): void {
@@ -48,7 +48,7 @@ function findMarkdownFiles(dir: string): string[] {
 /**
  * CODE_REFコメントを抽出
  */
-function extractCodeRefs(content: string, filePath: string): CodeRef[] {
+export function extractCodeRefs(content: string, filePath: string): CodeRef[] {
   const refs: CodeRef[] = [];
   let match: RegExpExecArray | null;
 
@@ -69,7 +69,7 @@ function extractCodeRefs(content: string, filePath: string): CodeRef[] {
 /**
  * 参照先のファイルと行番号の存在を確認
  */
-function validateCodeRef(ref: CodeRef): CodeRefError[] {
+export function validateCodeRef(ref: CodeRef): CodeRefError[] {
   const errors: CodeRefError[] = [];
 
   // 相対パスを絶対パスに変換(プロジェクトルートからの相対パス)
@@ -142,7 +142,7 @@ function validateCodeRef(ref: CodeRef): CodeRefError[] {
 /**
  * メイン処理
  */
-function main(): void {
+export function main(): void {
   console.log('🔍 ドキュメント内のコード参照を検証しています...\n');
 
   // マークダウンファイルを検索
@@ -230,5 +230,7 @@ function main(): void {
   }
 }
 
-// 実行
-main();
+// スクリプトが直接実行された場合のみmainを実行
+if (require.main === module) {
+  main();
+}
