@@ -243,7 +243,9 @@ export default function () {
     emit('SELECTION_CHANGED', selectionState);
   };
 
-  figma.on('selectionchange', debounce(handleSelectionChange, 100));
+  // デバウンスされた関数への参照を保持
+  const debouncedSelectionChange = debounce(handleSelectionChange, 100);
+  figma.on('selectionchange', debouncedSelectionChange);
 
   // UIからのイベントを受信
   on('EVALUATE_SELECTION', handleEvaluation);
@@ -266,6 +268,10 @@ export default function () {
   );
 
   on('CANCEL', () => {
+    // ペンディング中のデバウンスタイマーをクリーンアップ
+    // Note: figma.closePluginが呼ばれた時点で自動的にクリーンアップされますが、
+    // 明示的にdebounceタイマーをキャンセルすることで、ペンディング中の処理を確実に停止
+    debouncedSelectionChange.cancel();
     figma.closePlugin();
   });
 }
