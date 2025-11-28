@@ -18,10 +18,14 @@ export default function SelectionDisplay() {
     return unsubscribe;
   }, []);
 
-  // エラー表示（ErrorDisplayと統一したスタイル）
+  // エラー表示(ErrorDisplayと統一したスタイル)
   if (!selectionState.isValid && selectionState.errorMessage) {
     return (
-      <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-[11px] mb-4">
+      <div
+        className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-[11px] mb-4"
+        role="alert"
+        aria-live="assertive"
+      >
         <div className="font-semibold mb-1">レビュー対象の選択エラー</div>
         <div>{selectionState.errorMessage}</div>
       </div>
@@ -31,7 +35,7 @@ export default function SelectionDisplay() {
   // 空状態
   if (selectionState.layers.length === 0) {
     return (
-      <div className="mb-3">
+      <div className="mb-3" aria-live="polite">
         <div className="text-xs font-semibold text-gray-800 mb-1.5">レビュー対象</div>
         <div className="text-[11px] text-gray-500">
           フレーム、コンポーネント、またはインスタンスを選択してください
@@ -42,7 +46,7 @@ export default function SelectionDisplay() {
 
   // 有効な選択を表示
   return (
-    <div className="mb-3">
+    <div className="mb-3" aria-live="polite">
       <div className="text-xs font-semibold text-gray-800 mb-1.5">レビュー対象</div>
       <div className="space-y-1">
         {selectionState.layers.map((layer) => (
