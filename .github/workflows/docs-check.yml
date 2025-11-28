@@ -8,6 +8,10 @@ on:
   push:
     branches:
       - main
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 jobs:
   validate-docs:
@@ -21,6 +25,9 @@ jobs:
           # mainブランチとの差分を取得するために全履歴を取得
           fetch-depth: 0
 
+      - name: Fetch main branch
+        run: git fetch origin main:main
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -30,8 +37,75 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run documentation validations
-        run: npm run validate:docs
+      - name: Run documentation code validation
+        run: npm run validate:docs:code
+
+      - name: Check documentation updates
+        id: check-docs
+        run: |
+          echo "Running documentation update check..."
+          npm run validate:docs:update -- --verbose > /tmp/docs-update-check.log 2>&1 || true
+          cat /tmp/docs-update-check.log
+
+          # ドキュメント未更新の警告を検出
+          if grep -q "⚠️  コードが変更されていますが、ドキュメントは更新されていません" /tmp/docs-update-check.log; then
+            echo "needs_update=true" >> $GITHUB_OUTPUT
+            # 変更されたファイルリストを抽出
+            sed -n '/📝 以下のファイルが変更されています:/,/^$/p' /tmp/docs-update-check.log > /tmp/changed-files.txt
+          else
+            echo "needs_update=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR if docs need update
+        if: steps.check-docs.outputs.needs_update == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const changedFiles = fs.existsSync('/tmp/changed-files.txt') 
+              ? fs.readFileSync('/tmp/changed-files.txt', 'utf8')
+              : '';
+
+            const body = `## ⚠️ ドキュメント更新の確認
+
+            コードが変更されていますが、ドキュメントは更新されていないようです。
+
+            ${changedFiles}
+
+            ### 💡 対応方法
+            - **重要な変更の場合**: \`CLAUDE.md\` または \`docs/\` 配下のドキュメントの更新を検討してください
+            - **軽微な変更や内部実装の変更の場合**: 更新不要です
+
+            このコメントは自動生成されています。必要に応じてドキュメントを更新してください。`;
+
+            // 既存のbotコメントを検索
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('⚠️ ドキュメント更新の確認')
+            );
+
+            // 既存のコメントがあれば更新、なければ新規作成
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body
+              });
+            }
 
       - name: Post validation summary
         if: always()
@@ -41,5 +115,11 @@ jobs:
           echo "### ✅ Validations Completed:" >> $GITHUB_STEP_SUMMARY
           echo "- Code references (CODE_REF) validation" >> $GITHUB_STEP_SUMMARY
           echo "- Documentation update check" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check-docs.outputs.needs_update }}" = "true" ]; then
+            echo "⚠️ **Warning**: Documentation may need updates" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Documentation is up to date" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "See job logs for detailed results." >> $GITHUB_STEP_SUMMARY

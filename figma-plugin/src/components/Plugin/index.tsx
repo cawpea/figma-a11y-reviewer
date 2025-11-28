@@ -5,9 +5,9 @@ import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import ControlPanel from '../ControlPanel';
 import ErrorDisplay from '../ErrorDisplay';
-import Header from '../Header';
 import LoadingSpinner from '../LoadingSpinner';
 import ResultView from '../ResultView';
+import SelectionDisplay from '../SelectionDisplay';
 import SettingsPopover from '../SettingsPopover';
 
 import { useAgentSelection } from './hooks/useAgentSelection';
@@ -43,7 +43,7 @@ export default function Plugin() {
 
   return (
     <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
-      <Header />
+      <SelectionDisplay />
 
       <ControlPanel
         selectedAgentsCount={selectedAgents.length}

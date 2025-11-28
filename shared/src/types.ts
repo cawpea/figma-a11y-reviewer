@@ -1,6 +1,48 @@
 // 共通型定義
 // figma-pluginとbackendの両方で使用される型
 
+/**
+ * Figmaノードタイプ
+ * @see https://www.figma.com/plugin-docs/api/NodeType/
+ */
+export type FigmaNodeType =
+  | 'BOOLEAN_OPERATION'
+  | 'CODE_BLOCK'
+  | 'COMPONENT'
+  | 'COMPONENT_SET'
+  | 'CONNECTOR'
+  | 'DOCUMENT'
+  | 'ELLIPSE'
+  | 'EMBED'
+  | 'FRAME'
+  | 'GROUP'
+  | 'HIGHLIGHT'
+  | 'INSTANCE'
+  | 'INTERACTIVE_SLIDE_ELEMENT'
+  | 'LINE'
+  | 'LINK_UNFURL'
+  | 'MEDIA'
+  | 'PAGE'
+  | 'POLYGON'
+  | 'RECTANGLE'
+  | 'SECTION'
+  | 'SHAPE_WITH_TEXT'
+  | 'SLICE'
+  | 'SLIDE'
+  | 'SLIDE_GRID'
+  | 'SLIDE_ROW'
+  | 'STAMP'
+  | 'STAR'
+  | 'STICKY'
+  | 'TABLE'
+  | 'TABLE_CELL'
+  | 'TEXT'
+  | 'TEXT_PATH'
+  | 'TRANSFORM_GROUP'
+  | 'VECTOR'
+  | 'WASHI_TAPE'
+  | 'WIDGET';
+
 // Figmaノードデータ（拡張版）
 export interface FigmaNodeData {
   /**
@@ -13,7 +55,7 @@ export interface FigmaNodeData {
    */
   id: string;
   name: string;
-  type: string;
+  type: FigmaNodeType;
   children?: FigmaNodeData[];
   childrenCount?: number;
 
@@ -204,6 +246,20 @@ export interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   details?: unknown;
+}
+
+/** 選択されたレイヤー情報 */
+export interface SelectedLayer {
+  id: string;
+  name: string;
+  type: FigmaNodeType;
+}
+
+/** 選択状態（検証結果含む） */
+export interface SelectionState {
+  layers: SelectedLayer[];
+  isValid: boolean;
+  errorMessage?: string;
 }
 
 /** スタイル取得時の上限定数 */

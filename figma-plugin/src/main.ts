@@ -4,8 +4,10 @@ import type {
   EvaluationResult,
   FigmaNodeData,
   FigmaStylesData,
+  SelectionState,
 } from '@shared/types';
 
+import { debounce } from './utils/debounce';
 import { extractFileStyles, extractNodeData } from './utils/figma.utils';
 
 // 設定
@@ -17,6 +19,43 @@ const ERROR_MESSAGES = {
   MULTIPLE_SELECTION: '評価できるのは1つのフレームのみです',
   INVALID_NODE_TYPE: 'フレーム、コンポーネント、またはインスタンスを選択してください',
 } as const;
+
+/**
+ * 選択の検証
+ * @returns 検証結果（isValid: 有効かどうか, errorMessage: エラーメッセージ）
+ */
+function validateSelection(selection: readonly SceneNode[]): {
+  isValid: boolean;
+  errorMessage?: string;
+} {
+  // 空選択は有効（エラーではない）
+  if (selection.length === 0) {
+    return { isValid: true };
+  }
+
+  // 複数選択はエラー
+  if (selection.length > 1) {
+    return {
+      isValid: false,
+      errorMessage: ERROR_MESSAGES.MULTIPLE_SELECTION,
+    };
+  }
+
+  // フレーム、コンポーネント、インスタンス以外はエラー
+  const selectedNode = selection[0];
+  if (
+    selectedNode.type !== 'FRAME' &&
+    selectedNode.type !== 'COMPONENT' &&
+    selectedNode.type !== 'INSTANCE'
+  ) {
+    return {
+      isValid: false,
+      errorMessage: `フレーム、コンポーネント、またはインスタンスを選択してください（選択中: ${selectedNode.type}）`,
+    };
+  }
+
+  return { isValid: true };
+}
 
 /**
  * フォールバック付きノード選択
@@ -96,28 +135,20 @@ async function selectNodeWithFallback(
 async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios' | 'android') {
   const selection = figma.currentPage.selection;
 
-  // 選択チェック
+  // 選択を検証
+  const validation = validateSelection(selection);
+  if (!validation.isValid) {
+    emit('ERROR', validation.errorMessage || ERROR_MESSAGES.NO_SELECTION);
+    return;
+  }
+
+  // 選択が空の場合はエラー（評価には選択が必要）
   if (selection.length === 0) {
     emit('ERROR', ERROR_MESSAGES.NO_SELECTION);
     return;
   }
 
-  if (selection.length > 1) {
-    emit('ERROR', ERROR_MESSAGES.MULTIPLE_SELECTION);
-    return;
-  }
-
   const selectedNode = selection[0];
-
-  // フレーム、コンポーネント、またはインスタンスかチェック
-  if (
-    selectedNode.type !== 'FRAME' &&
-    selectedNode.type !== 'COMPONENT' &&
-    selectedNode.type !== 'INSTANCE'
-  ) {
-    emit('ERROR', ERROR_MESSAGES.INVALID_NODE_TYPE);
-    return;
-  }
 
   // 評価開始を通知
   emit('EVALUATION_STARTED');
@@ -201,6 +232,34 @@ export default function () {
     height: 600,
   });
 
+  // 選択変更の監視（デバウンス付き）
+  const handleSelectionChange = () => {
+    const selection = figma.currentPage.selection;
+    const layers = selection.map((node) => ({
+      id: node.id,
+      name: node.name,
+      type: node.type,
+    }));
+
+    // 選択を検証
+    const validation = validateSelection(selection);
+
+    const selectionState: SelectionState = {
+      layers,
+      isValid: validation.isValid,
+      errorMessage: validation.errorMessage,
+    };
+
+    emit('SELECTION_CHANGED', selectionState);
+  };
+
+  // デバウンスされた関数への参照を保持
+  const debouncedSelectionChange = debounce(handleSelectionChange, 100);
+  figma.on('selectionchange', debouncedSelectionChange);
+
+  // プラグイン起動時の初期選択状態を送信
+  handleSelectionChange();
+
   // UIからのイベントを受信
   on('EVALUATE_SELECTION', handleEvaluation);
 
@@ -222,6 +281,12 @@ export default function () {
   );
 
   on('CANCEL', () => {
+    // ペンディング中のデバウンスタイマーをクリーンアップ
+    // Note: figma.closePluginが呼ばれた時点で自動的にクリーンアップされますが、
+    // 明示的にdebounceタイマーをキャンセルすることで、ペンディング中の処理を確実に停止
+    debouncedSelectionChange.cancel();
+    figma.off('selectionchange', debouncedSelectionChange); // 明示的にリスナー削除
+
     figma.closePlugin();
   });
 }

@@ -1,4 +1,4 @@
-import { ApiResponse, EvaluationResult } from '@shared/types';
+import { ApiResponse, EvaluationResult, FigmaNodeType } from '@shared/types';
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
@@ -21,6 +21,46 @@ const styleInfoSchema = z.object({
   description: z.string().optional(),
 });
 
+// Figmaノードタイプのzodスキーマ
+const figmaNodeTypeSchema = z.enum([
+  'BOOLEAN_OPERATION',
+  'CODE_BLOCK',
+  'COMPONENT',
+  'COMPONENT_SET',
+  'CONNECTOR',
+  'DOCUMENT',
+  'ELLIPSE',
+  'EMBED',
+  'FRAME',
+  'GROUP',
+  'HIGHLIGHT',
+  'INSTANCE',
+  'INTERACTIVE_SLIDE_ELEMENT',
+  'LINE',
+  'LINK_UNFURL',
+  'MEDIA',
+  'PAGE',
+  'POLYGON',
+  'RECTANGLE',
+  'SECTION',
+  'SHAPE_WITH_TEXT',
+  'SLICE',
+  'SLIDE',
+  'SLIDE_GRID',
+  'SLIDE_ROW',
+  'STAMP',
+  'STAR',
+  'STICKY',
+  'TABLE',
+  'TABLE_CELL',
+  'TEXT',
+  'TEXT_PATH',
+  'TRANSFORM_GROUP',
+  'VECTOR',
+  'WASHI_TAPE',
+  'WIDGET',
+]) satisfies z.ZodType<FigmaNodeType>;
+
 // リクエストボディのバリデーションスキーマ
 const evaluationRequestSchema = z.object({
   fileKey: z.string(),
@@ -29,7 +69,7 @@ const evaluationRequestSchema = z.object({
     .object({
       id: z.string(),
       name: z.string(),
-      type: z.string(),
+      type: figmaNodeTypeSchema,
     })
     .passthrough(), // 追加のプロパティを許可
   stylesData: z
