@@ -13,24 +13,29 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
   // **/ パターン（任意のディレクトリ階層）
   if (pattern.startsWith('**/')) {
     const suffix = pattern.slice(3);
-    // ファイル名マッチまたはパス内に含まれるかチェック
-    if (suffix.includes('*')) {
-      // ワイルドカード処理
+    // ワイルドカード処理
+    if (suffix.includes('*') || suffix.includes('?')) {
       const regex = new RegExp(
         suffix.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.')
       );
-      return (
-        regex.test(path.basename(filePath)) || filePath.split('/').some((part) => regex.test(part))
-      );
+      // ファイル名全体またはパスの各部分でマッチングを試みる
+      const basename = path.basename(filePath);
+      const pathParts = filePath.split('/');
+      return regex.test(basename) || pathParts.some((part) => regex.test(part));
     }
     return filePath.endsWith(suffix) || filePath.includes('/' + suffix);
   }
 
-  // * ワイルドカード
-  if (pattern.includes('*')) {
+  // * または ? ワイルドカード（パスセパレーター無しの場合のみベース名でマッチング）
+  if (pattern.includes('*') || pattern.includes('?')) {
     const regex = new RegExp(
       '^' + pattern.replace(/\./g, '\\.').replace(/\*/g, '.*').replace(/\?/g, '.') + '$'
     );
+    // パスセパレーターが無いパターンの場合はベース名のみでマッチング
+    if (!pattern.includes('/')) {
+      return regex.test(path.basename(filePath));
+    }
+    // パスセパレーターがある場合はフルパスでマッチング
     return regex.test(filePath);
   }
 

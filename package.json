@@ -8,12 +8,15 @@
     "figma-plugin"
   ],
   "scripts": {
-    "test": "npm run test:backend && npm run test:plugin",
+    "test": "npm run test:backend && npm run test:plugin && npm run test:scripts",
     "test:backend": "npm run test -w backend",
     "test:plugin": "npm run test -w figma-plugin",
+    "test:scripts": "cd scripts && jest",
     "test:watch": "concurrently \"npm run test:watch -w backend\" \"npm run test:watch -w figma-plugin\"",
-    "test:coverage": "npm run test:coverage -w backend && npm run test:coverage -w figma-plugin",
-    "test:ci": "npm run test:ci -w backend && npm run test:ci -w figma-plugin",
+    "test:coverage": "npm run test:coverage -w backend && npm run test:coverage -w figma-plugin && npm run test:coverage:scripts",
+    "test:coverage:scripts": "cd scripts && jest --coverage",
+    "test:ci": "npm run test:ci -w backend && npm run test:ci -w figma-plugin && npm run test:ci:scripts",
+    "test:ci:scripts": "cd scripts && jest --ci --coverage --maxWorkers=2",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md,css}\"",
@@ -30,6 +33,7 @@
     "plugin:watch": "npm run watch -w figma-plugin"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
