@@ -1,8 +1,8 @@
 import { h } from 'preact';
 
 import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
+import Button from '../Button';
 import Checkbox from '../Checkbox';
-import ControlPanel from '../ControlPanel';
 import ErrorDisplay from '../ErrorDisplay';
 import Heading from '../Heading';
 import LoadingSpinner from '../LoadingSpinner';
@@ -48,8 +48,6 @@ export default function Plugin() {
     <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
       <SelectionDisplay />
 
-      <ControlPanel selectedAgentsCount={selectedAgents.length} onEvaluate={onEvaluate} />
-
       {/* レビュー項目セクション */}
       <div className="mb-5">
         {/* 見出しと選択数 */}
@@ -89,6 +87,16 @@ export default function Plugin() {
             onPlatformChange={handlePlatformChange}
           />
         ))}
+
+        {/* 評価を開始ボタン */}
+        <Button
+          onClick={onEvaluate}
+          disabled={selectedAgents.length === 0}
+          variant="primary"
+          className="w-full"
+        >
+          評価を開始
+        </Button>
       </div>
 
       <ErrorDisplay error={error} />
