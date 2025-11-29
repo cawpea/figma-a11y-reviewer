@@ -64,8 +64,8 @@ export default function Plugin() {
         </Heading>
 
         {/* すべて選択チェックボックス */}
-        <div className="mb-2 p-3 bg-gray-50 rounded-md">
-          <div className="flex items-start gap-2">
+        <div className="mb-1 p-1 rounded-md">
+          <div className="inline-flex items-center gap-2">
             <Checkbox
               id="select-all"
               checked={allSelected}

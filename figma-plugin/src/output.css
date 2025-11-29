@@ -713,6 +713,10 @@ video {
   display: flex;
 }
 
+.inline-flex {
+  display: inline-flex;
+}
+
 .h-12 {
   height: 3rem;
 }
