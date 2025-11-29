@@ -36,7 +36,7 @@ export default function SelectionDisplay() {
   if (selectionState.layers.length === 0) {
     return (
       <div className="mb-3" aria-live="polite">
-        <div className="text-xs font-semibold text-gray-800 mb-1.5">レビュー対象</div>
+        <div className="text-sm font-semibold text-gray-800 mb-1.5">レビュー対象</div>
         <div className="text-[11px] text-gray-500">
           フレーム、コンポーネント、またはインスタンスを選択してください
         </div>
@@ -47,7 +47,7 @@ export default function SelectionDisplay() {
   // 有効な選択を表示
   return (
     <div className="mb-3" aria-live="polite">
-      <div className="text-xs font-semibold text-gray-800 mb-1.5">レビュー対象</div>
+      <div className="text-sm font-semibold text-gray-800 mb-1.5">レビュー対象</div>
       <div className="space-y-1">
         {selectionState.layers.map((layer) => (
           <div key={layer.id} className="text-[11px] text-gray-800 truncate">

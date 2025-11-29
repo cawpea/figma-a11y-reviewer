@@ -4,7 +4,7 @@ import type { AgentOption } from '../../constants/agents';
 import Checkbox from '../Checkbox';
 import Select, { type SelectOption } from '../Select';
 
-interface AgentOptionItemProps {
+interface ReviewPointItemProps {
   agent: AgentOption;
   checked: boolean;
   onChange: (agentId: string, checked: boolean) => void;
@@ -17,13 +17,13 @@ const platformOptions: SelectOption[] = [
   { value: 'android', label: 'Android (Material Design)' },
 ];
 
-export default function AgentOptionItem({
+export default function ReviewPointItem({
   agent,
   checked,
   onChange,
   selectedPlatform,
   onPlatformChange,
-}: AgentOptionItemProps) {
+}: ReviewPointItemProps) {
   const showPlatformSelect = agent.id === 'platformCompliance' && checked;
 
   return (
