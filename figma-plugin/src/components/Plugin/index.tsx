@@ -4,6 +4,7 @@ import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
 import Checkbox from '../Checkbox';
 import ControlPanel from '../ControlPanel';
 import ErrorDisplay from '../ErrorDisplay';
+import Heading from '../Heading';
 import LoadingSpinner from '../LoadingSpinner';
 import ResultView from '../ResultView';
 import ReviewPointItem from '../ReviewPointItem';
@@ -52,12 +53,15 @@ export default function Plugin() {
       {/* レビュー項目セクション */}
       <div className="mb-5">
         {/* 見出しと選択数 */}
-        <div className="flex justify-between items-center mb-3">
-          <h3 className="font-semibold text-sm">レビュー項目</h3>
-          <span className="text-xs text-gray-500">
-            {selectedAgents.length} / {agentOptions.length}
-          </span>
-        </div>
+        <Heading
+          rightContent={
+            <span className="text-xs text-gray-500">
+              {selectedAgents.length} / {agentOptions.length}
+            </span>
+          }
+        >
+          レビュー項目
+        </Heading>
 
         {/* すべて選択チェックボックス */}
         <div className="mb-2 p-3 bg-gray-50 rounded-md">
