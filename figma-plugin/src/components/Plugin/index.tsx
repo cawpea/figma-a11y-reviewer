@@ -5,7 +5,7 @@ import Button from '../Button';
 import Checkbox from '../Checkbox';
 import ErrorDisplay from '../ErrorDisplay';
 import Heading from '../Heading';
-import LoadingSpinner from '../LoadingSpinner';
+import LoadingView from '../LoadingView';
 import ResultView from '../ResultView';
 import ReviewPointItem from '../ReviewPointItem';
 import SelectionDisplay from '../SelectionDisplay';
@@ -102,7 +102,7 @@ export default function Plugin() {
       <ErrorDisplay error={error} />
 
       {isLoading && (
-        <LoadingSpinner selectedAgentsCount={selectedAgents.length} estimatedTime={estimatedTime} />
+        <LoadingView selectedAgentsCount={selectedAgents.length} estimatedTime={estimatedTime} />
       )}
 
       {result && <ResultView result={result} onIssueClick={handleIssueClick} />}
