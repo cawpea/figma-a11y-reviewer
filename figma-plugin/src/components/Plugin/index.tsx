@@ -55,28 +55,28 @@ export default function Plugin() {
         {/* 見出しと選択数 */}
         <Heading
           rightContent={
-            <span className="text-xs text-gray-500">
-              {selectedAgents.length} / {agentOptions.length}
-            </span>
+            <div className="flex items-center gap-3">
+              {/* すべて選択チェックボックス */}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="select-all"
+                  checked={allSelected}
+                  indeterminate={someSelected}
+                  onChange={handleSelectAllToggle}
+                />
+                <label htmlFor="select-all" className="font-medium text-xs cursor-pointer">
+                  すべて選択
+                </label>
+              </div>
+              {/* 選択数 */}
+              <span className="text-xs text-gray-500">
+                {selectedAgents.length} / {agentOptions.length}
+              </span>
+            </div>
           }
         >
           レビュー項目
         </Heading>
-
-        {/* すべて選択チェックボックス */}
-        <div className="mb-1 p-1 rounded-md">
-          <div className="inline-flex items-center gap-2">
-            <Checkbox
-              id="select-all"
-              checked={allSelected}
-              indeterminate={someSelected}
-              onChange={handleSelectAllToggle}
-            />
-            <label htmlFor="select-all" className="flex-1 font-medium text-xs cursor-pointer">
-              すべて選択
-            </label>
-          </div>
-        </div>
 
         {/* 評価項目リスト */}
         {agentOptions.map((agent) => (
