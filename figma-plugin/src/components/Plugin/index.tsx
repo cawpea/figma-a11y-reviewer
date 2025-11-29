@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
 import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
+import { useSelectionState } from '../../hooks/useSelectionState';
 import Button from '../Button';
 import Checkbox from '../Checkbox';
 import ErrorDisplay from '../ErrorDisplay';
@@ -18,7 +19,7 @@ import '!../../output.css';
 
 export default function Plugin() {
   const [view, setView] = useState<'initial' | 'result'>('initial');
-  const [selectedNodeName, setSelectedNodeName] = useState<string>('');
+  const selectionState = useSelectionState();
 
   const {
     selectedAgents,
@@ -34,8 +35,7 @@ export default function Plugin() {
   }, []);
 
   const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation({
-    onEvaluationComplete: (result) => {
-      setSelectedNodeName(result.metadata.rootNodeId);
+    onEvaluationComplete: () => {
       setView('result');
     },
   });
@@ -61,8 +61,8 @@ export default function Plugin() {
   if (view === 'result' && result) {
     return (
       <ReviewResultView
-        selectedNodeName={selectedNodeName}
         result={result}
+        selectedLayers={selectionState.layers}
         onClose={handleBackToInitial}
         onIssueClick={handleIssueClick}
       />
@@ -72,7 +72,7 @@ export default function Plugin() {
   // 初期ページ表示
   return (
     <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
-      <SelectionDisplay />
+      <SelectionDisplay selectionState={selectionState} />
 
       {/* レビュー項目セクション */}
       <div className="mb-5">

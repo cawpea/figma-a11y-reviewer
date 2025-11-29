@@ -1,24 +1,27 @@
-import type { EvaluationResult, Issue } from '@shared/types';
+import type { EvaluationResult, Issue, SelectedLayer } from '@shared/types';
 import { h } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 
 import Button from '../Button';
 import Heading from '../Heading';
 import ResultView from '../ResultView';
 
 interface ReviewResultViewProps {
-  selectedNodeName: string;
   result: EvaluationResult;
+  selectedLayers: SelectedLayer[];
   onClose: () => void;
   onIssueClick: (issue: Issue, rootNodeId?: string) => void;
 }
 
 export default function ReviewResultView({
-  selectedNodeName,
   result,
+  selectedLayers,
   onClose,
   onIssueClick,
 }: ReviewResultViewProps) {
+  // 初回表示時のレイヤー情報を保持（変更されないようにする）
+  const initialLayersRef = useRef<SelectedLayer[]>(selectedLayers);
+
   // ページ表示時にスクロール位置をトップにリセット
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -36,7 +39,13 @@ export default function ReviewResultView({
       {/* レビュー対象 */}
       <div className="mb-3">
         <Heading>レビュー対象</Heading>
-        <div className="text-[11px] text-gray-800">{selectedNodeName}</div>
+        <div className="space-y-1">
+          {initialLayersRef.current.map((layer) => (
+            <div key={layer.id} className="text-[11px] text-gray-800 truncate">
+              {layer.name}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* 詳細と提案 */}

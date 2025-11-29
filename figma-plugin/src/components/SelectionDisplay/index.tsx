@@ -1,11 +1,13 @@
+import type { SelectionState } from '@shared/types';
 import { h } from 'preact';
 
-import { useSelectionState } from '../../hooks/useSelectionState';
 import Heading from '../Heading';
 
-export default function SelectionDisplay() {
-  const selectionState = useSelectionState();
+interface SelectionDisplayProps {
+  selectionState: SelectionState;
+}
 
+export default function SelectionDisplay({ selectionState }: SelectionDisplayProps) {
   // エラー表示(ErrorDisplayと統一したスタイル)
   if (!selectionState.isValid && selectionState.errorMessage) {
     return (
