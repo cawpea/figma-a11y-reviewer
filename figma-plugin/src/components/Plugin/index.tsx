@@ -1,9 +1,9 @@
+import { Button } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
 import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
-import Button from '../Button';
 import Checkbox from '../Checkbox';
 import ErrorDisplay from '../ErrorDisplay';
 import Heading from '../Heading';
@@ -118,8 +118,8 @@ export default function Plugin() {
         <Button
           onClick={onEvaluate}
           disabled={selectedAgents.length === 0}
-          variant="primary"
-          className="w-full"
+          fullWidth
+          style={{ height: '32px' }}
         >
           評価を開始
         </Button>

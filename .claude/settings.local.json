@@ -17,7 +17,8 @@
       "Bash(npm test:*)",
       "Bash(npm run test:coverage:*)",
       "Bash(npm run validate:docs:update:*)",
-      "Bash(npm run validate:docs:*)"
+      "Bash(npm run validate:docs:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

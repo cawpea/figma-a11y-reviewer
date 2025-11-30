@@ -1,8 +1,8 @@
+import { Button } from '@create-figma-plugin/ui';
 import type { EvaluationResult, Issue, SelectedLayer } from '@shared/types';
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 
-import Button from '../Button';
 import Heading from '../Heading';
 import ResultView from '../ResultView';
 
@@ -31,7 +31,7 @@ export default function ReviewResultView({
     <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
       {/* 閉じるボタン */}
       <div className="mb-4">
-        <Button onClick={onClose} variant="secondary" className="w-auto">
+        <Button onClick={onClose} secondary>
           ← 閉じる
         </Button>
       </div>
