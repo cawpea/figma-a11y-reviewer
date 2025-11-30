@@ -1,7 +1,7 @@
 import { h } from 'preact';
+import { Checkbox } from '@create-figma-plugin/ui';
 
 import type { AgentOption } from '../../constants/agents';
-import Checkbox from '../Checkbox';
 import Select, { type SelectOption } from '../Select';
 
 interface ReviewPointItemProps {
@@ -28,17 +28,12 @@ export default function ReviewPointItem({
 
   return (
     <div className="mb-3 p-3 bg-gray-50 rounded-md">
-      <div className="flex items-start gap-2 mb-1.5">
-        <Checkbox
-          id={`agent-${agent.id}`}
-          checked={checked}
-          onChange={(isChecked) => onChange(agent.id, isChecked)}
-        />
-        <label htmlFor={`agent-${agent.id}`} className="flex-1 font-medium text-xs cursor-pointer">
-          {agent.label}
-        </label>
-      </div>
-      <div className="text-[10px] text-gray-500 leading-tight ml-6">{agent.description}</div>
+      <Checkbox value={checked} onValueChange={(isChecked) => onChange(agent.id, isChecked)}>
+        <div className="flex-1">
+          <div className="font-medium text-xs mb-1.5">{agent.label}</div>
+          <div className="text-[10px] text-gray-500 leading-tight">{agent.description}</div>
+        </div>
+      </Checkbox>
 
       {/* platformCompliance選択時にプラットフォーム選択プルダウンを表示 */}
       {showPlatformSelect && (
