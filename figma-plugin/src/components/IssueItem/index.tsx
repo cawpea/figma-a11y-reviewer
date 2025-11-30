@@ -2,6 +2,7 @@ import { h } from 'preact';
 
 import type { Issue } from '../../../../shared/src/types';
 import Badge from '../Badge';
+import Button from '../Button';
 
 interface IssueItemProps {
   issue: Issue;
@@ -19,14 +20,12 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
   } as const;
 
   return (
-    <button
-      onClick={() => isClickable && onIssueClick(issue, rootNodeId)}
-      disabled={!isClickable}
+    <div
       className={`
         w-full text-left border-l-4 ${severityColors[issue.severity]}
-        p-2 mb-1.5 text-[11px] rounded-r bg-white
-        ${isClickable ? 'cursor-pointer hover:bg-gray-50 transition-colors duration-200' : 'cursor-default'}
-        border-none font-inherit color-inherit leading-inherit
+        p-2 pr-16 mb-1.5 text-[11px] rounded-r bg-white
+        relative
+        transition-colors duration-200
       `}
     >
       <Badge severity={issue.severity} className="mr-1.5" />
@@ -34,6 +33,14 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
       {issue.suggestion && (
         <div className="text-gray-600 mt-1 text-[10px]">💡 {issue.suggestion}</div>
       )}
-    </button>
+      <Button
+        onClick={() => isClickable && onIssueClick(issue, rootNodeId)}
+        disabled={!isClickable}
+        variant="secondary"
+        className="absolute top-1 right-1 text-[10px] px-2 py-1"
+      >
+        選択
+      </Button>
+    </div>
   );
 }
