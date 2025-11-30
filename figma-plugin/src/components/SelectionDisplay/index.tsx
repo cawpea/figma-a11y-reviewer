@@ -1,25 +1,13 @@
-import { on } from '@create-figma-plugin/utilities';
 import type { SelectionState } from '@shared/types';
 import { h } from 'preact';
-import { useEffect, useState } from 'preact/hooks';
 
 import Heading from '../Heading';
 
-export default function SelectionDisplay() {
-  const [selectionState, setSelectionState] = useState<SelectionState>({
-    layers: [],
-    isValid: true,
-    errorMessage: undefined,
-  });
+interface SelectionDisplayProps {
+  selectionState: SelectionState;
+}
 
-  useEffect(() => {
-    const unsubscribe = on('SELECTION_CHANGED', (state: SelectionState) => {
-      setSelectionState(state);
-    });
-
-    return unsubscribe;
-  }, []);
-
+export default function SelectionDisplay({ selectionState }: SelectionDisplayProps) {
   // エラー表示(ErrorDisplayと統一したスタイル)
   if (!selectionState.isValid && selectionState.errorMessage) {
     return (

@@ -3,6 +3,10 @@ import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import type { EvaluationResult, Issue } from '../../../../../shared/src/types';
 
+interface UseEvaluationParams {
+  onEvaluationComplete?: (result: EvaluationResult) => void;
+}
+
 interface UseEvaluationReturn {
   error: string;
   isLoading: boolean;
@@ -11,7 +15,8 @@ interface UseEvaluationReturn {
   handleIssueClick: (issue: Issue, rootNodeId?: string) => void;
 }
 
-export function useEvaluation(): UseEvaluationReturn {
+export function useEvaluation(params?: UseEvaluationParams): UseEvaluationReturn {
+  const { onEvaluationComplete } = params || {};
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<EvaluationResult | null>(null);
@@ -34,6 +39,10 @@ export function useEvaluation(): UseEvaluationReturn {
       setIsLoading(false);
       setError('');
       setResult(result);
+
+      if (onEvaluationComplete) {
+        onEvaluationComplete(result);
+      }
     });
 
     return () => {
@@ -41,7 +50,7 @@ export function useEvaluation(): UseEvaluationReturn {
       unsubscribeEvaluationStarted();
       unsubscribeEvaluationComplete();
     };
-  }, []);
+  }, [onEvaluationComplete]);
 
   // 評価開始
   const handleEvaluate = useCallback(

@@ -15,9 +15,9 @@ Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.js
 │  │              Figma UI Reviewer Plugin                 │  │
 │  │  ┌─────────────────────────────────────────────────┐  │  │
 │  │  │  UI (Preact + TailwindCSS)                      │  │  │
-│  │  │  - ControlPanel (評価開始)                       │  │  │
-│  │  │  - SettingsPopover (エージェント選択)          │  │  │
-│  │  │  - ResultView (結果表示)                        │  │  │
+│  │  │  - Plugin (初期ページ、エージェント選択)       │  │  │
+│  │  │  - ReviewResultView (レビュー結果ページ)       │  │  │
+│  │  │  - ResultView (評価結果表示)                    │  │  │
 │  │  └─────────────────────────────────────────────────┘  │  │
 │  │  ┌─────────────────────────────────────────────────┐  │  │
 │  │  │  Main Thread (main.ts)                          │  │  │

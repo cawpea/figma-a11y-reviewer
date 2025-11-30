@@ -1,13 +1,15 @@
 import { h } from 'preact';
+import { useCallback, useState } from 'preact/hooks';
 
 import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
+import { useSelectionState } from '../../hooks/useSelectionState';
 import Button from '../Button';
 import Checkbox from '../Checkbox';
 import ErrorDisplay from '../ErrorDisplay';
 import Heading from '../Heading';
 import LoadingView from '../LoadingView';
-import ResultView from '../ResultView';
 import ReviewPointItem from '../ReviewPointItem';
+import ReviewResultView from '../ReviewResultView';
 import SelectionDisplay from '../SelectionDisplay';
 
 import { useAgentSelection } from './hooks/useAgentSelection';
@@ -16,6 +18,9 @@ import { useEvaluation } from './hooks/useEvaluation';
 import '!../../output.css';
 
 export default function Plugin() {
+  const [view, setView] = useState<'initial' | 'result'>('initial');
+  const selectionState = useSelectionState();
+
   const {
     selectedAgents,
     selectedPlatform,
@@ -25,7 +30,15 @@ export default function Plugin() {
     handleDeselectAll,
   } = useAgentSelection(agentOptions);
 
-  const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation();
+  const handleBackToInitial = useCallback(() => {
+    setView('initial');
+  }, []);
+
+  const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation({
+    onEvaluationComplete: () => {
+      setView('result');
+    },
+  });
 
   const estimatedTime = selectedAgents.length * AGENT_TIME_ESTIMATE;
 
@@ -44,9 +57,22 @@ export default function Plugin() {
     }
   };
 
+  // 結果ページ表示
+  if (view === 'result' && result) {
+    return (
+      <ReviewResultView
+        result={result}
+        selectedLayers={selectionState.layers}
+        onClose={handleBackToInitial}
+        onIssueClick={handleIssueClick}
+      />
+    );
+  }
+
+  // 初期ページ表示
   return (
     <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
-      <SelectionDisplay />
+      <SelectionDisplay selectionState={selectionState} />
 
       {/* レビュー項目セクション */}
       <div className="mb-5">
@@ -104,8 +130,6 @@ export default function Plugin() {
       {isLoading && (
         <LoadingView selectedAgentsCount={selectedAgents.length} estimatedTime={estimatedTime} />
       )}
-
-      {result && <ResultView result={result} onIssueClick={handleIssueClick} />}
     </div>
   );
 }
