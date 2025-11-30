@@ -2,7 +2,7 @@ import { Button, Checkbox } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
-import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
+import { agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
 import ErrorDisplay from '../ErrorDisplay';
 import Heading from '../Heading';
@@ -38,8 +38,6 @@ export default function Plugin() {
       setView('result');
     },
   });
-
-  const estimatedTime = selectedAgents.length * AGENT_TIME_ESTIMATE;
 
   const onEvaluate = () => {
     handleEvaluate(selectedAgents, selectedPlatform);
@@ -120,9 +118,7 @@ export default function Plugin() {
 
       <ErrorDisplay error={error} />
 
-      {isLoading && (
-        <LoadingView selectedAgentsCount={selectedAgents.length} estimatedTime={estimatedTime} />
-      )}
+      {isLoading && <LoadingView />}
     </div>
   );
 }
