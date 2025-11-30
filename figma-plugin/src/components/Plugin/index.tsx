@@ -81,7 +81,9 @@ export default function Plugin() {
             <div className="flex items-center gap-3">
               {/* すべて選択チェックボックス */}
               <Checkbox value={allSelected} onValueChange={handleSelectAllToggle}>
-                <span className="font-medium text-xs">すべて選択</span>
+                <div className="relative top-[-3px]">
+                  <span className="font-medium text-xs">すべて選択</span>
+                </div>
               </Checkbox>
               {/* 選択数 */}
               <span className="text-xs text-gray-500">

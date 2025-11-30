@@ -27,9 +27,9 @@ export default function ReviewPointItem({
   const showPlatformSelect = agent.id === 'platformCompliance' && checked;
 
   return (
-    <div className="mb-3 p-3 bg-gray-50 rounded-md">
+    <div className="mb-3 p-3 border border-gray-300 rounded-md">
       <Checkbox value={checked} onValueChange={(isChecked) => onChange(agent.id, isChecked)}>
-        <div className="flex-1">
+        <div className="flex-1 relative top-[-3px]">
           <div className="font-medium text-xs mb-1.5">{agent.label}</div>
           <div className="text-[10px] text-gray-500 leading-tight">{agent.description}</div>
         </div>
