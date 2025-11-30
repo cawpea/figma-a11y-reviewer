@@ -1,8 +1,8 @@
+import type { DropdownOption } from '@create-figma-plugin/ui';
+import { Checkbox, Dropdown } from '@create-figma-plugin/ui';
 import { h } from 'preact';
-import { Checkbox } from '@create-figma-plugin/ui';
 
 import type { AgentOption } from '../../constants/agents';
-import Select, { type SelectOption } from '../Select';
 
 interface ReviewPointItemProps {
   agent: AgentOption;
@@ -12,9 +12,9 @@ interface ReviewPointItemProps {
   onPlatformChange?: (platform: 'ios' | 'android') => void;
 }
 
-const platformOptions: SelectOption[] = [
-  { value: 'ios', label: 'iOS (Human Interface Guidelines)' },
-  { value: 'android', label: 'Android (Material Design)' },
+const platformOptions: DropdownOption[] = [
+  { value: 'ios', text: 'iOS (Human Interface Guidelines)' },
+  { value: 'android', text: 'Android (Material Design)' },
 ];
 
 export default function ReviewPointItem({
@@ -38,11 +38,10 @@ export default function ReviewPointItem({
       {/* platformCompliance選択時にプラットフォーム選択プルダウンを表示 */}
       {showPlatformSelect && (
         <div className="mt-2 ml-6">
-          <Select
-            id={`platform-${agent.id}`}
+          <Dropdown
             value={selectedPlatform || 'ios'}
             options={platformOptions}
-            onChange={(value) => onPlatformChange?.(value as 'ios' | 'android')}
+            onValueChange={(value) => onPlatformChange?.(value as 'ios' | 'android')}
           />
         </div>
       )}
