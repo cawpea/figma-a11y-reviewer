@@ -33,10 +33,10 @@ describe('validate-docs-update', () => {
     });
 
     it('docs/配下のファイルを検出する', () => {
-      const files = ['src/index.ts', 'docs/README.md', 'docs/api/endpoint.md', 'backend/api.ts'];
+      const files = ['src/index.ts', 'docs/README.md', 'docs/backend/api.md', 'backend/api.ts'];
       const result = getUpdatedDocFiles(files);
 
-      expect(result).toEqual(['docs/README.md', 'docs/api/endpoint.md']);
+      expect(result).toEqual(['docs/README.md', 'docs/backend/api.md']);
     });
 
     it('CLAUDE.mdとdocs/の両方を検出する', () => {

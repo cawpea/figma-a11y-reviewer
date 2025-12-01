@@ -216,7 +216,7 @@ curl -X POST http://localhost:3000/api/evaluate \
   -d @test-data.json | jq
 ```
 
-**詳細**: [api/endpoints.md](../api/endpoints.md)参照
+**詳細**: [backend/api.md](../backend/api.md)参照
 
 ## トラブルシューティング
 
@@ -269,5 +269,5 @@ npm test -- --verbose
 
 - [開発環境セットアップ](getting-started.md)
 - [テストガイド](testing-guide.md)
-- [API仕様](../api/endpoints.md)
+- [API仕様](../backend/api.md)
 - [アーキテクチャ概要](../architecture/overview.md)

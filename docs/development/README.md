@@ -24,6 +24,6 @@
 
 ## 🔗 関連ドキュメント
 
-- [デプロイ](../deployment/) - ビルドとデプロイの詳細
-- [テスト方針](../backend/testing.md) - バックエンドのテスト戦略
-- [テスト方針](../figma-plugin/testing.md) - プラグインのテスト戦略
+- [アーキテクチャ](../architecture/) - システム全体の設計
+- [バックエンド](../backend/) - バックエンド実装とAPI仕様
+- [Figmaプラグイン](../figma-plugin/) - プラグイン実装

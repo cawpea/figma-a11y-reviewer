@@ -1,5 +1,7 @@
 # API Endpoints
 
+> **注**: このファイルは旧 `docs/api/endpoints.md` から移動されました。
+
 このドキュメントでは、Figma UI
 Reviewer バックエンドAPIのエンドポイント仕様を説明します。
 
@@ -406,7 +408,4 @@ app.use(
 
 ## 次のステップ
 
-- [リクエスト/レスポンス詳細](./request-response.md)
-- [エラーハンドリング](./error-handling.md)
-- [Claude API統合](./claude-integration.md)
-- [バックエンド実装](../backend/services.md)
+- [バックエンド実装](./services.md)

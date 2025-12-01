@@ -336,8 +336,6 @@ const evaluationRequestSchema = z.object({
 
 ## エラーハンドリング戦略
 
-> **詳細**: [../api/error-handling.md](../api/)
-
 1. **バリデーションエラー**: 400 Bad Request（Zodエラーメッセージ）
 2. **評価エラー**: 個別エージェントでエラーが発生してもスコア0で結果を返す
 3. **Claude APIエラー**: リトライロジック（未実装）、エラーログ
@@ -348,4 +346,4 @@ const evaluationRequestSchema = z.object({
 - [評価エージェントシステムの詳細](./agent-system.md)
 - [データフローの詳細](./data-flow.md)
 - [型システムの設計](./type-system.md)
-- [API仕様](../api/endpoints.md)
+- [API仕様](../backend/api.md)

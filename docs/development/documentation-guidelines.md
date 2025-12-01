@@ -22,14 +22,12 @@
 
 ### 1.1 ドキュメント構成
 
-- `docs/api/` - API仕様
-- `docs/architecture/` - アーキテクチャ
-- `docs/backend/` - バックエンド
-- `docs/deployment/` - デプロイルール
-- `docs/development/` - 日常的な開発ルール
-- `docs/figma-plugin/` - プラグイン
-- `docs/shared/` - 共通処理
-- `CLAUDE.md` - 重要な設計方針
+- `docs/architecture/` - システムアーキテクチャ
+- `docs/backend/` - バックエンド実装とAPI仕様
+- `docs/development/` - 開発ガイドとデプロイメント
+- `docs/figma-plugin/` - Figmaプラグイン
+- `docs/shared/` - 共通型定義
+- `CLAUDE.md` - クイックリファレンス
 
 ### 1.2 ファイル命名規則
 
@@ -324,8 +322,7 @@ Content-Type: application/json Authorization: Bearer <token>
 
 ## 次のステップ
 
-- [実装詳細](../backend/implementation.md)
-- [エラーハンドリング](./error-handling.md)
+- [実装詳細](../backend/services.md)
 ````
 
 #### テンプレート3: 実装詳細
@@ -391,7 +388,7 @@ describe('ClassName', () => {
 ## 次のステップ
 
 - [関連機能](./related.md)
-- [API仕様](../api/endpoints.md)
+- [API仕様](../backend/api.md)
 ````
 
 #### テンプレート4: ハウツーガイド
@@ -454,15 +451,15 @@ command-here
 
 以下のコード変更時は、ドキュメント更新が**必須**です：
 
-| 変更内容                       | 影響を受けるドキュメント                      |
-| ------------------------------ | --------------------------------------------- |
-| **型定義の追加・変更**         | `shared/types.md`、関連API仕様書              |
-| **API仕様の変更**              | `api/endpoints.md`、リクエスト/レスポンス形式 |
-| **新機能の追加**               | 概要ドキュメント、実装詳細                    |
-| **アーキテクチャの変更**       | `architecture/overview.md`など                |
-| **公開インターフェースの変更** | 該当コンポーネント/サービスのドキュメント     |
-| **環境変数の追加・変更**       | `deployment/environment-variables.md`         |
-| **新しい評価エージェント**     | `architecture/`, `backend/agents/`            |
+| 変更内容                       | 影響を受けるドキュメント                           |
+| ------------------------------ | -------------------------------------------------- |
+| **型定義の追加・変更**         | `shared/types.md`、`backend/api.md`                |
+| **API仕様の変更**              | `backend/api.md`                                   |
+| **新機能の追加**               | 概要ドキュメント、実装詳細                         |
+| **アーキテクチャの変更**       | `architecture/overview.md`など                     |
+| **公開インターフェースの変更** | 該当コンポーネント/サービスのドキュメント          |
+| **環境変数の追加・変更**       | `development/getting-started.md`、`backend/api.md` |
+| **新しい評価エージェント**     | `architecture/`, `backend/agents/`                 |
 
 ### 4.2 更新不要な変更
 
@@ -528,7 +525,7 @@ Code専用コマンドです。
 **別カテゴリ**:
 
 ```markdown
-[API仕様](../api/endpoints.md) [アーキテクチャ](../architecture/overview.md)
+[API仕様](../backend/api.md) [アーキテクチャ](../architecture/overview.md)
 ```
 
 #### アンカーリンク
@@ -562,3 +559,16 @@ Code専用コマンドです。
 - 同じ概念には常に同じ用語を使用
 - 重要なコードスニペットには必ずCODE_REFを付ける
 - コード変更時は「4.1 更新が必要な変更」を確認
+
+---
+
+## 7. ドキュメント構造の変更履歴
+
+### 2025年 - 5カテゴリへの簡素化
+
+- **docs/api/ → docs/backend/**: API仕様をバックエンド実装と同じカテゴリに統合
+- **docs/deployment/ → docs/development/**: デプロイメント情報を開発ガイドに統合
+- **docs/guides/ 削除**: ハウツーガイドは該当カテゴリに統合済み
+- **docs/reference/ 削除**: リファレンスは該当カテゴリに統合済み
+
+**理由**: コンテンツ量が少ない状態での独立カテゴリは過剰な構造であったため、より実用的な5カテゴリ構造に簡素化
