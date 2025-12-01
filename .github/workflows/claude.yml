@@ -45,7 +45,7 @@ jobs:
           prompt: |
             以下の指示に従ってください。
             - PRのコメントは日本語で記載してください。
-            - PRの変更点をもとにCLAUDE.mdおよびdocsディレクトリの更新が必要か判断してください。
+            - PRの変更点をもとにCLAUDE.mdや`docs/`ディレクトリのドキュメント更新が必要か判断してください。ドキュメントの更新基準は`documentation-guidelines.md`の「4. ドキュメント更新ガイド」を参照してください。
 
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
