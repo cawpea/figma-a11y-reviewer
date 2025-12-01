@@ -60,7 +60,6 @@ Figmaプラグインの実装やUI開発：
   - `testing-guide.md` - テスト作成ガイド
   - `troubleshooting.md` - よくある問題と解決策
 
-
 ### 共通型定義
 
 フロントエンドとバックエンド間の共有型：

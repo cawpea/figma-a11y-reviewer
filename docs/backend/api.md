@@ -2,7 +2,8 @@
 
 > **注**: このファイルは旧 `docs/api/endpoints.md` から移動されました。
 
-このドキュメントでは、Figma UI Reviewer バックエンドAPIのエンドポイント仕様を説明します。
+このドキュメントでは、Figma UI
+Reviewer バックエンドAPIのエンドポイント仕様を説明します。
 
 ## ベースURL
 
