@@ -18,21 +18,12 @@ Reviewerプロジェクトの詳細なドキュメントが含まれています
   - `type-system.md` - 型システムの設計
   - `security.md` - セキュリティ考慮事項
 
-### API開発
-
-バックエンドAPIの使用や拡張を行う場合：
-
-- **[api/](./api/)** - REST APIエンドポイント仕様、リクエスト/レスポンス形式
-  - `endpoints.md` - `/api/evaluate`, `/api/health`の仕様
-  - `request-response.md` - データ形式とバリデーション
-  - `error-handling.md` - エラーコードとハンドリング
-  - `claude-integration.md` - Claude API統合の詳細
-
 ### バックエンド開発
 
-バックエンドの実装詳細や評価ロジックの拡張：
+バックエンドの実装詳細、API仕様、評価ロジックの拡張：
 
-- **[backend/](./backend/)** - サービス層、評価エージェント、ユーティリティの実装
+- **[backend/](./backend/)** - バックエンド実装とAPI仕様
+  - `api.md` - REST APIエンドポイント仕様（`/api/evaluate`, `/api/health`）
   - `setup.md` - 環境構築とセットアップ
   - `services.md` - EvaluationServiceの詳細
   - `agents/` - 各評価エージェントの実装詳細
@@ -69,15 +60,6 @@ Figmaプラグインの実装やUI開発：
   - `testing-guide.md` - テスト作成ガイド
   - `troubleshooting.md` - よくある問題と解決策
 
-### デプロイメント
-
-本番環境へのデプロイと運用：
-
-- **[deployment/](./deployment/)** - ビルド、環境設定、デプロイ手順
-  - `environment-variables.md` - 環境変数の説明
-  - `build-process.md` - ビルドプロセス詳細
-  - `production-deployment.md` - 本番デプロイ手順
-  - `monitoring.md` - ログ管理と監視
 
 ### 共通型定義
 
@@ -91,14 +73,13 @@ Figmaプラグインの実装やUI開発：
 | 質問の種類                             | 参照すべきドキュメント                                                                           |
 | -------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | 「新しい評価エージェントを追加したい」 | [architecture/agent-system.md](./architecture/), [backend/agents/](./backend/)                   |
-| 「APIエンドポイントの仕様は?」         | [api/endpoints.md](./api/), [api/request-response.md](./api/)                                    |
+| 「APIエンドポイントの仕様は?」         | [backend/api.md](./backend/)                                                                     |
 | 「Figmaデータはどう抽出される?」       | [figma-plugin/data-extraction.md](./figma-plugin/), [figma-plugin/figma-api.md](./figma-plugin/) |
 | 「コンポーネント階層は?」              | [figma-plugin/components/](./figma-plugin/)                                                      |
 | 「評価ロジックの実装は?」              | [backend/agents/](./backend/), [backend/services.md](./backend/)                                 |
 | 「テストはどう書く?」                  | [development/testing-guide.md](./development/), [backend/testing.md](./backend/)                 |
 | 「環境構築手順は?」                    | [development/getting-started.md](./development/)                                                 |
-| 「本番デプロイ方法は?」                | [deployment/production-deployment.md](./deployment/)                                             |
-| 「エラーハンドリングは?」              | [api/error-handling.md](./api/)                                                                  |
+| 「本番デプロイ方法は?」                | [development/getting-started.md](./development/)                                                 |
 | 「型定義の詳細は?」                    | [shared/types.md](./shared/), [architecture/type-system.md](./architecture/)                     |
 | 「ドキュメントの書き方は?」            | [development/documentation-guidelines.md](./development/)                                        |
 | 「CODE_REFの使い方は?」                | [development/documentation-guidelines.md](./development/)                                        |

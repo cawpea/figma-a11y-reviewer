@@ -59,6 +59,6 @@ export type FigmaNodeType =
 
 ## 🔗 関連ドキュメント
 
-- [API仕様](../api/request-response.md) - APIリクエスト/レスポンスの型
+- [API仕様](../backend/api.md) - APIリクエスト/レスポンスの型
 - [バックエンド実装](../backend/) - 型の使用例
 - [フロントエンド実装](../figma-plugin/) - 型の使用例

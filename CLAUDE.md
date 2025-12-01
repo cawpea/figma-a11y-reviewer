@@ -183,21 +183,16 @@ NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 ```
 
-**詳細**: [docs/deployment/](docs/deployment/)
-
 ## ドキュメント構造
 
 ```
 docs/
 ├── README.md                 # LLM向けナビゲーション
 ├── architecture/             # システムアーキテクチャ
-├── api/                      # API仕様
-├── backend/                  # バックエンド実装
-├── figma-plugin/             # プラグイン実装
+├── backend/                  # バックエンド実装とAPI仕様
+│   └── api.md                # REST APIエンドポイント仕様
+├── figma-plugin/             # Figmaプラグイン実装
 ├── development/              # 開発ガイド
-├── deployment/               # デプロイメント
-├── guides/                   # ハウツーガイド
-├── reference/                # リファレンス
 └── shared/                   # 共有型定義
 ```
 
