@@ -121,15 +121,15 @@ npm run validate:docs
 
 ### 重要ファイルと対応ドキュメント
 
-| ファイル                                                    | 更新が必要なドキュメント                                               |
-| ----------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `backend/src/services/agents/base.agent.ts`                 | `architecture/agent-system.md`, `backend/agents/base-agent.md`         |
-| `backend/src/services/evaluation.service.ts`                | `architecture/data-flow.md`, `backend/services.md`, `api/endpoints.md` |
-| `backend/src/routes/evaluation.ts`                          | `api/endpoints.md`, `api/request-response.md`                          |
-| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`, `figma-plugin/figma-api.md`         |
-| `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts` | `figma-plugin/hooks.md`, `architecture/data-flow.md`                   |
-| `shared/src/types.ts`                                       | `shared/types.md`, `api/request-response.md`                           |
-| `backend/src/config/anthropic.ts`                           | `api/claude-integration.md`                                            |
+| ファイル                                                    | 更新が必要なドキュメント                                             |
+| ----------------------------------------------------------- | -------------------------------------------------------------------- |
+| `backend/src/services/agents/base.agent.ts`                 | `architecture/agent-system.md`, `backend/agents/base-agent.md`       |
+| `backend/src/services/evaluation.service.ts`                | `architecture/data-flow.md`, `backend/services.md`, `backend/api.md` |
+| `backend/src/routes/evaluation.ts`                          | `backend/api.md`                                                     |
+| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`, `figma-plugin/figma-api.md`       |
+| `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts` | `figma-plugin/hooks.md`, `architecture/data-flow.md`                 |
+| `shared/src/types.ts`                                       | `shared/types.md`, `backend/api.md`                                  |
+| `backend/src/config/anthropic.ts`                           | `backend/api.md`                                                     |
 
 ### 新機能追加時の更新手順
 
@@ -148,20 +148,22 @@ npm run validate:docs
 - ✅ `README.md` - このファイル
 - ✅ 各カテゴリの`README.md` - ディレクトリ概要
 
-### Phase 2 - 重要ドキュメント（作成予定）
+### Phase 2 - 重要ドキュメント
 
-- `architecture/overview.md` - システム全体像
-- `api/endpoints.md` - API仕様
-- `development/getting-started.md` - セットアップガイド
-- `architecture/agent-system.md` - エージェント設計
-- `backend/agents/base-agent.md` - 基底クラス実装
+- ✅ `backend/api.md` - API仕様（完了）
+- ✅ `development/getting-started.md` - セットアップガイド（完了）
+- ✅ `development/commands.md` - コマンドリファレンス（完了）
+- ✅
+  `development/documentation-guidelines.md` - ドキュメントガイドライン（完了）
+- `architecture/overview.md` - システム全体像（作成予定）
+- `architecture/agent-system.md` - エージェント設計（作成予定）
+- `backend/agents/base-agent.md` - 基底クラス実装（作成予定）
 
 ### Phase 3 - 詳細ドキュメント（作成予定）
 
 - 各評価エージェントの詳細ドキュメント
 - UIコンポーネントの実装ドキュメント
 - テストガイドの詳細
-- デプロイメントガイド
 
 ## 🛠️ ドキュメント管理ツール
 
