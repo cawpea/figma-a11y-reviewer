@@ -11,10 +11,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+import { isIgnored, loadDocsignorePatterns } from './utils/ignore-pattern.utils';
 import type { CodeRef, CodeRefError } from './utils/types';
 
 // 設定
 const DOCS_DIR = path.join(__dirname, '..', 'docs');
+const PROJECT_ROOT = path.join(__dirname, '..');
+const DOCSIGNORE_FILE = path.join(PROJECT_ROOT, '.docsignore');
 const CODE_REF_PATTERN = /<!--\s*CODE_REF:\s*([^:]+?)(?::(\d+)-(\d+))?\s*-->/g;
 
 // コマンドライン引数のパース
@@ -145,8 +148,27 @@ export function validateCodeRef(ref: CodeRef): CodeRefError[] {
 export function main(): void {
   console.log('🔍 ドキュメント内のコード参照を検証しています...\n');
 
+  // .docsignoreパターンを読み込み
+  const ignorePatterns = loadDocsignorePatterns(DOCSIGNORE_FILE);
+  if (verbose) {
+    console.log(`📋 .docsignoreから${ignorePatterns.length}個のパターンを読み込みました\n`);
+  }
+
   // マークダウンファイルを検索
-  const markdownFiles = findMarkdownFiles(DOCS_DIR);
+  const allMarkdownFiles = findMarkdownFiles(DOCS_DIR);
+
+  // .docsignoreで除外されていないファイルのみを対象とする
+  const markdownFiles = allMarkdownFiles.filter((file) => {
+    const relativePath = path.relative(PROJECT_ROOT, file);
+    return !isIgnored(relativePath, ignorePatterns);
+  });
+
+  if (verbose && allMarkdownFiles.length > markdownFiles.length) {
+    console.log(
+      `📋 ${allMarkdownFiles.length - markdownFiles.length}個のファイルが.docsignoreにより除外されました\n`
+    );
+  }
+
   console.log(`📄 ${markdownFiles.length} 個のマークダウンファイルを検出\n`);
 
   // 全てのCODE_REFを抽出

@@ -4,9 +4,14 @@
 
 ## 📚 ドキュメント一覧
 
-### 計画中のドキュメント
+### 実装済みドキュメント
 
 - **getting-started.md** - 初回セットアップ手順（環境変数、依存関係インストール、ビルド）
+- **commands.md** - 開発コマンドリファレンス（ビルド、テスト、検証）
+- **documentation-guidelines.md** - ドキュメント作成・更新ガイドライン（CODE_REF、スタイルガイド、更新ルール）
+
+### 計画中のドキュメント
+
 - **development-workflow.md** - 日常的な開発フロー（watch モード、ホットリロード、デバッグ）
 - **coding-standards.md** - コーディング規約、命名規則、TypeScript使用ガイドライン
 - **debugging.md** - デバッグ方法、ログ解析、開発ツールの使用
