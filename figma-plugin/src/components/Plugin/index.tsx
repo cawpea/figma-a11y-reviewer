@@ -1,10 +1,9 @@
+import { Button, Checkbox } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
-import { AGENT_TIME_ESTIMATE, agentOptions } from '../../constants/agents';
+import { agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
-import Button from '../Button';
-import Checkbox from '../Checkbox';
 import ErrorDisplay from '../ErrorDisplay';
 import Heading from '../Heading';
 import LoadingView from '../LoadingView';
@@ -39,8 +38,6 @@ export default function Plugin() {
       setView('result');
     },
   });
-
-  const estimatedTime = selectedAgents.length * AGENT_TIME_ESTIMATE;
 
   const onEvaluate = () => {
     handleEvaluate(selectedAgents, selectedPlatform);
@@ -81,17 +78,11 @@ export default function Plugin() {
           rightContent={
             <div className="flex items-center gap-3">
               {/* すべて選択チェックボックス */}
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="select-all"
-                  checked={allSelected}
-                  indeterminate={someSelected}
-                  onChange={handleSelectAllToggle}
-                />
-                <label htmlFor="select-all" className="font-medium text-xs cursor-pointer">
-                  すべて選択
-                </label>
-              </div>
+              <Checkbox value={allSelected} onValueChange={handleSelectAllToggle}>
+                <div className="relative top-[-3px]">
+                  <span className="font-medium text-xs">すべて選択</span>
+                </div>
+              </Checkbox>
               {/* 選択数 */}
               <span className="text-xs text-gray-500">
                 {selectedAgents.length} / {agentOptions.length}
@@ -118,8 +109,8 @@ export default function Plugin() {
         <Button
           onClick={onEvaluate}
           disabled={selectedAgents.length === 0}
-          variant="primary"
-          className="w-full"
+          fullWidth
+          style={{ height: '32px' }}
         >
           評価を開始
         </Button>
@@ -127,9 +118,7 @@ export default function Plugin() {
 
       <ErrorDisplay error={error} />
 
-      {isLoading && (
-        <LoadingView selectedAgentsCount={selectedAgents.length} estimatedTime={estimatedTime} />
-      )}
+      {isLoading && <LoadingView />}
     </div>
   );
 }

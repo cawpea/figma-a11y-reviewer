@@ -51,7 +51,7 @@ module.exports = {
   },
 
   // ESMモジュールの変換設定
-  transformIgnorePatterns: ['node_modules/(?!(@testing-library|preact)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(@testing-library|preact|@create-figma-plugin)/)'],
 
   // TypeScript変換設定
   transform: {

@@ -1,8 +1,8 @@
+import { Button } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 
 import type { Issue } from '../../../../shared/src/types';
 import Badge from '../Badge';
-import Button from '../Button';
 
 interface IssueItemProps {
   issue: Issue;
@@ -33,14 +33,15 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
       {issue.suggestion && (
         <div className="text-gray-600 mt-1 text-[10px]">💡 {issue.suggestion}</div>
       )}
-      <Button
-        onClick={() => isClickable && onIssueClick(issue, rootNodeId)}
-        disabled={!isClickable}
-        variant="secondary"
-        className="absolute top-1 right-1 text-[10px] px-2 py-1"
-      >
-        選択
-      </Button>
+      <div className="absolute top-1 right-1">
+        <Button
+          onClick={() => isClickable && onIssueClick(issue, rootNodeId)}
+          disabled={!isClickable}
+          secondary
+        >
+          選択
+        </Button>
+      </div>
     </div>
   );
 }

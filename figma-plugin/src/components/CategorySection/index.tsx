@@ -1,4 +1,6 @@
+import { Disclosure } from '@create-figma-plugin/ui';
 import { h } from 'preact';
+import { useState } from 'preact/hooks';
 
 import type { CategoryResult, Issue } from '../../../../shared/src/types';
 import IssueItem from '../IssueItem';
@@ -19,12 +21,10 @@ export default function CategorySection({
   rootNodeId,
   onIssueClick,
 }: CategorySectionProps) {
-  return (
-    <div className="bg-gray-50 rounded-md p-3 mb-3">
-      <div className="flex justify-between items-center mb-2">
-        <span className="font-semibold text-xs">{categoryLabel}</span>
-      </div>
+  const [open, setOpen] = useState(true);
 
+  return (
+    <Disclosure open={open} onClick={() => setOpen(!open)} title={categoryLabel}>
       {/* Issues */}
       {category.issues.map((issue: Issue, index: number) => (
         <IssueItem key={index} issue={issue} rootNodeId={rootNodeId} onIssueClick={onIssueClick} />
@@ -38,6 +38,6 @@ export default function CategorySection({
           ))}
         </div>
       )}
-    </div>
+    </Disclosure>
   );
 }
