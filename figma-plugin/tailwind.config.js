@@ -11,6 +11,13 @@ export default {
       },
       animation: {
         spin: 'spin 1s linear infinite',
+        'slide-up': 'slideUp 0.2s ease-out',
+      },
+      keyframes: {
+        slideUp: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
       },
     },
   },

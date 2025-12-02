@@ -267,3 +267,24 @@ export const STYLES_LIMIT = {
   /** 各カテゴリごとの最大取得数 */
   MAX_ITEMS_PER_CATEGORY: 100,
 } as const;
+
+// 機能フラグイベント
+export interface LoadFeatureFlagsHandler {
+  name: 'LOAD_FEATURE_FLAGS';
+  handler: () => void;
+}
+
+export interface FeatureFlagsLoadedHandler {
+  name: 'FEATURE_FLAGS_LOADED';
+  handler: (flags: Record<string, boolean>) => void;
+}
+
+export interface SaveFeatureFlagsHandler {
+  name: 'SAVE_FEATURE_FLAGS';
+  handler: (flags: Record<string, boolean>) => void;
+}
+
+export interface FeatureFlagsSavedHandler {
+  name: 'FEATURE_FLAGS_SAVED';
+  handler: () => void;
+}
