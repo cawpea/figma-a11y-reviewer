@@ -195,7 +195,8 @@ API_BASE_URL=http://localhost:3000/api  # 開発環境
 # API_BASE_URL=https://your-api.com/api  # 本番環境
 ```
 
-**重要**: Figmaプラグインの環境変数はビルド時にコードに埋め込まれます。変更後は必ず`npm run build:dev`または`npm run build:prod`で再ビルドしてください。
+**重要**:
+Figmaプラグインの環境変数はビルド時にコードに埋め込まれます。変更後は必ず`npm run build:dev`または`npm run build:prod`で再ビルドしてください。
 
 ## ドキュメント構造
 

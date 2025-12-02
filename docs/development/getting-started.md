@@ -155,6 +155,7 @@ cp .env.production.example .env.production
 ```
 
 **重要**:
+
 - 環境変数はビルド時にコードに埋め込まれます
 - 環境変数を変更した場合は必ず再ビルドしてください
 - 秘密情報（APIキーなど）は含めないでください（バックエンドURLのみ）
@@ -171,7 +172,8 @@ npm run build:dev
 
 1. **TailwindCSS**: `src/input.css` → `src/output.css`
 2. **環境変数読み込み**: `.env.development`から`API_BASE_URL`を読み込み
-3. **TypeScript**: `src/main.ts`, `src/ui.tsx` → `build/main.js`, `build/ui.js`（環境変数を埋め込み）
+3. **TypeScript**: `src/main.ts`, `src/ui.tsx` → `build/main.js`,
+   `build/ui.js`（環境変数を埋め込み）
 4. **Manifest**: `manifest.json` → `build/manifest.json`
 
 #### 本番環境用ビルド
@@ -411,8 +413,9 @@ figma-ui-reviewer/
 
 ### Figmaプラグイン（figma-plugin/.env.{development|production}）
 
-| 変数名          | 必須 | デフォルト値                | 説明                       |
-| --------------- | ---- | --------------------------- | -------------------------- |
-| `API_BASE_URL`  | ❌   | `http://localhost:3000/api` | バックエンドAPIのベースURL |
+| 変数名         | 必須 | デフォルト値                | 説明                       |
+| -------------- | ---- | --------------------------- | -------------------------- |
+| `API_BASE_URL` | ❌   | `http://localhost:3000/api` | バックエンドAPIのベースURL |
 
-**注意**: Figmaプラグインの環境変数はビルド時にコードに埋め込まれるため、変更後は必ず再ビルドが必要です。
+**注意**:
+Figmaプラグインの環境変数はビルド時にコードに埋め込まれるため、変更後は必ず再ビルドが必要です。
