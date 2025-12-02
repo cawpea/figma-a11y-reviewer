@@ -30,7 +30,8 @@ cp .env.example .env  # ANTHROPIC_API_KEYを設定
 # Figmaプラグインのセットアップ
 cd ../figma-plugin
 npm install
-npm run build
+cp .env.development.example .env.development  # 開発用環境変数を設定
+npm run build:dev  # または npm run build（デフォルトは開発ビルド）
 ```
 
 **詳細**:
@@ -60,8 +61,9 @@ npm test             # テスト実行
 
 ```bash
 cd figma-plugin
-npm run watch        # 開発時の推奨（CSS + JS並行ウォッチ）
-npm run build        # ビルド
+npm run watch        # 開発時の推奨（CSS + JS並行ウォッチ、開発環境設定を使用）
+npm run build:dev    # 開発環境用ビルド
+npm run build:prod   # 本番環境用ビルド
 npm test             # テスト実行
 ```
 
@@ -173,6 +175,8 @@ npm run test:coverage     # カバレッジレポート
 
 ## 環境変数
 
+### バックエンド（backend/.env）
+
 ```bash
 # 必須
 ANTHROPIC_API_KEY=***
@@ -182,6 +186,16 @@ PORT=3000                    # デフォルト: 3000
 NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 ```
+
+### Figmaプラグイン（figma-plugin/.env.{development|production}）
+
+```bash
+# API Base URL
+API_BASE_URL=http://localhost:3000/api  # 開発環境
+# API_BASE_URL=https://your-api.com/api  # 本番環境
+```
+
+**重要**: Figmaプラグインの環境変数はビルド時にコードに埋め込まれます。変更後は必ず`npm run build:dev`または`npm run build:prod`で再ビルドしてください。
 
 ## ドキュメント構造
 
