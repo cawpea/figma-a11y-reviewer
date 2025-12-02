@@ -11,7 +11,7 @@ import { debounce } from './utils/debounce';
 import { extractFileStyles, extractNodeData } from './utils/figma.utils';
 
 // 設定
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 // エラーメッセージ定数
 const ERROR_MESSAGES = {

@@ -20,7 +20,7 @@ npm run type-check
 
 ```bash
 # ビルド
-npm run build
+npm run build:dev
 
 # 本番環境起動
 npm start
@@ -52,15 +52,24 @@ npm run test:coverage
 ```bash
 cd figma-plugin
 
-# 開発時の推奨: CSS + JSを並行ウォッチ
+# 開発時の推奨: CSS + JSを並行ウォッチ（開発環境設定を使用）
 npm run watch
-
-# ビルド（TailwindCSS + TypeScriptコンパイル）
-npm run build
 
 # 型チェック
 npm run type-check
 ```
+
+### ビルド
+
+```bash
+# 開発環境用ビルド（.env.development を使用）
+npm run build:dev
+
+# 本番環境用ビルド（.env.production を使用）
+npm run build:prod
+```
+
+**重要**: 環境変数（API_BASE_URL）はビルド時に埋め込まれるため、変更後は必ず再ビルドしてください。
 
 ### 個別ビルド
 
@@ -68,7 +77,7 @@ npm run type-check
 # TailwindCSSのみビルド
 npm run build:css
 
-# TypeScriptのみビルド
+# TypeScriptのみビルド（開発環境設定）
 npm run build:js
 ```
 
@@ -238,8 +247,14 @@ npm install
 ### Figmaプラグインがビルドできない
 
 ```bash
-# TailwindCSSのエラー確認
+# 環境変数ファイルの確認
 cd figma-plugin
+ls -la .env.development .env.production
+
+# 環境変数ファイルがない場合は作成
+cp .env.development.example .env.development
+
+# TailwindCSSのエラー確認
 npm run build:css
 
 # TypeScriptのエラー確認

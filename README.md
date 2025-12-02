@@ -9,7 +9,7 @@ Figmaの情報をもとにAIを使って、UIデザインのレビューを行�
 ```sh
 # ビルド
 cd figma-plugin
-npm run build
+npm run build:dev
 
 # Figmaで確認
 # 1. Figma Desktopアプリを開く

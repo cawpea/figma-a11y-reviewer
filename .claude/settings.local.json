@@ -19,7 +19,10 @@
       "Bash(npm run validate:docs:update:*)",
       "Bash(npm run validate:docs:*)",
       "WebSearch",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(npm info:*)",
+      "Bash(npm run build:dev:*)",
+      "Bash(npm run build:prod:*)"
     ],
     "deny": [],
     "ask": []

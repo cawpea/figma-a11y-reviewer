@@ -79,7 +79,7 @@ APIキーは秘密情報です。Gitにコミットしないでください（`.
 ### 1.3 TypeScriptのビルド（オプション）
 
 ```bash
-npm run build
+npm run build:dev
 ```
 
 このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルしますが、開発時は不要です（`npm run dev`がts-nodeで直接実行します）。
@@ -126,29 +126,75 @@ cd ../figma-plugin  # backend/から移動
 npm install
 ```
 
-### 2.2 ビルド
+### 2.2 環境変数の設定
+
+開発環境用の環境変数ファイルを作成します：
 
 ```bash
-npm run build
+# 開発環境用（デフォルトの設定で使用可能）
+cp .env.development.example .env.development
+```
+
+`.env.development`の内容：
+
+```bash
+# Development Environment Variables
+
+# API Base URL for local development
+API_BASE_URL=http://localhost:3000/api
+```
+
+**本番環境用**には`.env.production`を作成します：
+
+```bash
+# 本番環境用の設定をコピー
+cp .env.production.example .env.production
+
+# .env.productionを編集して実際のAPIのURLを設定
+# API_BASE_URL=https://your-production-api.example.com/api
+```
+
+**重要**:
+
+- 環境変数はビルド時にコードに埋め込まれます
+- 環境変数を変更した場合は必ず再ビルドしてください
+- 秘密情報（APIキーなど）は含めないでください（バックエンドURLのみ）
+
+### 2.3 ビルド
+
+#### 開発環境用ビルド
+
+```bash
+npm run build:dev
 ```
 
 このコマンドは以下を実行します：
 
 1. **TailwindCSS**: `src/input.css` → `src/output.css`
-2. **TypeScript**: `src/main.ts`, `src/ui.tsx` → `build/main.js`, `build/ui.js`
-3. **Manifest**: `manifest.json` → `build/manifest.json`
+2. **環境変数読み込み**: `.env.development`から`API_BASE_URL`を読み込み
+3. **TypeScript**: `src/main.ts`, `src/ui.tsx` → `build/main.js`,
+   `build/ui.js`（環境変数を埋め込み）
+4. **Manifest**: `manifest.json` → `build/manifest.json`
+
+#### 本番環境用ビルド
+
+```bash
+npm run build:prod
+```
+
+`.env.production`から環境変数を読み込んでビルドします。
 
 **期待される出力**:
 
 ```
-> build
-> npm run build:css && npm run build:js
+> build:dev
+> npm run build:css && cross-env NODE_ENV=development npm run build:js
 
 Rebuilding...
 Done in 150ms.
 ```
 
-### 2.3 Watchモード（推奨）
+### 2.4 Watchモード（推奨）
 
 開発時は、ファイル変更を自動検知してビルドするWatchモードが便利です：
 
@@ -280,7 +326,7 @@ PORT=3001 npm run dev
 ```bash
 # ビルドエラーを確認
 cd figma-plugin
-npm run build
+npm run build:dev
 
 # manifest.jsonが存在するか確認
 ls manifest.json
@@ -297,7 +343,7 @@ ls manifest.json
 ```bash
 # ルートディレクトリから
 cd shared
-npm run build
+npm run build:dev
 
 # または、各パッケージのnode_modulesを再インストール
 cd backend
@@ -356,9 +402,20 @@ figma-ui-reviewer/
 
 ## 環境変数一覧
 
+### バックエンド（backend/.env）
+
 | 変数名              | 必須 | デフォルト値  | 説明                                 |
 | ------------------- | ---- | ------------- | ------------------------------------ |
 | `ANTHROPIC_API_KEY` | ✅   | -             | Anthropic APIキー                    |
 | `PORT`              | ❌   | `3000`        | サーバーポート                       |
 | `NODE_ENV`          | ❌   | `development` | 環境（`development` / `production`） |
 | `CORS_ORIGIN`       | ❌   | `*`           | CORS許可オリジン（本番では制限推奨） |
+
+### Figmaプラグイン（figma-plugin/.env.{development|production}）
+
+| 変数名         | 必須 | デフォルト値                | 説明                       |
+| -------------- | ---- | --------------------------- | -------------------------- |
+| `API_BASE_URL` | ❌   | `http://localhost:3000/api` | バックエンドAPIのベースURL |
+
+**注意**:
+Figmaプラグインの環境変数はビルド時にコードに埋め込まれるため、変更後は必ず再ビルドが必要です。
