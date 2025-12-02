@@ -79,7 +79,7 @@ APIキーは秘密情報です。Gitにコミットしないでください（`.
 ### 1.3 TypeScriptのビルド（オプション）
 
 ```bash
-npm run build
+npm run build:dev
 ```
 
 このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルしますが、開発時は不要です（`npm run dev`がts-nodeで直接実行します）。
@@ -165,12 +165,6 @@ cp .env.production.example .env.production
 
 ```bash
 npm run build:dev
-```
-
-または（デフォルトで開発ビルド）：
-
-```bash
-npm run build
 ```
 
 このコマンドは以下を実行します：
@@ -330,7 +324,7 @@ PORT=3001 npm run dev
 ```bash
 # ビルドエラーを確認
 cd figma-plugin
-npm run build
+npm run build:dev
 
 # manifest.jsonが存在するか確認
 ls manifest.json
@@ -347,7 +341,7 @@ ls manifest.json
 ```bash
 # ルートディレクトリから
 cd shared
-npm run build
+npm run build:dev
 
 # または、各パッケージのnode_modulesを再インストール
 cd backend

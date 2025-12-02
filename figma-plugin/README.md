@@ -15,7 +15,7 @@ _This plugin is built with
 To build the plugin:
 
 ```
-$ npm run build
+$ npm run build:dev
 ```
 
 This will generate a [`manifest.json`](https://figma.com/plugin-docs/manifest/)

@@ -20,7 +20,7 @@ npm run type-check
 
 ```bash
 # ビルド
-npm run build
+npm run build:dev
 
 # 本番環境起動
 npm start
@@ -67,9 +67,6 @@ npm run build:dev
 
 # 本番環境用ビルド（.env.production を使用）
 npm run build:prod
-
-# デフォルトビルド（開発環境のエイリアス）
-npm run build
 ```
 
 **重要**: 環境変数（API_BASE_URL）はビルド時に埋め込まれるため、変更後は必ず再ビルドしてください。

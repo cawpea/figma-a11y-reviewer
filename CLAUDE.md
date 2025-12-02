@@ -31,7 +31,7 @@ cp .env.example .env  # ANTHROPIC_API_KEYを設定
 cd ../figma-plugin
 npm install
 cp .env.development.example .env.development  # 開発用環境変数を設定
-npm run build:dev  # または npm run build（デフォルトは開発ビルド）
+npm run build:dev  # 開発環境用ビルド
 ```
 
 **詳細**:
@@ -53,7 +53,7 @@ npm run build:dev  # または npm run build（デフォルトは開発ビルド
 ```bash
 cd backend
 npm run dev          # 開発サーバー起動（ホットリロード）
-npm run build        # ビルド
+npm run build:dev    # 開発環境用ビルド
 npm test             # テスト実行
 ```
 

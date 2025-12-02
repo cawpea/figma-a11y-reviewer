@@ -27,7 +27,6 @@
     "typescript": ">=4"
   },
   "scripts": {
-    "build": "npm run build:dev",
     "build:dev": "npm run build:css && cross-env NODE_ENV=development npm run build:js",
     "build:prod": "npm run build:css && cross-env NODE_ENV=production npm run build:js",
     "build:css": "tailwindcss --input ./src/input.css --output ./src/output.css",
