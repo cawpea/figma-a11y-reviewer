@@ -28,29 +28,32 @@ export async function callMockEvaluationAPI(
   // ネットワーク遅延をシミュレート
   await new Promise((resolve) => setTimeout(resolve, delay));
 
-  // カテゴリのディープコピーを作成
-  const filteredCategories = { ...MOCK_EVALUATION_RESULT.categories };
-
-  // evaluationTypesが指定されている場合、選択されたカテゴリのみ返す
-  if (evaluationTypes && evaluationTypes.length > 0) {
-    Object.keys(filteredCategories).forEach((key) => {
-      if (!evaluationTypes.includes(key)) {
-        delete filteredCategories[key];
-      }
-    });
-  }
-
   // プラットフォームタイプが指定されている場合のログ出力（将来的な拡張用）
   if (platformType) {
     console.log(`[Mock API] Platform type: ${platformType}`);
   }
 
+  // ディープコピーを作成（JSON経由で参照を完全に分離）
+  const resultCopy: typeof MOCK_EVALUATION_RESULT = JSON.parse(
+    JSON.stringify(MOCK_EVALUATION_RESULT)
+  );
+
+  // evaluationTypesが指定されている場合、選択されたカテゴリのみ返す
+  if (evaluationTypes && evaluationTypes.length > 0) {
+    const filteredCategories: typeof resultCopy.categories = {};
+    evaluationTypes.forEach((type) => {
+      if (resultCopy.categories[type]) {
+        filteredCategories[type] = resultCopy.categories[type];
+      }
+    });
+    resultCopy.categories = filteredCategories;
+  }
+
   // 評価結果を返却
   return {
-    ...MOCK_EVALUATION_RESULT,
-    categories: filteredCategories,
+    ...resultCopy,
     metadata: {
-      ...MOCK_EVALUATION_RESULT.metadata,
+      ...resultCopy.metadata,
       evaluatedAt: new Date(), // 現在の日時を設定
     },
   };
