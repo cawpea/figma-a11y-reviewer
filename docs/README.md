@@ -41,6 +41,7 @@ Figmaプラグインの実装やUI開発：
 - **[figma-plugin/](./figma-plugin/)** - UIコンポーネント、Figma
   API連携、データ抽出
   - `setup.md` - ビルドとインストール手順
+  - `feature-toggles.md` - 機能トグルシステムの使い方
   - `components/` - UIコンポーネントの実装
   - `hooks.md` - カスタムフックの詳細
   - `figma-api.md` - Figma API統合
@@ -83,6 +84,7 @@ Figmaプラグインの実装やUI開発：
 | 「ドキュメントの書き方は?」            | [development/documentation-guidelines.md](./development/)                                        |
 | 「CODE_REFの使い方は?」                | [development/documentation-guidelines.md](./development/)                                        |
 | 「ドキュメントをいつ更新すべき?」      | [development/documentation-guidelines.md](./development/)                                        |
+| 「機能トグルの使い方は?」              | [figma-plugin/feature-toggles.md](./figma-plugin/)                                               |
 
 ## 📝 コード引用のルール
 

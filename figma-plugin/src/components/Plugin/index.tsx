@@ -5,6 +5,7 @@ import { useCallback, useState } from 'preact/hooks';
 import { agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
 import ErrorDisplay from '../ErrorDisplay';
+import FeatureTogglePanel from '../FeatureTogglePanel';
 import Heading from '../Heading';
 import LoadingView from '../LoadingView';
 import ReviewPointItem from '../ReviewPointItem';
@@ -119,6 +120,9 @@ export default function Plugin() {
       <ErrorDisplay error={error} />
 
       {isLoading && <LoadingView />}
+
+      {/* 機能トグルパネル（開発環境のみ） */}
+      <FeatureTogglePanel />
     </div>
   );
 }

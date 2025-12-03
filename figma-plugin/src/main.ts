@@ -263,6 +263,28 @@ export default function () {
   // UIからのイベントを受信
   on('EVALUATE_SELECTION', handleEvaluation);
 
+  // 機能フラグハンドラー
+  const FEATURE_FLAGS_STORAGE_KEY = 'feature-flags';
+
+  on('LOAD_FEATURE_FLAGS', async () => {
+    try {
+      const flags = await figma.clientStorage.getAsync(FEATURE_FLAGS_STORAGE_KEY);
+      emit('FEATURE_FLAGS_LOADED', flags || {});
+    } catch (e) {
+      console.error('Failed to load feature flags:', e);
+      emit('FEATURE_FLAGS_LOADED', {});
+    }
+  });
+
+  on('SAVE_FEATURE_FLAGS', async (flags: Record<string, boolean>) => {
+    try {
+      await figma.clientStorage.setAsync(FEATURE_FLAGS_STORAGE_KEY, flags);
+      emit('FEATURE_FLAGS_SAVED');
+    } catch (e) {
+      console.error('Failed to save feature flags:', e);
+    }
+  });
+
   on(
     'SELECT_NODE',
     async ({
