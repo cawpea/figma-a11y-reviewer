@@ -134,6 +134,81 @@ export const featureFlagConfigs: FeatureFlagConfig[] = [
 
 これだけで、機能トグルUIに新しいフラグが表示されます。
 
+## 🎛️ 利用可能な機能フラグ
+
+### MOCK_API - モックAPI使用
+
+<!-- CODE_REF: figma-plugin/src/constants/featureFlags.ts:4 -->
+<!-- CODE_REF: figma-plugin/src/services/mockApi/mockApi.service.ts -->
+
+**用途**: バックエンドAPIを呼び出さずにモックデータで評価結果を表示
+
+**説明**: このフラグを有効にすると、`POST /api/evaluate`への実際のAPIコールを行わず、figma-plugin側で定義されたモックデータを使用します。バックエンドサーバーを起動せずにUI開発とテストが可能になります。
+
+**動作**:
+
+- **ON**: モックデータを使用（1.5秒の遅延をシミュレート）
+- **OFF**: 実際のバックエンドAPIを呼び出し
+
+**実装場所**:
+
+<!-- CODE_REF: figma-plugin/src/main.ts:185-197 -->
+
+```typescript
+async function callEvaluationAPI(...): Promise<EvaluationResult> {
+  // 機能フラグの確認
+  const flags = (await figma.clientStorage.getAsync('feature-flags')) || {};
+  const useMockApi = flags['mock_api'] === true;
+
+  // モックAPIモードの場合
+  if (useMockApi) {
+    console.log('[Mock API] Using mock evaluation data');
+    return callMockEvaluationAPI({
+      evaluationTypes,
+      platformType,
+      delay: 1500,
+    });
+  }
+
+  // 既存の実APIロジック
+  // ...
+}
+```
+
+**モックデータの内容**:
+
+<!-- CODE_REF: figma-plugin/src/services/mockApi/mockData.ts -->
+
+モックデータには以下の評価カテゴリが含まれます：
+
+- **accessibility**: アクセシビリティ評価（3件の問題）
+- **usability**: ユーザビリティ評価（3件の問題）
+- **styleConsistency**: スタイル一貫性評価（3件の問題）
+- **platformCompliance**: プラットフォーム準拠評価（2件の問題）
+- **writing**: ライティング評価（2件の問題）
+
+各問題には`nodeId`と`nodeHierarchy`が含まれており、Issue クリック時のレイヤー選択機能もテスト可能です。
+
+**使用例**:
+
+1. Feature Toggleパネルで「モックAPI使用」をONに
+2. フレームを選択して評価を開始
+3. 1.5秒後にモックデータが表示される
+4. Issue をクリックするとFigmaのレイヤーが選択される（nodeIdが存在する場合）
+
+**メリット**:
+
+- バックエンドサーバー不要でUI開発が可能
+- ネットワークエラーの影響を受けない
+- 一貫したテストデータで動作確認
+- 評価タイプのフィルタリング機能もテスト可能
+
+**注意事項**:
+
+- モックデータは開発用であり、実際の評価品質は保証されません
+- `evaluationTypes`パラメータによるフィルタリングには対応していますが、`platformType`は現在ログ出力のみです
+- モックデータの更新は`figma-plugin/src/services/mockApi/mockData.ts`を編集
+
 ## 🔧 実装詳細
 
 ### ディレクトリ構成
