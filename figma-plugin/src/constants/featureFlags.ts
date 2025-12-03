@@ -1,6 +1,7 @@
 export enum FeatureFlag {
   // 将来的に追加される機能フラグの例
   EXAMPLE_FEATURE = 'example_feature',
+  MOCK_API = 'mock_api',
 }
 
 export interface FeatureFlagConfig {
@@ -17,6 +18,12 @@ export const featureFlagConfigs: FeatureFlagConfig[] = [
     key: FeatureFlag.EXAMPLE_FEATURE,
     label: '例: 新機能',
     description: 'これは機能トグルのデモです',
+    defaultEnabled: false,
+  },
+  {
+    key: FeatureFlag.MOCK_API,
+    label: 'モックAPI使用',
+    description: 'バックエンドAPIの代わりにモックデータを使用します（開発用）',
     defaultEnabled: false,
   },
 ];

@@ -7,11 +7,18 @@ import type {
   SelectionState,
 } from '@shared/types';
 
+import { FeatureFlag } from './constants/featureFlags';
+import { callMockEvaluationAPI } from './services/mockApi';
 import { debounce } from './utils/debounce';
 import { extractFileStyles, extractNodeData } from './utils/figma.utils';
 
 // 設定
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
+
+// 型定義
+type FeatureFlagsStorage = {
+  [K in FeatureFlag]?: boolean;
+};
 
 // エラーメッセージ定数
 const ERROR_MESSAGES = {
@@ -181,6 +188,22 @@ async function callEvaluationAPI(
   evaluationTypes?: string[],
   platformType?: 'ios' | 'android'
 ): Promise<EvaluationResult> {
+  // 機能フラグの確認
+  const flags =
+    ((await figma.clientStorage.getAsync('feature-flags')) as FeatureFlagsStorage) || {};
+  const useMockApi = flags[FeatureFlag.MOCK_API] === true;
+
+  // モックAPIモードの場合
+  if (useMockApi) {
+    console.log('[Mock API] Using mock evaluation data');
+    return callMockEvaluationAPI({
+      evaluationTypes,
+      platformType,
+      delay: 1500,
+    });
+  }
+
+  // 既存の実APIロジック
   const requestBody: Partial<EvaluationRequest> = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,

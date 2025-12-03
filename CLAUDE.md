@@ -142,6 +142,11 @@ scripts/               # ユーティリティスクリプト
 
 開発環境では右下のフローティングボタンから機能トグル設定にアクセスできます。
 
+**利用可能な機能:**
+
+- **モックAPI使用**
+  (`MOCK_API`): バックエンドAPIなしでモックデータを使用してUI開発・テスト可能
+
 **使い方:**
 
 ```typescript
@@ -149,8 +154,8 @@ import { useFeatureFlags } from './contexts/FeatureFlagContext/useFeatureFlags';
 import { FeatureFlag } from './constants/featureFlags';
 
 const { isEnabled } = useFeatureFlags();
-if (isEnabled(FeatureFlag.EXAMPLE_FEATURE)) {
-  // 機能を有効化
+if (isEnabled(FeatureFlag.MOCK_API)) {
+  // モックAPIを使用
 }
 ```
 
