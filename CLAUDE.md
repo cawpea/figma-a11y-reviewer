@@ -138,6 +138,23 @@ scripts/               # ユーティリティスクリプト
 
 **詳細**: [docs/figma-plugin/components.md](docs/figma-plugin/)
 
+### 機能トグル
+
+開発環境では右下のフローティングボタンから機能トグル設定にアクセスできます。
+
+**使い方:**
+```typescript
+import { useFeatureFlags } from './contexts/FeatureFlagContext/useFeatureFlags';
+import { FeatureFlag } from './constants/featureFlags';
+
+const { isEnabled } = useFeatureFlags();
+if (isEnabled(FeatureFlag.EXAMPLE_FEATURE)) {
+  // 機能を有効化
+}
+```
+
+**詳細**: [docs/figma-plugin/feature-toggles.md](docs/figma-plugin/feature-toggles.md)
+
 ### エージェント追加
 
 1. `backend/src/services/agents/`に新しいエージェントクラスを作成
