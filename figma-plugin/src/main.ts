@@ -16,9 +16,9 @@ import { extractFileStyles, extractNodeData } from './utils/figma.utils';
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
 
 // 型定義
-interface FeatureFlagsStorage {
-  [key: string]: boolean | undefined;
-}
+type FeatureFlagsStorage = {
+  [K in FeatureFlag]?: boolean;
+};
 
 // エラーメッセージ定数
 const ERROR_MESSAGES = {
