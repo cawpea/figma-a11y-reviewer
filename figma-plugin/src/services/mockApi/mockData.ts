@@ -1,4 +1,4 @@
-import type { EvaluationResult } from '../../../../shared/src/types';
+import type { EvaluationResult } from '@shared/types';
 
 /**
  * モックAPI用の評価結果データ

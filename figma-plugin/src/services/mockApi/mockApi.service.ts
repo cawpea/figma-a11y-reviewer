@@ -1,4 +1,4 @@
-import type { EvaluationResult } from '../../../../shared/src/types';
+import type { EvaluationResult } from '@shared/types';
 
 import { MOCK_EVALUATION_RESULT } from './mockData';
 
