@@ -26,5 +26,22 @@
     ],
     "deny": [],
     "ask": []
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "**/*.{ts,tsx,js,jsx,json,md,css}",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run format"
+          },
+          {
+            "type": "command",
+            "command": "npm run check"
+          }
+        ]
+      }
+    ]
   }
 }

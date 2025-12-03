@@ -77,7 +77,8 @@ on('SAVE_FEATURE_FLAGS', async (flags: Record<string, boolean>) => {
 });
 ```
 
-**重要**: Figmaプラグインでは`localStorage`が使用できないため、`figma.clientStorage`を使用します。
+**重要**:
+Figmaプラグインでは`localStorage`が使用できないため、`figma.clientStorage`を使用します。
 
 ## 💻 使い方
 
@@ -185,12 +186,12 @@ export interface FeatureFlagContextValue {
 
 ### useFeatureFlagsフックAPI
 
-| メソッド | 説明 | 戻り値 |
-|---------|------|--------|
-| `isEnabled(flag)` | フラグが有効かチェック | `boolean` |
-| `toggleFlag(flag)` | フラグをトグル | `void` |
-| `setFlag(flag, enabled)` | フラグを明示的にセット | `void` |
-| `flags` | すべてのフラグの状態 | `Record<FeatureFlag, boolean>` |
+| メソッド                 | 説明                   | 戻り値                         |
+| ------------------------ | ---------------------- | ------------------------------ |
+| `isEnabled(flag)`        | フラグが有効かチェック | `boolean`                      |
+| `toggleFlag(flag)`       | フラグをトグル         | `void`                         |
+| `setFlag(flag, enabled)` | フラグを明示的にセット | `void`                         |
+| `flags`                  | すべてのフラグの状態   | `Record<FeatureFlag, boolean>` |
 
 ### UIコンポーネント
 
@@ -213,6 +214,7 @@ export interface FeatureFlagContextValue {
 - アニメーション: スライドアップ（`animate-slide-up`）
 
 **構造:**
+
 ```
 [ヘッダー]
   機能トグル設定     [×]
@@ -298,7 +300,8 @@ npm run build:prod
 
 ### 既存コードの課題
 
-現在の`useAgentSelection.ts`は`localStorage`を使用していますが、Figma Desktop環境では動作しません。将来的に`figma.clientStorage`への移行を検討する必要があります。
+現在の`useAgentSelection.ts`は`localStorage`を使用していますが、Figma
+Desktop環境では動作しません。将来的に`figma.clientStorage`への移行を検討する必要があります。
 
 ### Z-indexレイヤリング
 
@@ -327,10 +330,10 @@ LoadingView表示中は操作がブロックされるため、視覚的な競合
 
 ## 🔗 関連ファイル
 
-| ファイル | 説明 |
-|---------|------|
-| `shared/src/types.ts` | 機能フラグイベント型定義 |
-| `figma-plugin/src/main.ts` | figma.clientStorageハンドラー |
-| `figma-plugin/src/ui.tsx` | FeatureFlagProvider統合 |
-| `figma-plugin/src/env.d.ts` | NODE_ENV型定義 |
-| `figma-plugin/build-figma-plugin.config.js` | ビルド設定 |
+| ファイル                                    | 説明                          |
+| ------------------------------------------- | ----------------------------- |
+| `shared/src/types.ts`                       | 機能フラグイベント型定義      |
+| `figma-plugin/src/main.ts`                  | figma.clientStorageハンドラー |
+| `figma-plugin/src/ui.tsx`                   | FeatureFlagProvider統合       |
+| `figma-plugin/src/env.d.ts`                 | NODE_ENV型定義                |
+| `figma-plugin/build-figma-plugin.config.js` | ビルド設定                    |

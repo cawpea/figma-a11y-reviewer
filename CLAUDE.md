@@ -143,6 +143,7 @@ scripts/               # ユーティリティスクリプト
 開発環境では右下のフローティングボタンから機能トグル設定にアクセスできます。
 
 **使い方:**
+
 ```typescript
 import { useFeatureFlags } from './contexts/FeatureFlagContext/useFeatureFlags';
 import { FeatureFlag } from './constants/featureFlags';
@@ -153,7 +154,8 @@ if (isEnabled(FeatureFlag.EXAMPLE_FEATURE)) {
 }
 ```
 
-**詳細**: [docs/figma-plugin/feature-toggles.md](docs/figma-plugin/feature-toggles.md)
+**詳細**:
+[docs/figma-plugin/feature-toggles.md](docs/figma-plugin/feature-toggles.md)
 
 ### エージェント追加
 
