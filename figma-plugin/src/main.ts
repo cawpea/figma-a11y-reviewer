@@ -7,6 +7,7 @@ import type {
   SelectionState,
 } from '@shared/types';
 
+import { callMockEvaluationAPI } from './services/mockApi';
 import { debounce } from './utils/debounce';
 import { extractFileStyles, extractNodeData } from './utils/figma.utils';
 
@@ -181,6 +182,21 @@ async function callEvaluationAPI(
   evaluationTypes?: string[],
   platformType?: 'ios' | 'android'
 ): Promise<EvaluationResult> {
+  // 機能フラグの確認
+  const flags = (await figma.clientStorage.getAsync('feature-flags')) || {};
+  const useMockApi = flags['mock_api'] === true;
+
+  // モックAPIモードの場合
+  if (useMockApi) {
+    console.log('[Mock API] Using mock evaluation data');
+    return callMockEvaluationAPI({
+      evaluationTypes,
+      platformType,
+      delay: 1500,
+    });
+  }
+
+  // 既存の実APIロジック
   const requestBody: Partial<EvaluationRequest> = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
