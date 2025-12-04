@@ -30,7 +30,7 @@ export default function ReviewResultView({
   }, []);
 
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full flex flex-col gap-5">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-5">
       {/* 閉じるボタン */}
       <header>
         <Button onClick={onClose} secondary>
@@ -53,21 +53,18 @@ export default function ReviewResultView({
       {/* 詳細と提案 */}
       <section>
         <Heading>レビュー結果</Heading>
-        <div>
-          {Object.entries(result.categories).map(([key, category]: [string, CategoryResult]) => (
-            <CategorySection
-              key={key}
-              categoryKey={key}
-              category={category}
-              categoryLabel={categoryLabels[key] || key}
-              rootNodeId={result.metadata.rootNodeId}
-              onIssueClick={onIssueClick}
-            />
-          ))}
-
-          <MetadataDisplay metadata={result.metadata} />
-        </div>
+        {Object.entries(result.categories).map(([key, category]: [string, CategoryResult]) => (
+          <CategorySection
+            key={key}
+            categoryKey={key}
+            category={category}
+            categoryLabel={categoryLabels[key] || key}
+            rootNodeId={result.metadata.rootNodeId}
+            onIssueClick={onIssueClick}
+          />
+        ))}
       </section>
+      <MetadataDisplay metadata={result.metadata} />
     </div>
   );
 }

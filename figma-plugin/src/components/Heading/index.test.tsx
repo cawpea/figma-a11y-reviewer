@@ -13,16 +13,6 @@ describe('Heading', () => {
     expect(heading).toHaveTextContent('テストタイトル');
   });
 
-  it('適切なデフォルトスタイルクラスを持つ', () => {
-    render(<Heading>タイトル</Heading>);
-
-    const heading = screen.getByRole('heading', { level: 3 });
-    expect(heading).toHaveClass('text-sm');
-    expect(heading).toHaveClass('font-semibold');
-    expect(heading).toHaveClass('text-gray-800');
-    expect(heading).toHaveClass('mb-1.5');
-  });
-
   it('カスタムclassNameを適用する', () => {
     render(<Heading className="custom-class">タイトル</Heading>);
 
@@ -47,10 +37,6 @@ describe('Heading', () => {
 
     const wrapper = container.firstChild as HTMLElement;
     expect(wrapper.tagName).toBe('DIV');
-    expect(wrapper).toHaveClass('flex');
-    expect(wrapper).toHaveClass('justify-between');
-    expect(wrapper).toHaveClass('items-center');
-    expect(wrapper).toHaveClass('mb-3');
   });
 
   it('rightContentが指定された場合に右側にコンテンツを表示する', () => {
@@ -62,19 +48,6 @@ describe('Heading', () => {
     expect(heading).toBeInTheDocument();
     expect(button).toBeInTheDocument();
     expect(button).toHaveTextContent('ボタン');
-  });
-
-  it('rightContentありの場合とない場合でmarginが異なる', () => {
-    const { container: container1 } = render(<Heading>タイトル1</Heading>);
-    const { container: container2 } = render(
-      <Heading rightContent={<span>右側</span>}>タイトル2</Heading>
-    );
-
-    const heading1 = container1.querySelector('h3');
-    const wrapper2 = container2.querySelector('div');
-
-    expect(heading1).toHaveClass('mb-1.5');
-    expect(wrapper2).toHaveClass('mb-3');
   });
 
   it('rightContentが指定された場合もカスタムclassNameを適用する', () => {

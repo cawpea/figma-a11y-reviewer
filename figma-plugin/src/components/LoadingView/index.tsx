@@ -8,12 +8,12 @@ export default function LoadingView() {
       role="status"
       aria-live="polite"
     >
-      <div className="text-center text-gray-600">
+      <div className="text-center text-gray-800">
         <div className="mx-auto mb-3 flex justify-center">
           <LoadingIndicator />
         </div>
-        <strong className="font-bold mt-2 text-gray-600">Reviewing...</strong>
-        <p className="text-[10px] mt-2 text-gray-600">約30~60秒ほどお待ちください</p>
+        <strong className="text-sm font-bold mt-2 text-gray-800">Reviewing...</strong>
+        <p className="text-xs mt-2 text-gray-600">約30~60秒ほどお待ちください</p>
       </div>
     </div>
   );

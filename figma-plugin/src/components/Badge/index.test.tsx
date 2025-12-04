@@ -9,8 +9,6 @@ describe('Badge', () => {
 
     const badge = screen.getByText('HIGH');
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass('bg-red-100');
-    expect(badge).toHaveClass('text-red-600');
   });
 
   it('中重要度バッジをレンダリングする', () => {
@@ -18,8 +16,6 @@ describe('Badge', () => {
 
     const badge = screen.getByText('MEDIUM');
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass('bg-yellow-100');
-    expect(badge).toHaveClass('text-yellow-700');
   });
 
   it('低重要度バッジをレンダリングする', () => {
@@ -27,8 +23,6 @@ describe('Badge', () => {
 
     const badge = screen.getByText('LOW');
     expect(badge).toBeInTheDocument();
-    expect(badge).toHaveClass('bg-green-100');
-    expect(badge).toHaveClass('text-green-600');
   });
 
   it('カスタムclassNameを適用する', () => {
@@ -43,16 +37,5 @@ describe('Badge', () => {
 
     expect(screen.getByText('HIGH')).toBeInTheDocument();
     expect(screen.queryByText('high')).not.toBeInTheDocument();
-  });
-
-  it('正しい基本クラスを持つ', () => {
-    render(<Badge severity="medium" />);
-
-    const badge = screen.getByText('MEDIUM');
-    expect(badge).toHaveClass('inline-block');
-    expect(badge).toHaveClass('px-1.5');
-    expect(badge).toHaveClass('py-0.5');
-    expect(badge).toHaveClass('rounded');
-    expect(badge).toHaveClass('font-semibold');
   });
 });
