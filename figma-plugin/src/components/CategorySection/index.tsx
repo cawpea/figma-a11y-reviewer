@@ -32,11 +32,14 @@ export default function CategorySection({
 
       {/* Positives */}
       {category.positives && category.positives.length > 0 && (
-        <div className="mt-2 pt-2 border-t border-gray-200">
-          {category.positives.map((positive: string, index: number) => (
-            <PositiveItem key={index} text={positive} />
-          ))}
-        </div>
+        <section className="mt-2 px-3 py-2 bg-green-50 rounded-md flex flex-col gap-1">
+          <h3 className="font-semibold text-green-700 text-[12px] mb-1">Good 👍</h3>
+          <ul className="flex flex-col gap-1">
+            {category.positives.map((positive: string, index: number) => (
+              <PositiveItem key={index} text={positive} />
+            ))}
+          </ul>
+        </section>
       )}
     </Disclosure>
   );

@@ -6,9 +6,9 @@ interface PositiveItemProps {
 
 export default function PositiveItem({ text }: PositiveItemProps) {
   return (
-    <div className="text-green-600 text-[11px] mb-1 pl-4 relative">
+    <li className="text-green-700 text-[11px] pl-4 relative">
       <span className="absolute left-0 font-bold">✓</span>
-      {text}
-    </div>
+      <p className="inline-block">{text}</p>
+    </li>
   );
 }

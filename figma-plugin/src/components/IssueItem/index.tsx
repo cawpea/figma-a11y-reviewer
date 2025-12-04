@@ -13,27 +13,18 @@ interface IssueItemProps {
 export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItemProps) {
   const isClickable = issue.nodeId || rootNodeId;
 
-  const severityColors = {
-    high: 'border-l-red-500',
-    medium: 'border-l-yellow-500',
-    low: 'border-l-green-500',
-  } as const;
-
   return (
-    <div
+    <article
       className={`
-        w-full text-left border-l-4 ${severityColors[issue.severity]}
-        p-2 pr-16 mb-1.5 text-[11px] rounded-r bg-white
+        flex flex-col gap-2
+        w-full text-left border border-gray-300 rounded-md
+        p-3 mb-3 text-[12px]
         relative
         transition-colors duration-200
       `}
     >
-      <Badge severity={issue.severity} className="mr-1.5" />
-      {issue.message}
-      {issue.suggestion && (
-        <div className="text-gray-600 mt-1 text-[10px]">💡 {issue.suggestion}</div>
-      )}
-      <div className="absolute top-1 right-1">
+      <header className="flex items-center justify-between gap-1">
+        <Badge severity={issue.severity} className="mr-1.5" />
         <Button
           onClick={() => isClickable && onIssueClick(issue, rootNodeId)}
           disabled={!isClickable}
@@ -41,7 +32,14 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
         >
           選択
         </Button>
-      </div>
-    </div>
+      </header>
+      <h4 className="font-medium text-[12px] leading-5">{issue.message}</h4>
+      {issue.suggestion && (
+        <div className="text-yellow-900 mt-1 text-[11px] bg-yellow-50 p-2 rounded relative">
+          <span className="absolute">💡</span>
+          <p className="leading-4 ml-[1rem] inline-block">{issue.suggestion}</p>
+        </div>
+      )}
+    </article>
   );
 }
