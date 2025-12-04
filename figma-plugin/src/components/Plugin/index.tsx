@@ -1,4 +1,4 @@
-import { Button, Checkbox } from '@create-figma-plugin/ui';
+import { Button, Checkbox, IconAi16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
@@ -106,7 +106,7 @@ export default function Plugin() {
           />
         ))}
 
-        {/* レビューを実行ボタン */}
+        {/* AIによるレビューを開始ボタン */}
         <div className="flex flex-col gap-3">
           <ErrorDisplay error={error} />
           <Button
@@ -115,7 +115,8 @@ export default function Plugin() {
             fullWidth
             style={{ height: '32px' }}
           >
-            レビューを実行
+            <IconAi16 className="inline-block mr-1 align-middle" />
+            <span className="align-middle">AIによるレビューを開始</span>
           </Button>
         </div>
       </section>

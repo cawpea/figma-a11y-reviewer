@@ -192,7 +192,7 @@ async function callEvaluationAPI(...): Promise<EvaluationResult> {
 **使用例**:
 
 1. Feature Toggleパネルで「モックAPI使用」をONに
-2. フレームを選択してレビューを実行
+2. フレームを選択してAIによるレビューを開始
 3. 1.5秒後にモックデータが表示される
 4. Issue をクリックするとFigmaのレイヤーが選択される（nodeIdが存在する場合）
 

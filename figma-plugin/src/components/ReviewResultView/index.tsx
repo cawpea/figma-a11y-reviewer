@@ -34,7 +34,7 @@ export default function ReviewResultView({
       {/* 閉じるボタン */}
       <header>
         <Button onClick={onClose} secondary>
-          ← 閉じる
+          ← 戻る
         </Button>
       </header>
 
