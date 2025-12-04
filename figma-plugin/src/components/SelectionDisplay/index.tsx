@@ -28,7 +28,7 @@ export default function SelectionDisplay({ selectionState }: SelectionDisplayPro
       <section aria-live="polite">
         <Heading>レビュー対象</Heading>
         <div className="text-xs text-gray-500">
-          フレーム、コンポーネント、またはインスタンスを選択してください
+          フレーム、コンポーネント、インスタンスを選択してください
         </div>
       </section>
     );

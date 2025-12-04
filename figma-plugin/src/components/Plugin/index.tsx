@@ -106,14 +106,14 @@ export default function Plugin() {
           />
         ))}
 
-        {/* 評価を開始ボタン */}
+        {/* レビューを実行ボタン */}
         <Button
           onClick={onEvaluate}
           disabled={selectedAgents.length === 0}
           fullWidth
           style={{ height: '32px' }}
         >
-          評価を開始
+          レビューを実行
         </Button>
       </section>
 

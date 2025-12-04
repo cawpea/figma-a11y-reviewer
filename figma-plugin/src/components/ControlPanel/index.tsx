@@ -10,7 +10,7 @@ export default function ControlPanel({ selectedAgentsCount, onEvaluate }: Contro
   return (
     <div className="mb-5">
       <Button onClick={onEvaluate} disabled={selectedAgentsCount === 0} fullWidth>
-        評価を開始
+        レビューを実行
       </Button>
     </div>
   );

@@ -16,7 +16,7 @@ describe('SelectionDisplay', () => {
 
     expect(screen.getByText('レビュー対象')).toBeInTheDocument();
     expect(
-      screen.getByText('フレーム、コンポーネント、またはインスタンスを選択してください')
+      screen.getByText('フレーム、コンポーネント、インスタンスを選択してください')
     ).toBeInTheDocument();
   });
 
@@ -64,17 +64,14 @@ describe('SelectionDisplay', () => {
         },
       ],
       isValid: false,
-      errorMessage:
-        'フレーム、コンポーネント、またはインスタンスを選択してください（選択中: TEXT）',
+      errorMessage: 'フレーム、コンポーネント、インスタンスを選択してください（選択中: TEXT）',
     };
 
     render(<SelectionDisplay selectionState={state} />);
 
     expect(screen.getByText('レビュー対象の選択エラー')).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'フレーム、コンポーネント、またはインスタンスを選択してください（選択中: TEXT）'
-      )
+      screen.getByText('フレーム、コンポーネント、インスタンスを選択してください（選択中: TEXT）')
     ).toBeInTheDocument();
   });
 

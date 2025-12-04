@@ -22,9 +22,9 @@ type FeatureFlagsStorage = {
 
 // エラーメッセージ定数
 const ERROR_MESSAGES = {
-  NO_SELECTION: 'フレーム、コンポーネント、またはインスタンスを選択してください',
+  NO_SELECTION: 'フレーム、コンポーネント、インスタンスを選択してください',
   MULTIPLE_SELECTION: '評価できるのは1つのフレームのみです',
-  INVALID_NODE_TYPE: 'フレーム、コンポーネント、またはインスタンスを選択してください',
+  INVALID_NODE_TYPE: 'フレーム、コンポーネント、インスタンスを選択してください',
 } as const;
 
 /**
@@ -57,7 +57,7 @@ function validateSelection(selection: readonly SceneNode[]): {
   ) {
     return {
       isValid: false,
-      errorMessage: `フレーム、コンポーネント、またはインスタンスを選択してください（選択中: ${selectedNode.type}）`,
+      errorMessage: `フレーム、コンポーネント、インスタンスを選択してください（選択中: ${selectedNode.type}）`,
     };
   }
 
