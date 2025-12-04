@@ -65,6 +65,9 @@ export default function ReviewResultView({
         ))}
       </section>
       <MetadataDisplay metadata={result.metadata} />
+      <p className="text-[10px] text-gray-600">
+        ※ AIによるレビューは不正確な場合があります。ご了承ください。
+      </p>
     </div>
   );
 }
