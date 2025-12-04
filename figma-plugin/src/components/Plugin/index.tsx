@@ -107,17 +107,18 @@ export default function Plugin() {
         ))}
 
         {/* レビューを実行ボタン */}
-        <Button
-          onClick={onEvaluate}
-          disabled={selectedAgents.length === 0}
-          fullWidth
-          style={{ height: '32px' }}
-        >
-          レビューを実行
-        </Button>
+        <div className="flex flex-col gap-3">
+          <ErrorDisplay error={error} />
+          <Button
+            onClick={onEvaluate}
+            disabled={selectedAgents.length === 0}
+            fullWidth
+            style={{ height: '32px' }}
+          >
+            レビューを実行
+          </Button>
+        </div>
       </section>
-
-      <ErrorDisplay error={error} />
 
       {isLoading && <LoadingView />}
 
