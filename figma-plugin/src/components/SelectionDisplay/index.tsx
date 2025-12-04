@@ -8,21 +8,7 @@ interface SelectionDisplayProps {
 }
 
 export default function SelectionDisplay({ selectionState }: SelectionDisplayProps) {
-  // エラー表示(ErrorDisplayと統一したスタイル)
-  if (!selectionState.isValid && selectionState.errorMessage) {
-    return (
-      <div
-        className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-[11px]"
-        role="alert"
-        aria-live="assertive"
-      >
-        <div className="font-semibold mb-1">レビュー対象の選択エラー</div>
-        <div>{selectionState.errorMessage}</div>
-      </div>
-    );
-  }
-
-  // 空状態
+  // 空状態またはエラー状態
   if (selectionState.layers.length === 0) {
     return (
       <section aria-live="polite">
