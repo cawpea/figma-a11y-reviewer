@@ -1,4 +1,4 @@
-import { Button } from '@create-figma-plugin/ui';
+import { Button, Divider } from '@create-figma-plugin/ui';
 import type { CategoryResult, EvaluationResult, Issue, SelectedLayer } from '@shared/types';
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
@@ -65,9 +65,23 @@ export default function ReviewResultView({
         ))}
       </section>
       <MetadataDisplay metadata={result.metadata} />
-      <p className="text-[10px] text-gray-600">
-        ※ AIによるレビューは不正確な場合があります。ご了承ください。
-      </p>
+      <div className="flex flex-col gap-3">
+        <Divider />
+        <ul className="text-[10px] text-gray-600">
+          <li>
+            ※ APIの正確な費用は
+            <a
+              className="underline text-blue-500"
+              href="https://platform.claude.com/cost"
+              target="_blank"
+            >
+              Claude Console
+            </a>
+            からご確認ください。
+          </li>
+          <li>※ AIによるレビューは不正確な場合があります。</li>
+        </ul>
+      </div>
     </div>
   );
 }

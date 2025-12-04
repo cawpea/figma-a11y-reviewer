@@ -17,14 +17,14 @@ export default function MetadataDisplay({ metadata }: MetadataDisplayProps) {
       </section>
       {metadata.usage && (
         <section>
-          <Heading>LLM情報</Heading>
+          <Heading>API情報</Heading>
           <div>
             トークン使用量: {metadata.usage.totalInputTokens.toLocaleString()} 入力 /{' '}
             {metadata.usage.totalOutputTokens.toLocaleString()} 出力
             {metadata.usage.totalCachedTokens > 0 &&
               ` / ${metadata.usage.totalCachedTokens.toLocaleString()} キャッシュ`}
             <span className="inline-block ml-2">
-              (推定コスト: ${metadata.usage.estimatedCost.toFixed(4)})
+              (推定費用: ${metadata.usage.estimatedCost.toFixed(4)})
             </span>
           </div>
         </section>
