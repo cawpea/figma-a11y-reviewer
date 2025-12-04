@@ -1,10 +1,12 @@
 import { Button } from '@create-figma-plugin/ui';
-import type { EvaluationResult, Issue, SelectedLayer } from '@shared/types';
+import type { CategoryResult, EvaluationResult, Issue, SelectedLayer } from '@shared/types';
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 
+import { categoryLabels } from '../../constants/agents';
+import CategorySection from '../CategorySection';
 import Heading from '../Heading';
-import ResultView from '../ResultView';
+import MetadataDisplay from '../MetadataDisplay';
 
 interface ReviewResultViewProps {
   result: EvaluationResult;
@@ -51,7 +53,20 @@ export default function ReviewResultView({
       {/* 詳細と提案 */}
       <section>
         <Heading>レビュー結果</Heading>
-        <ResultView result={result} onIssueClick={onIssueClick} />
+        <div>
+          {Object.entries(result.categories).map(([key, category]: [string, CategoryResult]) => (
+            <CategorySection
+              key={key}
+              categoryKey={key}
+              category={category}
+              categoryLabel={categoryLabels[key] || key}
+              rootNodeId={result.metadata.rootNodeId}
+              onIssueClick={onIssueClick}
+            />
+          ))}
+
+          <MetadataDisplay metadata={result.metadata} />
+        </div>
       </section>
     </div>
   );
