@@ -12,7 +12,7 @@ export default function SelectionDisplay({ selectionState }: SelectionDisplayPro
   if (!selectionState.isValid && selectionState.errorMessage) {
     return (
       <div
-        className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-[11px] mb-4"
+        className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-md text-[11px]"
         role="alert"
         aria-live="assertive"
       >
@@ -25,26 +25,26 @@ export default function SelectionDisplay({ selectionState }: SelectionDisplayPro
   // 空状態
   if (selectionState.layers.length === 0) {
     return (
-      <div className="mb-3" aria-live="polite">
+      <section aria-live="polite">
         <Heading>レビュー対象</Heading>
-        <div className="text-[11px] text-gray-500">
+        <div className="text-xs text-gray-500">
           フレーム、コンポーネント、またはインスタンスを選択してください
         </div>
-      </div>
+      </section>
     );
   }
 
   // 有効な選択を表示
   return (
-    <div className="mb-3" aria-live="polite">
+    <section aria-live="polite">
       <Heading>レビュー対象</Heading>
       <div className="space-y-1">
         {selectionState.layers.map((layer) => (
-          <div key={layer.id} className="text-[11px] text-gray-800 truncate">
+          <div key={layer.id} className="text-xs text-gray-800 truncate">
             {layer.name}
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

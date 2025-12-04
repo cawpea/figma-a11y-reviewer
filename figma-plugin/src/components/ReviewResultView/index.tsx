@@ -28,33 +28,31 @@ export default function ReviewResultView({
   }, []);
 
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full flex flex-col gap-5">
       {/* 閉じるボタン */}
-      <div className="mb-4">
+      <header>
         <Button onClick={onClose} secondary>
           ← 閉じる
         </Button>
-      </div>
+      </header>
 
       {/* レビュー対象 */}
-      <div className="mb-3">
+      <section>
         <Heading>レビュー対象</Heading>
         <div className="space-y-1">
           {initialLayersRef.current.map((layer) => (
-            <div key={layer.id} className="text-[11px] text-gray-800 truncate">
+            <div key={layer.id} className="text-xs text-gray-800 truncate">
               {layer.name}
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* 詳細と提案 */}
-      <div className="mb-3">
-        <Heading>詳細と提案</Heading>
-      </div>
-
-      {/* 評価結果 */}
-      <ResultView result={result} onIssueClick={onIssueClick} />
+      <section>
+        <Heading>レビュー結果</Heading>
+        <ResultView result={result} onIssueClick={onIssueClick} />
+      </section>
     </div>
   );
 }

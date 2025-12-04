@@ -69,11 +69,11 @@ export default function Plugin() {
 
   // 初期ページ表示
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full flex flex-col gap-5">
       <SelectionDisplay selectionState={selectionState} />
 
       {/* レビュー項目セクション */}
-      <div className="mb-5">
+      <section>
         {/* 見出しと選択数 */}
         <Heading
           rightContent={
@@ -115,7 +115,7 @@ export default function Plugin() {
         >
           評価を開始
         </Button>
-      </div>
+      </section>
 
       <ErrorDisplay error={error} />
 
