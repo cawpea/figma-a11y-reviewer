@@ -280,11 +280,13 @@ export default function () {
   const debouncedSelectionChange = debounce(handleSelectionChange, 100);
   figma.on('selectionchange', debouncedSelectionChange);
 
-  // プラグイン起動時の初期選択状態を送信
-  handleSelectionChange();
-
   // UIからのイベントを受信
   on('EVALUATE_SELECTION', handleEvaluation);
+
+  // UIが初期選択状態をリクエストしたら送信
+  on('REQUEST_INITIAL_SELECTION', () => {
+    handleSelectionChange();
+  });
 
   // 機能フラグハンドラー
   const FEATURE_FLAGS_STORAGE_KEY = 'feature-flags';

@@ -5,6 +5,11 @@ node_modules/
 dist/
 build/
 
+# 生成されたファイル
+figma-plugin/src/output.css
+figma-plugin/src/output.css.d.ts
+figma-plugin/src/input.css.d.ts
+
 # ログファイル
 *.log
 logs/
