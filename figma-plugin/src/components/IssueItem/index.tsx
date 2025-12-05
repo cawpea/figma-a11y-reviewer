@@ -35,10 +35,10 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
       </header>
       <h4 className="font-medium text-[12px] leading-5">{issue.message}</h4>
       {issue.suggestion && (
-        <div className="text-yellow-900 mt-1 text-[11px] bg-yellow-50 p-2 rounded relative">
+        <p className="text-yellow-900 mt-1 text-[11px] bg-yellow-50 p-2 rounded relative">
           <span className="absolute">💡</span>
-          <p className="leading-4 ml-[1rem] inline-block">{issue.suggestion}</p>
-        </div>
+          <span className="leading-4 ml-[1rem] inline-block">{issue.suggestion}</span>
+        </p>
       )}
     </article>
   );

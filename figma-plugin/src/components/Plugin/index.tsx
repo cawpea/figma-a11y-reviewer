@@ -115,7 +115,7 @@ export default function Plugin() {
             fullWidth
             style={{ height: '32px' }}
           >
-            <IconAi16 className="inline-block mr-1 align-middle" />
+            <IconAi16 className="inline-block mr-1 align-middle" aria-hidden="true" />
             <span className="align-middle">AIによるレビューを開始</span>
           </Button>
         </div>
