@@ -11,11 +11,11 @@ export default function Heading({ children, rightContent, className = '' }: Head
   if (rightContent) {
     return (
       <div className={`flex justify-between items-center mb-3 ${className}`}>
-        <h3 className="text-sm font-semibold text-gray-800">{children}</h3>
+        <h3 className="text-xs font-semibold text-gray-800">{children}</h3>
         {rightContent}
       </div>
     );
   }
 
-  return <h3 className={`text-sm font-semibold text-gray-800 mb-1.5 ${className}`}>{children}</h3>;
+  return <h3 className={`text-xs font-semibold text-gray-800 mb-3 ${className}`}>{children}</h3>;
 }

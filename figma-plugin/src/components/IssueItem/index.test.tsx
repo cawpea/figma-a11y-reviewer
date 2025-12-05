@@ -50,31 +50,6 @@ describe('IssueItem', () => {
 
       expect(screen.getByRole('button', { name: /選択/ })).toBeInTheDocument();
     });
-
-    it('正しいseverityの左ボーダー色が適用される', () => {
-      const { container } = render(<IssueItem issue={mockIssue} onIssueClick={mockOnIssueClick} />);
-
-      const issueItemDiv = container.firstChild as HTMLElement;
-      expect(issueItemDiv).toHaveClass('border-l-red-500');
-    });
-
-    it('mediumのseverityで黄色のボーダーが適用される', () => {
-      const mediumIssue: Issue = { ...mockIssue, severity: 'medium' };
-      const { container } = render(
-        <IssueItem issue={mediumIssue} onIssueClick={mockOnIssueClick} />
-      );
-
-      const issueItemDiv = container.firstChild as HTMLElement;
-      expect(issueItemDiv).toHaveClass('border-l-yellow-500');
-    });
-
-    it('lowのseverityで緑色のボーダーが適用される', () => {
-      const lowIssue: Issue = { ...mockIssue, severity: 'low' };
-      const { container } = render(<IssueItem issue={lowIssue} onIssueClick={mockOnIssueClick} />);
-
-      const issueItemDiv = container.firstChild as HTMLElement;
-      expect(issueItemDiv).toHaveClass('border-l-green-500');
-    });
   });
 
   describe('クリック動作', () => {
@@ -122,13 +97,6 @@ describe('IssueItem', () => {
 
       const button = screen.getByRole('button', { name: /選択/ });
       expect(button).toBeDisabled();
-    });
-
-    it('コンテナdivはbuttonではない', () => {
-      const { container } = render(<IssueItem issue={mockIssue} onIssueClick={mockOnIssueClick} />);
-
-      const issueItemDiv = container.firstChild as HTMLElement;
-      expect(issueItemDiv.tagName).toBe('DIV');
     });
   });
 

@@ -1,10 +1,12 @@
-import { Button } from '@create-figma-plugin/ui';
-import type { EvaluationResult, Issue, SelectedLayer } from '@shared/types';
+import { Button, Divider } from '@create-figma-plugin/ui';
+import type { CategoryResult, EvaluationResult, Issue, SelectedLayer } from '@shared/types';
 import { h } from 'preact';
 import { useEffect, useRef } from 'preact/hooks';
 
+import { categoryLabels } from '../../constants/agents';
+import CategorySection from '../CategorySection';
 import Heading from '../Heading';
-import ResultView from '../ResultView';
+import MetadataDisplay from '../MetadataDisplay';
 
 interface ReviewResultViewProps {
   result: EvaluationResult;
@@ -28,33 +30,59 @@ export default function ReviewResultView({
   }, []);
 
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-5">
       {/* 閉じるボタン */}
-      <div className="mb-4">
+      <header>
         <Button onClick={onClose} secondary>
-          ← 閉じる
+          ← 戻る
         </Button>
-      </div>
+      </header>
 
       {/* レビュー対象 */}
-      <div className="mb-3">
+      <section>
         <Heading>レビュー対象</Heading>
         <div className="space-y-1">
           {initialLayersRef.current.map((layer) => (
-            <div key={layer.id} className="text-[11px] text-gray-800 truncate">
+            <div key={layer.id} className="text-xs text-gray-800 truncate">
               {layer.name}
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* 詳細と提案 */}
-      <div className="mb-3">
-        <Heading>詳細と提案</Heading>
+      <section>
+        <Heading>レビュー結果</Heading>
+        {Object.entries(result.categories).map(([key, category]: [string, CategoryResult]) => (
+          <CategorySection
+            key={key}
+            categoryKey={key}
+            category={category}
+            categoryLabel={categoryLabels[key] || key}
+            rootNodeId={result.metadata.rootNodeId}
+            onIssueClick={onIssueClick}
+          />
+        ))}
+      </section>
+      <MetadataDisplay metadata={result.metadata} />
+      <div className="flex flex-col gap-3">
+        <Divider />
+        <ul className="text-[10px] text-gray-600">
+          <li>
+            ※ APIの正確な費用は
+            <a
+              className="underline text-blue-500"
+              href="https://platform.claude.com/cost"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Claude Console
+            </a>
+            からご確認ください。
+          </li>
+          <li>※ AIによるレビューは不正確な場合があります。</li>
+        </ul>
       </div>
-
-      {/* 評価結果 */}
-      <ResultView result={result} onIssueClick={onIssueClick} />
     </div>
   );
 }

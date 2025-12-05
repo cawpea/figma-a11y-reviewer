@@ -1,4 +1,4 @@
-import { Button, Checkbox } from '@create-figma-plugin/ui';
+import { Button, Checkbox, IconAi16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
@@ -69,11 +69,11 @@ export default function Plugin() {
 
   // 初期ページ表示
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white h-full">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-5">
       <SelectionDisplay selectionState={selectionState} />
 
       {/* レビュー項目セクション */}
-      <div className="mb-5">
+      <section>
         {/* 見出しと選択数 */}
         <Heading
           rightContent={
@@ -106,18 +106,20 @@ export default function Plugin() {
           />
         ))}
 
-        {/* 評価を開始ボタン */}
-        <Button
-          onClick={onEvaluate}
-          disabled={selectedAgents.length === 0}
-          fullWidth
-          style={{ height: '32px' }}
-        >
-          評価を開始
-        </Button>
-      </div>
-
-      <ErrorDisplay error={error} />
+        {/* AIによるレビューを開始ボタン */}
+        <div className="flex flex-col gap-3">
+          <ErrorDisplay error={error} />
+          <Button
+            onClick={onEvaluate}
+            disabled={selectedAgents.length === 0}
+            fullWidth
+            style={{ height: '32px' }}
+          >
+            <IconAi16 className="inline-block mr-1 align-middle" aria-hidden="true" />
+            <span className="align-middle">AIによるレビューを開始</span>
+          </Button>
+        </div>
+      </section>
 
       {isLoading && <LoadingView />}
 

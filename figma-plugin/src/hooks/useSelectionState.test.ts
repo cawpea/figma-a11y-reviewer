@@ -1,4 +1,4 @@
-import { on } from '@create-figma-plugin/utilities';
+import { emit, on } from '@create-figma-plugin/utilities';
 import type { SelectionState } from '@shared/types';
 import { act, renderHook, waitFor } from '@testing-library/preact';
 
@@ -7,6 +7,7 @@ import { useSelectionState } from './useSelectionState';
 jest.mock('@create-figma-plugin/utilities');
 
 const mockOn = on as jest.MockedFunction<typeof on>;
+const mockEmit = emit as jest.MockedFunction<typeof emit>;
 
 describe('useSelectionState', () => {
   let selectionChangedHandler: ((state: SelectionState) => void) | null = null;
@@ -35,11 +36,12 @@ describe('useSelectionState', () => {
     expect(result.current.errorMessage).toBeUndefined();
   });
 
-  it('マウント時にSELECTION_CHANGEDイベントリスナーを設定する', () => {
+  it('マウント時にSELECTION_CHANGEDイベントリスナーを設定し、初期選択状態をリクエストする', () => {
     renderHook(() => useSelectionState());
 
     expect(mockOn).toHaveBeenCalledWith('SELECTION_CHANGED', expect.any(Function));
     expect(mockOn).toHaveBeenCalledTimes(1);
+    expect(mockEmit).toHaveBeenCalledWith('REQUEST_INITIAL_SELECTION');
   });
 
   it('SELECTION_CHANGEDイベントで選択状態を更新する', async () => {
