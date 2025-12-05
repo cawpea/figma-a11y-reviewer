@@ -74,6 +74,7 @@ export default function ReviewResultView({
               className="underline text-blue-500"
               href="https://platform.claude.com/cost"
               target="_blank"
+              rel="noopener noreferrer"
             >
               Claude Console
             </a>

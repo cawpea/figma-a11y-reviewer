@@ -33,7 +33,7 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
           選択
         </Button>
       </header>
-      <h4 className="font-medium text-[12px] leading-5">{issue.message}</h4>
+      <p className="font-medium text-[12px] leading-5">{issue.message}</p>
       {issue.suggestion && (
         <p className="text-yellow-900 mt-1 text-[11px] bg-yellow-50 p-2 rounded relative">
           <span className="absolute">💡</span>
