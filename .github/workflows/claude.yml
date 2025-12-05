@@ -42,12 +42,6 @@ jobs:
 
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
           # prompt: 'Update the pull request description to include a summary of changes.'
-          prompt: |
-            以下の指示に従ってください。
-            - PRのコメントは日本語で記載してください。
-            - PRの変更点を分析し、`documentation-guidelines.md`の「4.1 更新が必要な変更」に該当するか判断してください。
-            - 該当する場合は、影響を受けるドキュメントをリストアップし、具体的な更新提案を行ってください。
-            - 該当しない場合は、その理由を簡潔に説明してください。
 
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md

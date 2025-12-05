@@ -47,9 +47,14 @@ jobs:
             - パフォーマンスに関する懸念
             - セキュリティ上の懸念
             - テストカバレッジ
+            - ドキュメント更新の必要性
 
             スタイルやコーディング規約については、リポジトリ内の `CLAUDE.md` をガイドとして参照してください。フィードバックは建設的かつ有益なものにしてください。
             レビュー内容は、Bashツールを使って `gh pr comment` コマンドでPRにコメントとして投稿してください。
+
+            ドキュメント更新については、PRの変更点を分析し、`documentation-guidelines.md`の「4.1 更新が必要な変更」に該当するか判断してください。
+            - 該当する場合は、影響を受けるドキュメントをリストアップし、具体的な更新提案を行ってください。
+            - 該当しない場合は、その理由を簡潔に説明してください。
 
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://docs.claude.com/en/docs/claude-code/cli-reference for available options
