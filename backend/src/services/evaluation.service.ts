@@ -4,6 +4,7 @@ import {
   EvaluationResult,
   FigmaNodeData,
   FigmaStylesData,
+  ScreenshotData,
   Suggestion,
 } from '@shared/types';
 
@@ -39,7 +40,8 @@ export class EvaluationService {
     stylesData?: FigmaStylesData,
     evaluationTypes?: string[],
     rootNodeId?: string,
-    platformType?: 'ios' | 'android'
+    platformType?: 'ios' | 'android',
+    screenshot?: ScreenshotData
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
 
@@ -53,6 +55,9 @@ export class EvaluationService {
     }
 
     console.log(`Starting evaluation for types: ${typesToRun.join(', ')}`);
+    if (screenshot) {
+      console.log(`📷 Screenshot provided: ${(screenshot.byteSize / 1024).toFixed(2)} KB`);
+    }
 
     // 並列実行
     const evaluationPromises = typesToRun.map(async (type) => {
@@ -77,6 +82,11 @@ export class EvaluationService {
       // StyleConsistencyAgentにスタイル情報を渡す
       if (type === 'styleConsistency' && agent instanceof StyleConsistencyAgent) {
         agent.setStylesData(stylesData);
+      }
+
+      // スクリーンショットをエージェントに注入
+      if (screenshot) {
+        agent.setScreenshot(screenshot);
       }
 
       try {

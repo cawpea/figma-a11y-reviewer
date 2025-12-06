@@ -135,7 +135,8 @@ router.post('/evaluate', async (req: Request, res: Response) => {
       validatedData.stylesData,
       validatedData.evaluationTypes,
       validatedData.nodeId,
-      validatedData.platformType
+      validatedData.platformType,
+      validatedData.screenshot
     );
 
     const response: ApiResponse<EvaluationResult> = {
