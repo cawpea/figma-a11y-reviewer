@@ -373,10 +373,13 @@ npm run build:prod
 - **非同期API**: `getAsync()`と`setAsync()`を使用
 - **データ型**: JSONシリアライズ可能なオブジェクト
 
-### 既存コードの課題
+### 状態管理の統一パターン
 
-現在の`useAgentSelection.ts`は`localStorage`を使用していますが、Figma
-Desktop環境では動作しません。将来的に`figma.clientStorage`への移行を検討する必要があります。
+<!-- CODE_REF: figma-plugin/src/components/Plugin/hooks/useAgentSelection.ts -->
+
+エージェント選択状態も機能フラグと同じパターンで実装されています。UI側から`localStorage`に直接アクセスせず、main.tsを経由して`figma.clientStorage`を使用します。
+
+詳細は[state-management.md](./state-management.md)を参照してください。
 
 ### Z-indexレイヤリング
 

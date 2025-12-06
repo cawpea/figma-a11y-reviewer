@@ -42,9 +42,9 @@ Figmaプラグインの実装やUI開発：
   API連携、データ抽出
   - `setup.md` - ビルドとインストール手順
   - `feature-toggles.md` - 機能トグルシステムの使い方
+  - `state-management.md` - 状態の永続化とメッセージング
   - `components/` - UIコンポーネントの実装
   - `hooks.md` - カスタムフックの詳細
-  - `figma-api.md` - Figma API統合
   - `data-extraction.md` - ノードデータ抽出ロジック
   - `styling.md` - TailwindCSSのベストプラクティス
   - `testing.md` - コンポーネントテスト
@@ -85,6 +85,8 @@ Figmaプラグインの実装やUI開発：
 | 「CODE_REFの使い方は?」                | [development/documentation-guidelines.md](./development/)                                        |
 | 「ドキュメントをいつ更新すべき?」      | [development/documentation-guidelines.md](./development/)                                        |
 | 「機能トグルの使い方は?」              | [figma-plugin/feature-toggles.md](./figma-plugin/)                                               |
+| 「状態の永続化はどうやる?」            | [figma-plugin/state-management.md](./figma-plugin/)                                              |
+| 「figma.clientStorageの使い方は?」     | [figma-plugin/state-management.md](./figma-plugin/)                                              |
 
 ## 📝 コード引用のルール
 
@@ -128,8 +130,10 @@ npm run validate:docs
 | `backend/src/services/agents/base.agent.ts`                 | `architecture/agent-system.md`, `backend/agents/base-agent.md`       |
 | `backend/src/services/evaluation.service.ts`                | `architecture/data-flow.md`, `backend/services.md`, `backend/api.md` |
 | `backend/src/routes/evaluation.ts`                          | `backend/api.md`                                                     |
-| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`, `figma-plugin/figma-api.md`       |
+| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`                                    |
 | `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts` | `figma-plugin/hooks.md`, `architecture/data-flow.md`                 |
+| `figma-plugin/src/components/Plugin/hooks/useAgentSelection.ts` | `figma-plugin/state-management.md`                               |
+| `figma-plugin/src/main.ts`                                  | `figma-plugin/state-management.md`, `figma-plugin/feature-toggles.md` |
 | `shared/src/types.ts`                                       | `shared/types.md`, `backend/api.md`                                  |
 | `backend/src/config/anthropic.ts`                           | `backend/api.md`                                                     |
 
