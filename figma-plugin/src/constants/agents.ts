@@ -1,5 +1,3 @@
-export const STORAGE_KEY = 'figma-ui-reviewer-selected-agents';
-export const PLATFORM_STORAGE_KEY = 'figma-ui-reviewer-selected-platform';
 export const AGENT_TIME_ESTIMATE = 30; // seconds per agent
 
 export interface AgentOption {

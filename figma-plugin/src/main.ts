@@ -310,6 +310,43 @@ export default function () {
     }
   });
 
+  // エージェント選択ハンドラー
+  const AGENT_SELECTION_STORAGE_KEY = 'figma-ui-reviewer-selected-agents';
+  const PLATFORM_SELECTION_STORAGE_KEY = 'figma-ui-reviewer-selected-platform';
+
+  on('LOAD_AGENT_SELECTION', async () => {
+    try {
+      const selectedAgents = await figma.clientStorage.getAsync(AGENT_SELECTION_STORAGE_KEY);
+      const selectedPlatform = await figma.clientStorage.getAsync(PLATFORM_SELECTION_STORAGE_KEY);
+      emit('AGENT_SELECTION_LOADED', {
+        selectedAgents: selectedAgents || null,
+        selectedPlatform: selectedPlatform || null,
+      });
+    } catch (e) {
+      console.error('Failed to load agent selection:', e);
+      emit('AGENT_SELECTION_LOADED', {
+        selectedAgents: null,
+        selectedPlatform: null,
+      });
+    }
+  });
+
+  on('SAVE_AGENT_SELECTION', async (selectedAgents: string[]) => {
+    try {
+      await figma.clientStorage.setAsync(AGENT_SELECTION_STORAGE_KEY, selectedAgents);
+    } catch (e) {
+      console.error('Failed to save agent selection:', e);
+    }
+  });
+
+  on('SAVE_PLATFORM_SELECTION', async (selectedPlatform: 'ios' | 'android') => {
+    try {
+      await figma.clientStorage.setAsync(PLATFORM_SELECTION_STORAGE_KEY, selectedPlatform);
+    } catch (e) {
+      console.error('Failed to save platform selection:', e);
+    }
+  });
+
   on(
     'SELECT_NODE',
     async ({

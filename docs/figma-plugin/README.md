@@ -6,6 +6,7 @@
 
 - **setup.md** - ビルド、インストール、開発ワークフロー、Figmaでのプラグイン実行方法
 - **feature-toggles.md** - 機能トグルシステムの使い方と実装詳細
+- **state-management.md** - 状態の永続化とUI-main.ts間のメッセージング
 
 ### 計画中のドキュメント
 
@@ -15,8 +16,7 @@
   - **control-panel.md** - ControlPanel、SettingsPopoverの実装
   - **result-view.md** - ResultView、CategorySectionの実装
   - **ui-primitives.md** - Badge、Button、Checkboxなどの基本コンポーネント
-- **hooks.md** - カスタムフック（useEvaluation、useAgentSelection、useOutsideClick）の詳細
-- **figma-api.md** - Figma API統合（main.ts、メッセージング）
+- **hooks.md** - カスタムフック（useEvaluation、useOutsideClick）の詳細
 - **data-extraction.md** - ノードデータ抽出ロジック（figma.utils.ts）の詳細
 - **styling.md** - TailwindCSS設定、ベストプラクティス、カスタムスタイル
 - **testing.md** - コンポーネントテスト方法、Testing
