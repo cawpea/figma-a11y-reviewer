@@ -106,14 +106,17 @@ export function useAgentSelection(agentOptions: AgentOption[]) {
   }, []);
 
   // 4. ユーザー操作ハンドラー
-  const handleAgentChange = useCallback((agentId: string, checked: boolean) => {
-    const newSelection = checked
-      ? [...selectedAgents, agentId]
-      : selectedAgents.filter((id) => id !== agentId);
+  const handleAgentChange = useCallback(
+    (agentId: string, checked: boolean) => {
+      const newSelection = checked
+        ? [...selectedAgents, agentId]
+        : selectedAgents.filter((id) => id !== agentId);
 
-    setSelectedAgents(newSelection);
-    saveAgentSelection(newSelection);
-  }, [selectedAgents, saveAgentSelection]);
+      setSelectedAgents(newSelection);
+      saveAgentSelection(newSelection);
+    },
+    [selectedAgents, saveAgentSelection]
+  );
 
   return { selectedAgents, handleAgentChange };
 }
@@ -131,8 +134,12 @@ const PLATFORM_SELECTION_STORAGE_KEY = 'figma-ui-reviewer-selected-platform';
 // 読み込みハンドラー
 on('LOAD_AGENT_SELECTION', async () => {
   try {
-    const selectedAgents = await figma.clientStorage.getAsync(AGENT_SELECTION_STORAGE_KEY);
-    const selectedPlatform = await figma.clientStorage.getAsync(PLATFORM_SELECTION_STORAGE_KEY);
+    const selectedAgents = await figma.clientStorage.getAsync(
+      AGENT_SELECTION_STORAGE_KEY
+    );
+    const selectedPlatform = await figma.clientStorage.getAsync(
+      PLATFORM_SELECTION_STORAGE_KEY
+    );
     emit('AGENT_SELECTION_LOADED', {
       selectedAgents: selectedAgents || null,
       selectedPlatform: selectedPlatform || null,
@@ -149,7 +156,10 @@ on('LOAD_AGENT_SELECTION', async () => {
 // 保存ハンドラー（エージェント）
 on('SAVE_AGENT_SELECTION', async (selectedAgents: string[]) => {
   try {
-    await figma.clientStorage.setAsync(AGENT_SELECTION_STORAGE_KEY, selectedAgents);
+    await figma.clientStorage.setAsync(
+      AGENT_SELECTION_STORAGE_KEY,
+      selectedAgents
+    );
   } catch (e) {
     console.error('Failed to save agent selection:', e);
   }
@@ -158,7 +168,10 @@ on('SAVE_AGENT_SELECTION', async (selectedAgents: string[]) => {
 // 保存ハンドラー（プラットフォーム）
 on('SAVE_PLATFORM_SELECTION', async (selectedPlatform: 'ios' | 'android') => {
   try {
-    await figma.clientStorage.setAsync(PLATFORM_SELECTION_STORAGE_KEY, selectedPlatform);
+    await figma.clientStorage.setAsync(
+      PLATFORM_SELECTION_STORAGE_KEY,
+      selectedPlatform
+    );
   } catch (e) {
     console.error('Failed to save platform selection:', e);
   }
@@ -181,6 +194,7 @@ on('SAVE_PLATFORM_SELECTION', async (selectedPlatform: 'ios' | 'android') => {
 **問題**: デフォルト値を設定すると、復元前に一瞬表示されてちらつく
 
 **解決策**:
+
 1. 初期状態は空配列（`useState<string[]>([])`)
 2. `AGENT_SELECTION_LOADED`イベントで適切な値を設定
 3. `null`の場合はデフォルト値、それ以外は保存された値を使用
@@ -199,7 +213,7 @@ useEffect(() => {
     if (saved !== null && Array.isArray(saved)) {
       setSelectedAgents(saved); // 保存された値を復元
     } else {
-      setSelectedAgents(agentOptions.map(a => a.id)); // デフォルト値
+      setSelectedAgents(agentOptions.map((a) => a.id)); // デフォルト値
     }
   };
   // ...
@@ -253,7 +267,7 @@ useEffect(() => {
   // agentOptionsを使用してデフォルト値を計算
   const handleLoaded = ({ selectedAgents: saved }) => {
     if (saved === null) {
-      setSelectedAgents(agentOptions.map(a => a.id));
+      setSelectedAgents(agentOptions.map((a) => a.id));
     }
   };
   // ...
@@ -368,11 +382,11 @@ it('空の配列が保存されている場合も空として復元される', a
 
 ### 現在の実装
 
-| 状態 | UI側の実装 | main.ts側のイベント | ストレージキー |
-|------|-----------|---------------------|----------------|
-| エージェント選択 | `useAgentSelection.ts` | `LOAD/SAVE_AGENT_SELECTION` | `figma-ui-reviewer-selected-agents` |
-| プラットフォーム選択 | `useAgentSelection.ts` | `SAVE_PLATFORM_SELECTION` | `figma-ui-reviewer-selected-platform` |
-| 機能フラグ | `FeatureFlagContext/` | `LOAD/SAVE_FEATURE_FLAGS` | `feature-flags` |
+| 状態                 | UI側の実装             | main.ts側のイベント         | ストレージキー                        |
+| -------------------- | ---------------------- | --------------------------- | ------------------------------------- |
+| エージェント選択     | `useAgentSelection.ts` | `LOAD/SAVE_AGENT_SELECTION` | `figma-ui-reviewer-selected-agents`   |
+| プラットフォーム選択 | `useAgentSelection.ts` | `SAVE_PLATFORM_SELECTION`   | `figma-ui-reviewer-selected-platform` |
+| 機能フラグ           | `FeatureFlagContext/`  | `LOAD/SAVE_FEATURE_FLAGS`   | `feature-flags`                       |
 
 ### 新しい状態を追加する場合
 
@@ -384,7 +398,8 @@ it('空の配列が保存されている場合も空として復元される', a
 
 - [Feature Toggles](./feature-toggles.md) - 機能フラグの実装例
 - [アーキテクチャ概要](../architecture/overview.md) - システム全体の構成
-- [Figma API公式ドキュメント](https://www.figma.com/plugin-docs/api/figma-clientStorage/) - clientStorage API
+- [Figma API公式ドキュメント](https://www.figma.com/plugin-docs/api/figma-clientStorage/) -
+  clientStorage API
 
 ## ⚠️ 注意事項
 
@@ -399,8 +414,10 @@ it('空の配列が保存されている場合も空として復元される', a
 
 <!-- CODE_REF: figma-plugin/src/components/Plugin/hooks/useAgentSelection.ts:42-49 -->
 
-- **イベントハンドラーの登録解除**: `@create-figma-plugin/utilities`の`on()`は登録解除の仕組みを提供していないため、複数回マウントされる場合に重複して実行される可能性がある
-- **非同期通信**: UI側からの要求とmain.ts側からの応答は非同期のため、`waitFor()`などで待機する必要がある
+- **イベントハンドラーの登録解除**:
+  `@create-figma-plugin/utilities`の`on()`は登録解除の仕組みを提供していないため、複数回マウントされる場合に重複して実行される可能性がある
+- **非同期通信**:
+  UI側からの要求とmain.ts側からの応答は非同期のため、`waitFor()`などで待機する必要がある
 
 ### パフォーマンス考慮事項
 

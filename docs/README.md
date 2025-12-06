@@ -125,17 +125,17 @@ npm run validate:docs
 
 ### 重要ファイルと対応ドキュメント
 
-| ファイル                                                    | 更新が必要なドキュメント                                             |
-| ----------------------------------------------------------- | -------------------------------------------------------------------- |
-| `backend/src/services/agents/base.agent.ts`                 | `architecture/agent-system.md`, `backend/agents/base-agent.md`       |
-| `backend/src/services/evaluation.service.ts`                | `architecture/data-flow.md`, `backend/services.md`, `backend/api.md` |
-| `backend/src/routes/evaluation.ts`                          | `backend/api.md`                                                     |
-| `figma-plugin/src/utils/figma.utils.ts`                     | `figma-plugin/data-extraction.md`                                    |
-| `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts` | `figma-plugin/hooks.md`, `architecture/data-flow.md`                 |
-| `figma-plugin/src/components/Plugin/hooks/useAgentSelection.ts` | `figma-plugin/state-management.md`                               |
-| `figma-plugin/src/main.ts`                                  | `figma-plugin/state-management.md`, `figma-plugin/feature-toggles.md` |
-| `shared/src/types.ts`                                       | `shared/types.md`, `backend/api.md`                                  |
-| `backend/src/config/anthropic.ts`                           | `backend/api.md`                                                     |
+| ファイル                                                        | 更新が必要なドキュメント                                              |
+| --------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `backend/src/services/agents/base.agent.ts`                     | `architecture/agent-system.md`, `backend/agents/base-agent.md`        |
+| `backend/src/services/evaluation.service.ts`                    | `architecture/data-flow.md`, `backend/services.md`, `backend/api.md`  |
+| `backend/src/routes/evaluation.ts`                              | `backend/api.md`                                                      |
+| `figma-plugin/src/utils/figma.utils.ts`                         | `figma-plugin/data-extraction.md`                                     |
+| `figma-plugin/src/components/Plugin/hooks/useEvaluation.ts`     | `figma-plugin/hooks.md`, `architecture/data-flow.md`                  |
+| `figma-plugin/src/components/Plugin/hooks/useAgentSelection.ts` | `figma-plugin/state-management.md`                                    |
+| `figma-plugin/src/main.ts`                                      | `figma-plugin/state-management.md`, `figma-plugin/feature-toggles.md` |
+| `shared/src/types.ts`                                           | `shared/types.md`, `backend/api.md`                                   |
+| `backend/src/config/anthropic.ts`                               | `backend/api.md`                                                      |
 
 ### 新機能追加時の更新手順
 
