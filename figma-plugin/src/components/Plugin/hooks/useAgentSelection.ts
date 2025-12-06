@@ -13,9 +13,8 @@ interface UseAgentSelectionReturn {
 }
 
 export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectionReturn {
-  const [selectedAgents, setSelectedAgents] = useState<string[]>(
-    agentOptions.map((agent) => agent.id)
-  );
+  // 初期状態は空配列（ちらつき防止）
+  const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
   const [selectedPlatform, setSelectedPlatform] = useState<'ios' | 'android'>('ios');
 
   // 初期化:保存された選択状態を復元
@@ -27,8 +26,12 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
       selectedAgents: string[] | null;
       selectedPlatform: 'ios' | 'android' | null;
     }) => {
-      if (savedAgents && Array.isArray(savedAgents)) {
+      // 保存された選択状態がある場合は復元（空の配列も含む）
+      if (savedAgents !== null && Array.isArray(savedAgents)) {
         setSelectedAgents(savedAgents);
+      } else {
+        // 保存された選択状態がない場合（null）はすべて選択
+        setSelectedAgents(agentOptions.map((agent) => agent.id));
       }
 
       if (savedPlatform === 'ios' || savedPlatform === 'android') {
@@ -44,7 +47,7 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
       // Note: @create-figma-plugin/utilities の on() は登録解除の仕組みを提供していないため、
       // 複数回マウントされる場合に重複して実行される可能性がある
     };
-  }, []);
+  }, [agentOptions]);
 
   // 選択状態を保存
   const saveAgentSelection = useCallback((agents: string[]) => {
