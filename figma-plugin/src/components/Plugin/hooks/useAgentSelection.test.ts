@@ -1,30 +1,34 @@
-import { act, renderHook } from '@testing-library/preact';
+import { act, renderHook, waitFor } from '@testing-library/preact';
 
 import type { AgentOption } from '../../../constants/agents';
 
 import { useAgentSelection } from './useAgentSelection';
 
-// localStorageのモック
-const localStorageMock = (() => {
-  let store: Record<string, string> = {};
+// メッセージングのモック
+let messageHandlers: Record<string, (data: any) => void> = {};
 
-  return {
-    getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => {
-      store[key] = value;
-    },
-    clear: () => {
-      store = {};
-    },
-    removeItem: (key: string) => {
-      delete store[key];
-    },
-  };
-})();
-
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock,
+const mockEmit = jest.fn((event: string, _data?: any) => {
+  // LOAD_AGENT_SELECTIONが呼ばれたら即座にAGENT_SELECTION_LOADEDを発火
+  if (event === 'LOAD_AGENT_SELECTION') {
+    setTimeout(() => {
+      if (messageHandlers['AGENT_SELECTION_LOADED']) {
+        messageHandlers['AGENT_SELECTION_LOADED']({
+          selectedAgents: null,
+          selectedPlatform: null,
+        });
+      }
+    }, 0);
+  }
 });
+
+const mockOn = jest.fn((event: string, handler: (data: any) => void) => {
+  messageHandlers[event] = handler;
+});
+
+jest.mock('@create-figma-plugin/utilities', () => ({
+  emit: (event: string, data?: any) => mockEmit(event, data),
+  on: (event: string, handler: (data: any) => void) => mockOn(event, handler),
+}));
 
 describe('useAgentSelection', () => {
   const mockAgentOptions: AgentOption[] = [
@@ -34,11 +38,18 @@ describe('useAgentSelection', () => {
   ];
 
   beforeEach(() => {
-    localStorageMock.clear();
+    messageHandlers = {};
+    mockEmit.mockClear();
+    mockOn.mockClear();
   });
 
-  it('デフォルトで選択されたエージェントで初期化される', () => {
+  it('デフォルトで選択されたエージェントで初期化される', async () => {
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
+
+    // メッセージの送信を確認
+    await waitFor(() => {
+      expect(mockEmit).toHaveBeenCalledWith('LOAD_AGENT_SELECTION', undefined);
+    });
 
     expect(result.current.selectedAgents).toEqual([
       'accessibility',
@@ -47,23 +58,48 @@ describe('useAgentSelection', () => {
     ]);
   });
 
-  it('localStorageから保存された選択を読み込む', () => {
-    localStorageMock.setItem(
-      'figma-ui-reviewer-selected-agents',
-      JSON.stringify(['accessibility'])
-    );
+  it('保存された選択を読み込む', async () => {
+    // モックを設定して保存済みデータを返すようにする
+    mockEmit.mockImplementation((event: string, _data?: any) => {
+      if (event === 'LOAD_AGENT_SELECTION') {
+        setTimeout(() => {
+          if (messageHandlers['AGENT_SELECTION_LOADED']) {
+            messageHandlers['AGENT_SELECTION_LOADED']({
+              selectedAgents: ['accessibility'],
+              selectedPlatform: 'android',
+            });
+          }
+        }, 0);
+      }
+    });
 
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
-    expect(result.current.selectedAgents).toEqual(['accessibility']);
+    await waitFor(() => {
+      expect(result.current.selectedAgents).toEqual(['accessibility']);
+    });
+
+    expect(result.current.selectedPlatform).toBe('android');
   });
 
-  it('localStorageのパースエラーを適切に処理する', () => {
-    localStorageMock.setItem('figma-ui-reviewer-selected-agents', 'invalid json');
+  it('無効なデータを適切に処理する', async () => {
+    // モックを設定して無効なデータを返すようにする
+    mockEmit.mockImplementation((event: string, _data?: any) => {
+      if (event === 'LOAD_AGENT_SELECTION') {
+        setTimeout(() => {
+          if (messageHandlers['AGENT_SELECTION_LOADED']) {
+            messageHandlers['AGENT_SELECTION_LOADED']({
+              selectedAgents: 'invalid data', // 配列でない
+              selectedPlatform: null,
+            });
+          }
+        }, 0);
+      }
+    });
 
     const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
-    // Should fall back to default
+    // デフォルト値にフォールバック
     expect(result.current.selectedAgents).toEqual([
       'accessibility',
       'styleConsistency',
@@ -101,15 +137,14 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toContain('styleConsistency');
       expect(result.current.selectedAgents).toContain('usability');
     });
-    it('選択をlocalStorageに保存する', () => {
+    it('選択を保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
         result.current.handleAgentChange('styleConsistency', false);
       });
 
-      const saved = localStorageMock.getItem('figma-ui-reviewer-selected-agents');
-      expect(JSON.parse(saved!)).toEqual(['accessibility', 'usability']);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility', 'usability']);
     });
 
     it('複数の変更を処理する', () => {
@@ -149,15 +184,18 @@ describe('useAgentSelection', () => {
         'usability',
       ]);
     });
-    it('選択されたすべてのエージェントをlocalStorageに保存する', () => {
+    it('選択されたすべてのエージェントを保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
         result.current.handleSelectAll();
       });
 
-      const saved = localStorageMock.getItem('figma-ui-reviewer-selected-agents');
-      expect(JSON.parse(saved!)).toEqual(['accessibility', 'styleConsistency', 'usability']);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', [
+        'accessibility',
+        'styleConsistency',
+        'usability',
+      ]);
     });
   });
 
@@ -172,15 +210,14 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual([]);
     });
 
-    it('空の選択をlocalStorageに保存する', () => {
+    it('空の選択を保存する', () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       act(() => {
         result.current.handleDeselectAll();
       });
 
-      const saved = localStorageMock.getItem('figma-ui-reviewer-selected-agents');
-      expect(JSON.parse(saved!)).toEqual([]);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', []);
     });
   });
 

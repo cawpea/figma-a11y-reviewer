@@ -1,6 +1,7 @@
+import { emit, on } from '@create-figma-plugin/utilities';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-import { PLATFORM_STORAGE_KEY, STORAGE_KEY, type AgentOption } from '../../../constants/agents';
+import { type AgentOption } from '../../../constants/agents';
 
 interface UseAgentSelectionReturn {
   selectedAgents: string[];
@@ -19,33 +20,35 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
 
   // 初期化:保存された選択状態を復元
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          setSelectedAgents(parsed);
-        } else {
-          console.warn('Invalid agent selection data, using default');
-        }
+    const handleAgentSelectionLoaded = ({
+      selectedAgents: savedAgents,
+      selectedPlatform: savedPlatform,
+    }: {
+      selectedAgents: string[] | null;
+      selectedPlatform: 'ios' | 'android' | null;
+    }) => {
+      if (savedAgents && Array.isArray(savedAgents)) {
+        setSelectedAgents(savedAgents);
       }
 
-      const savedPlatform = localStorage.getItem(PLATFORM_STORAGE_KEY);
       if (savedPlatform === 'ios' || savedPlatform === 'android') {
         setSelectedPlatform(savedPlatform);
       }
-    } catch (e) {
-      console.error('Failed to load agent selection:', e);
-    }
+    };
+
+    on('AGENT_SELECTION_LOADED', handleAgentSelectionLoaded);
+    emit('LOAD_AGENT_SELECTION');
+
+    return () => {
+      // クリーンアップ（ハンドラーの登録解除）
+      // Note: @create-figma-plugin/utilities の on() は登録解除の仕組みを提供していないため、
+      // 複数回マウントされる場合に重複して実行される可能性がある
+    };
   }, []);
 
   // 選択状態を保存
   const saveAgentSelection = useCallback((agents: string[]) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(agents));
-    } catch (e) {
-      console.warn('localStorage not available:', e);
-    }
+    emit('SAVE_AGENT_SELECTION', agents);
   }, []);
 
   // チェックボックス変更ハンドラー
@@ -77,11 +80,7 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
   // プラットフォーム変更ハンドラー
   const handlePlatformChange = useCallback((platform: 'ios' | 'android') => {
     setSelectedPlatform(platform);
-    try {
-      localStorage.setItem(PLATFORM_STORAGE_KEY, platform);
-    } catch (e) {
-      console.warn('localStorage not available:', e);
-    }
+    emit('SAVE_PLATFORM_SELECTION', platform);
   }, []);
 
   return {
