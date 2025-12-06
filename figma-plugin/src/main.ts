@@ -193,6 +193,14 @@ async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios'
     emit('EVALUATION_COMPLETE', result);
   } catch (error) {
     console.error('Evaluation error:', error);
+
+    // 非表示ノードエラーの特別な処理
+    if (error instanceof Error && error.message.includes('非表示')) {
+      emit('ERROR', error.message);
+      return;
+    }
+
+    // その他のエラーは既存の処理
     emit('ERROR', `評価中にエラーが発生しました: ${error}`);
   }
 }

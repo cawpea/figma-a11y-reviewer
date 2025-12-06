@@ -103,6 +103,21 @@ export async function extractNodeData(node: SceneNode, depth: number = 0): Promi
     };
   }
 
+  // 非表示ノードの処理
+  if ('visible' in node && node.visible === false) {
+    // ルートノード(depth === 0)の場合はエラー
+    if (depth === 0) {
+      throw new Error('選択したフレームが非表示です。評価する前に表示してください');
+    }
+    // 非ルートの非表示ノードは最小限の情報のみ返す
+    return {
+      id: node.id,
+      name: node.name,
+      type: node.type,
+      note: 'Hidden layer (excluded from evaluation)',
+    };
+  }
+
   const data: FigmaNodeData = {
     id: node.id,
     name: node.name,
@@ -322,11 +337,16 @@ export async function extractNodeData(node: SceneNode, depth: number = 0): Promi
     data.children = [];
 
     for (const child of node.children) {
+      // 非表示の子要素はスキップ
+      if ('visible' in child && child.visible === false) {
+        continue;
+      }
+
       const childData = await extractNodeData(child, depth + 1);
       data.children.push(childData);
     }
 
-    data.childrenCount = node.children.length;
+    data.childrenCount = data.children.length;
   }
 
   return data;
