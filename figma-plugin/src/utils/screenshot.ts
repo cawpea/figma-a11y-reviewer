@@ -55,6 +55,13 @@ export async function captureNodeScreenshot(node: SceneNode): Promise<Screenshot
       constraint: { type: 'SCALE', value: 0.5 },
     });
 
+    // 5KBを超える場合は警告
+    const MAX_IMAGE_SIZE_LIMIT = 1024 * 1024; // 1MB
+    if (imageBytes.byteLength > MAX_IMAGE_SIZE_LIMIT) {
+      console.warn('⚠️ Screenshot size exceeds 1MB:', imageBytes.byteLength, 'bytes');
+      return null;
+    }
+
     // Uint8ArrayをBase64に変換
     const base64 = arrayBufferToBase64(imageBytes);
     const dataUrl = `data:image/png;base64,${base64}`;
@@ -67,11 +74,6 @@ export async function captureNodeScreenshot(node: SceneNode): Promise<Screenshot
     };
 
     console.log(`✅ Screenshot captured: ${(imageBytes.byteLength / 1024).toFixed(2)} KB`);
-
-    // 5KBを超える場合は警告
-    if (imageBytes.byteLength > 5 * 1024) {
-      console.warn('⚠️ Screenshot size exceeds 5KB:', imageBytes.byteLength, 'bytes');
-    }
 
     return screenshotData;
   } catch (error) {
