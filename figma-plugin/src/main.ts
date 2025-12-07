@@ -173,13 +173,8 @@ async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios'
 
     // ノードデータを抽出（再帰的に子要素も取得）
     const nodeData = await extractNodeData(selectedNode, 0);
-
-    console.log('Extracted node data:', JSON.stringify(nodeData, null, 2));
-
     // ファイル全体のスタイル情報を取得
     const stylesData = await extractFileStyles();
-
-    console.log('Extracted styles data:', JSON.stringify(stylesData, null, 2));
 
     // バックエンドAPIに送信（スクリーンショット含む）
     const result = await callEvaluationAPI(
