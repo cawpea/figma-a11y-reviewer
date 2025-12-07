@@ -123,7 +123,9 @@ export async function extractNodeData(
   if ('visible' in node && node.visible === false) {
     // ルートノードの場合はエラー
     if (depth === 0) {
-      throw new Error('選択したフレームが非表示です。評価する前に表示してください');
+      throw new Error(
+        '選択したフレームが非表示です。評価する前に表示してください'
+      );
     }
     // 非ルートの非表示ノードは最小限の情報のみ返す
     return {
@@ -244,7 +246,10 @@ export abstract class BaseEvaluationAgent {
 
       // スクリーンショットがある場合は先頭に追加
       if (this.screenshot) {
-        const base64Data = this.screenshot.imageData.replace(/^data:image\/png;base64,/, '');
+        const base64Data = this.screenshot.imageData.replace(
+          /^data:image\/png;base64,/,
+          ''
+        );
 
         contentBlocks.push({
           type: 'image',
@@ -256,7 +261,9 @@ export abstract class BaseEvaluationAgent {
         });
 
         console.log(`📷 Screenshot included for ${this.category} evaluation`);
-        console.log(`   Size: ${(this.screenshot.byteSize / 1024).toFixed(2)} KB`);
+        console.log(
+          `   Size: ${(this.screenshot.byteSize / 1024).toFixed(2)} KB`
+        );
       }
 
       // テキストプロンプトを追加

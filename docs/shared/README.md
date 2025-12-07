@@ -64,7 +64,8 @@ export type FigmaNodeType =
 
 ### ScreenshotData
 
-スクリーンショットデータは、Claude APIのVision機能を使用した視覚的評価に使用されます。
+スクリーンショットデータは、Claude
+APIのVision機能を使用した視覚的評価に使用されます。
 
 ```typescript
 export interface ScreenshotData {
@@ -80,11 +81,13 @@ export interface ScreenshotData {
 ```
 
 **用途:**
+
 - Figmaノードのスクリーンショットをキャプチャしてバックエンドに送信
 - Claude APIのVision機能を使用した視覚的デザイン評価
 - 特にユーザビリティ評価で視覚的レイアウトの分析に活用
 
 **特徴:**
+
 - PNG形式、0.5倍解像度でキャプチャ
 - Base64エンコードで送信
 - 開発環境ではログとして保存（`backend/logs/screenshots/`）
