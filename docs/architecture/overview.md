@@ -27,7 +27,7 @@ Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.js
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
                             ↓ HTTP POST /api/evaluate
-                            │ (FigmaNodeData, FigmaStylesData)
+                            │ (FigmaNodeData, FigmaStylesData, ScreenshotData)
                             ↓
 ┌─────────────────────────────────────────────────────────────┐
 │                    Backend API Server                       │
@@ -49,6 +49,7 @@ Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.js
 ┌─────────────────────────────────────────────────────────────┐
 │                  Claude API (Anthropic)                     │
 │                  Model: claude-sonnet-4                     │
+│           Vision API (スクリーンショット分析対応)           │
 └─────────────────────────────────────────────────────────────┘
                             ↓ JSON Response
                             │ (Issues, Positives, Score)
@@ -92,12 +93,16 @@ Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.js
 
 ### 1. ユーザーアクション → データ抽出
 
-<!-- CODE_REF: figma-plugin/src/utils/figma.utils.ts:12-45 -->
+<!-- CODE_REF: figma-plugin/src/utils/figma.utils.ts:93-160 -->
 
 ```typescript
 /**
  * Figmaノードからデータを再帰的に抽出
  * 最大深度: 10階層
+ *
+ * 【非表示ノードの処理】
+ * - ルートノード(depth === 0)が非表示の場合はエラーをスロー
+ * - 非ルートの非表示ノードは評価対象から除外（子要素もスキップ）
  */
 export async function extractNodeData(
   node: SceneNode,
@@ -114,6 +119,23 @@ export async function extractNodeData(
     };
   }
 
+  // 非表示ノードの処理
+  if ('visible' in node && node.visible === false) {
+    // ルートノードの場合はエラー
+    if (depth === 0) {
+      throw new Error(
+        '選択したフレームが非表示です。評価する前に表示してください'
+      );
+    }
+    // 非ルートの非表示ノードは最小限の情報のみ返す
+    return {
+      id: node.id,
+      name: node.name,
+      type: node.type,
+      note: 'Hidden layer (excluded from evaluation)',
+    };
+  }
+
   // 基本情報の抽出
   const data: FigmaNodeData = {
     id: node.id,
@@ -122,7 +144,7 @@ export async function extractNodeData(
   };
 
   // スタイル、レイアウト、テキスト情報の抽出...
-  // 子要素の再帰的抽出...
+  // 子要素の再帰的抽出（非表示の子要素はスキップ）...
 
   return data;
 }
@@ -130,7 +152,7 @@ export async function extractNodeData(
 
 ### 2. バックエンドでの評価処理
 
-<!-- CODE_REF: backend/src/services/evaluation.service.ts:38-80 -->
+<!-- CODE_REF: backend/src/services/evaluation.service.ts:36-100 -->
 
 ```typescript
 /**
@@ -141,7 +163,8 @@ async evaluateDesign(
   stylesData?: FigmaStylesData,
   evaluationTypes?: string[],
   rootNodeId?: string,
-  platformType?: 'ios' | 'android'
+  platformType?: 'ios' | 'android',
+  screenshot?: ScreenshotData // スクリーンショットデータ（オプション）
 ): Promise<EvaluationResult> {
   const startTime = Date.now();
 
@@ -151,6 +174,9 @@ async evaluateDesign(
     : Object.keys(this.agents);
 
   console.log(`Starting evaluation for types: ${typesToRun.join(', ')}`);
+  if (screenshot) {
+    console.log(`📷 Screenshot provided: ${(screenshot.byteSize / 1024).toFixed(2)} KB`);
+  }
 
   // 並列実行（Promise.all）
   const evaluationPromises = typesToRun.map(async (type) => {
@@ -169,6 +195,16 @@ async evaluateDesign(
       return null;
     }
 
+    // スタイルデータをエージェントに注入
+    if (stylesData) {
+      agent.setStylesData(stylesData);
+    }
+
+    // スクリーンショットをエージェントに注入
+    if (screenshot) {
+      agent.setScreenshot(screenshot);
+    }
+
     // 評価実行
     return await agent.evaluate(data, rootNodeId);
   });
@@ -182,18 +218,60 @@ async evaluateDesign(
 
 ### 3. 各エージェントによる評価
 
-<!-- CODE_REF: backend/src/services/agents/base.agent.ts:14-50 -->
+<!-- CODE_REF: backend/src/services/agents/base.agent.ts:9-85 -->
 
 ```typescript
 export abstract class BaseEvaluationAgent {
   protected abstract systemPrompt: string;
   protected abstract category: string;
 
+  // スクリーンショットを保持（サブクラスで設定可能）
+  protected screenshot: ScreenshotData | null = null;
+
   /**
-   * Claude APIを呼び出す
+   * スクリーンショットを設定
+   * EvaluationServiceから呼び出される
+   */
+  setScreenshot(screenshot: ScreenshotData | null): void {
+    this.screenshot = screenshot;
+  }
+
+  /**
+   * Claude APIを呼び出す（Vision API対応）
    */
   protected async callClaude(prompt: string): Promise<Anthropic.Message> {
     try {
+      // ContentBlock配列を構築
+      const contentBlocks: Anthropic.MessageParam['content'] = [];
+
+      // スクリーンショットがある場合は先頭に追加
+      if (this.screenshot) {
+        const base64Data = this.screenshot.imageData.replace(
+          /^data:image\/png;base64,/,
+          ''
+        );
+
+        contentBlocks.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: 'image/png',
+            data: base64Data,
+          },
+        });
+
+        console.log(`📷 Screenshot included for ${this.category} evaluation`);
+        console.log(
+          `   Size: ${(this.screenshot.byteSize / 1024).toFixed(2)} KB`
+        );
+      }
+
+      // テキストプロンプトを追加
+      contentBlocks.push({
+        type: 'text',
+        text: prompt,
+      });
+
       const response = await anthropic.messages.create({
         model: MODEL_CONFIG.default,
         max_tokens: MODEL_CONFIG.maxTokens,
@@ -202,7 +280,7 @@ export abstract class BaseEvaluationAgent {
         messages: [
           {
             role: 'user',
-            content: prompt,
+            content: contentBlocks, // 画像 + テキストのコンテンツブロック
           },
         ],
       });
@@ -257,7 +335,7 @@ export abstract class BaseEvaluationAgent {
 
 ### リクエスト（POST /api/evaluate）
 
-<!-- CODE_REF: backend/src/routes/evaluation.ts:24-51 -->
+<!-- CODE_REF: backend/src/routes/evaluation.ts:24-92 -->
 
 ```typescript
 const evaluationRequestSchema = z.object({
@@ -288,6 +366,7 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
+  screenshot: screenshotDataSchema.optional(), // スクリーンショットデータ（Vision API用）
 });
 ```
 

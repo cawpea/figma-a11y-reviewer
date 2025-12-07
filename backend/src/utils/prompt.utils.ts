@@ -543,10 +543,10 @@ export function getJsonSchemaTemplate(): string {
   "issues": [
     {
       "severity": "high" | "medium" | "low",
-      "message": "問題の説明（具体的なノード名を含める）",
+      "message": "問題の説明（具体的なノード名を含める）。Figma ID（例: 1809:1836）は含めないでください。",
       "nodeId": "該当ノードの実際のFigma ID（例: 1809:1836）。プロンプト内の (ID: xxx) 形式から必ず抽出してください",
       "autoFixable": true | false,
-      "suggestion": "改善案（具体的な数値を含める）"
+      "suggestion": "改善案（具体的な数値を含める）。Figma ID（例: 1809:1836）は含めないでください。"
     }
   ],
   "positives": ["良い点の配列（任意）"]

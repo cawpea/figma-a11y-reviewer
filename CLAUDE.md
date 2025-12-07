@@ -89,9 +89,10 @@ scripts/               # ユーティリティスクリプト
 
 ### データフロー
 
-1. **Figmaプラグイン**: ユーザーがフレームを選択 → ノードデータ抽出
-2. **バックエンド**: `POST /api/evaluate` → 各評価エージェント並列実行
-3. **Claude API**: エージェントごとに評価を実行（temperature=0）
+1. **Figmaプラグイン**: ユーザーがフレームを選択 → ノードデータ抽出 + スクリーンショットキャプチャ
+2. **バックエンド**: `POST /api/evaluate`
+   → 各評価エージェント並列実行（スクリーンショット含む）
+3. **Claude API**: エージェントごとに評価を実行（Vision API対応、temperature=0）
 4. **レスポンス**: 評価結果（スコア、問題点、提案）を返却
 
 **詳細**:
@@ -103,8 +104,9 @@ scripts/               # ユーティリティスクリプト
 
 - `systemPrompt`: 評価基準とJSON出力フォーマット
 - `buildPrompt()`: ノードデータから評価用プロンプト生成
-- `callClaude()`: Claude API呼び出し
+- `callClaude()`: Claude API呼び出し（Vision API対応）
 - `parseResponse()`: レスポンスのパースと構造化
+- `setScreenshot()`: スクリーンショットの設定（オプション）
 
 **新規エージェント追加**: [docs/guides/](docs/guides/)を参照
 
@@ -125,6 +127,7 @@ scripts/               # ユーティリティスクリプト
 
 - `debug-*.json`: Figmaから受信したノードデータ
 - `prompts/prompt-*.json`: Claude APIリクエスト/レスポンス
+- `screenshots/screenshot-*.png`: スクリーンショット画像（Vision API用）
 
 古いログは7日後に自動削除されます。
 

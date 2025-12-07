@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { CategoryResult, FigmaNodeData, Issue } from '@shared/types';
+import { CategoryResult, FigmaNodeData, Issue, ScreenshotData } from '@shared/types';
 
 import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
 import { savePromptAndResponse } from '../../utils/debug';
@@ -9,17 +9,57 @@ export abstract class BaseEvaluationAgent {
   protected abstract systemPrompt: string;
   protected abstract category: string;
 
+  // スクリーンショットを保持（サブクラスで設定可能）
+  protected screenshot: ScreenshotData | null = null;
+
   /**
-   * Claude APIを呼び出す
+   * スクリーンショットを設定
+   * EvaluationServiceから呼び出される
+   */
+  setScreenshot(screenshot: ScreenshotData | null): void {
+    this.screenshot = screenshot;
+  }
+
+  /**
+   * Claude APIを呼び出す（Vision API対応）
    */
   protected async callClaude(prompt: string): Promise<Anthropic.Message> {
     try {
+      // ContentBlock配列を構築
+      const contentBlocks: Anthropic.MessageParam['content'] = [];
+
+      // スクリーンショットがある場合は先頭に追加
+      if (this.screenshot) {
+        const base64Data = this.screenshot.imageData.replace(/^data:image\/png;base64,/, '');
+
+        contentBlocks.push({
+          type: 'image',
+          source: {
+            type: 'base64',
+            media_type: 'image/png',
+            data: base64Data,
+          },
+        });
+
+        console.log(`📷 Screenshot included for ${this.category} evaluation`);
+        console.log(`   Size: ${(this.screenshot.byteSize / 1024).toFixed(2)} KB`);
+      }
+
+      // テキストプロンプトを追加
+      contentBlocks.push({
+        type: 'text',
+        text: prompt,
+      });
+
       // プロンプトをログ出力
       console.log(`${'='.repeat(80)}`);
       console.log(`🤖 Calling Claude API for: ${this.category}`);
       console.log(`${'='.repeat(80)}`);
-      console.log(`SYSTEM PROMPT: ${this.systemPrompt.length}`);
-      console.log(`USER PROMPT: ${prompt.length}`);
+      console.log(`SYSTEM PROMPT: ${this.systemPrompt.length} chars`);
+      console.log(`USER PROMPT: ${prompt.length} chars`);
+      console.log(
+        `CONTENT BLOCKS: ${contentBlocks.length} (${this.screenshot ? 'image + text' : 'text only'})`
+      );
       console.log('='.repeat(80) + '\n');
 
       const response = await anthropic.messages.create({
@@ -30,7 +70,7 @@ export abstract class BaseEvaluationAgent {
         messages: [
           {
             role: 'user',
-            content: prompt,
+            content: contentBlocks,
           },
         ],
       });
@@ -48,6 +88,8 @@ export abstract class BaseEvaluationAgent {
     } catch (error) {
       console.error(`❌ Error calling Claude API for ${this.category}:`, error);
       throw error;
+    } finally {
+      this.screenshot = null; // 呼び出し後にスクリーンショットをクリア
     }
   }
 

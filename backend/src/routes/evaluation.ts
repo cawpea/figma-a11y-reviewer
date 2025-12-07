@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { EvaluationService } from '../services/evaluation.service';
 import { saveDebugData } from '../utils/debug';
+import { cleanupOldScreenshots, saveScreenshot } from '../utils/screenshot';
 
 const router = Router();
 const evaluationService = new EvaluationService();
@@ -61,6 +62,14 @@ const figmaNodeTypeSchema = z.enum([
   'WIDGET',
 ]) satisfies z.ZodType<FigmaNodeType>;
 
+// スクリーンショットデータのスキーマ
+const screenshotDataSchema = z.object({
+  imageData: z.string(),
+  nodeName: z.string(),
+  nodeId: z.string(),
+  byteSize: z.number(),
+});
+
 // リクエストボディのバリデーションスキーマ
 const evaluationRequestSchema = z.object({
   fileKey: z.string(),
@@ -90,6 +99,7 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
+  screenshot: screenshotDataSchema.optional(),
 });
 
 /**
@@ -102,11 +112,18 @@ router.post('/evaluate', async (req: Request, res: Response) => {
       nodeId: req.body.nodeId,
       nodeName: req.body.nodeData?.name,
       evaluationTypes: req.body.evaluationTypes,
+      hasScreenshot: !!req.body.screenshot,
     });
 
     // デバッグ用: データをファイルに保存
     if (process.env.NODE_ENV === 'development') {
       saveDebugData(req.body.nodeData);
+
+      // スクリーンショットがあれば保存
+      if (req.body.screenshot) {
+        saveScreenshot(req.body.screenshot);
+        cleanupOldScreenshots();
+      }
     }
 
     // バリデーション
@@ -118,7 +135,8 @@ router.post('/evaluate', async (req: Request, res: Response) => {
       validatedData.stylesData,
       validatedData.evaluationTypes,
       validatedData.nodeId,
-      validatedData.platformType
+      validatedData.platformType,
+      validatedData.screenshot
     );
 
     const response: ApiResponse<EvaluationResult> = {

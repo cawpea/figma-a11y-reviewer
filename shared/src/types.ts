@@ -231,6 +231,21 @@ export interface EvaluationResult {
   };
 }
 
+/**
+ * スクリーンショットデータ
+ * Base64エンコードされたPNG画像とメタデータを含む
+ */
+export interface ScreenshotData {
+  /** Base64エンコードされた画像データ（data:image/png;base64,... 形式） */
+  imageData: string;
+  /** 元のノード名（サニタイズ前） */
+  nodeName: string;
+  /** 元のノードID */
+  nodeId: string;
+  /** 画像のバイトサイズ */
+  byteSize: number;
+}
+
 export interface EvaluationRequest {
   fileKey: string;
   nodeId: string;
@@ -239,6 +254,7 @@ export interface EvaluationRequest {
   evaluationTypes?: string[];
   platformType?: 'ios' | 'android';
   userId?: string;
+  screenshot?: ScreenshotData;
 }
 
 export interface ApiResponse<T = unknown> {

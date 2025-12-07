@@ -33,7 +33,7 @@ Content-Type: application/json
 
 #### Body
 
-<!-- CODE_REF: backend/src/routes/evaluation.ts:24-51 -->
+<!-- CODE_REF: backend/src/routes/evaluation.ts:24-62 -->
 
 ```typescript
 {
@@ -82,7 +82,13 @@ Content-Type: application/json
                                      // ["accessibility", "styleConsistency", "usability",
                                      //  "writing", "platformCompliance"]
   "platformType": "ios" | "android", // platformComplianceエージェント用
-  "userId": string                   // 分析用のユーザーID（オプション）
+  "userId": string,                  // 分析用のユーザーID（オプション）
+  "screenshot": {                    // スクリーンショットデータ（オプション）
+    "imageData": string,             // Base64エンコードされた画像データ（data:image/png;base64,... 形式）
+    "nodeName": string,              // 元のノード名（サニタイズ前）
+    "nodeId": string,                // 元のノードID
+    "byteSize": number               // 画像のバイトサイズ
+  }
 }
 ```
 
@@ -98,6 +104,30 @@ Content-Type: application/json
 
 **注**: 省略時は`accessibility`, `styleConsistency`, `usability`,
 `writing`の4つが実行されます。
+
+#### screenshot フィールドについて
+
+スクリーンショットデータは、Claude
+APIのVision機能を使用してデザインの視覚的評価を行うために使用されます。
+
+**特徴:**
+
+- Figmaノードから自動的にキャプチャされたスクリーンショット（PNG形式、0.5倍解像度）
+- Base64エンコードされた画像データとして送信
+- 開発環境では`backend/logs/screenshots/`に自動保存（7日後に自動削除）
+
+**制約:**
+
+- 画像サイズは可能な限り小さくすることを推奨（5KB以下）
+- スクリーンショットの取得に失敗しても評価は継続（nullの場合は送信されない）
+
+**ユーザビリティ評価での活用:**
+
+- 視覚的なレイアウトとスペーシングの評価
+- インタラクション要素の識別性評価
+- ビジュアル階層とコンテキストの評価
+
+スクリーンショットが提供された場合、特に`usability`エージェントでは画像からの視覚的分析を優先し、Figmaノードデータと照合して具体的な問題点を特定します。
 
 #### リクエスト例
 
@@ -325,7 +355,7 @@ Content-Type: application/json
 
 リクエストボディは以下のルールで検証されます：
 
-<!-- CODE_REF: backend/src/routes/evaluation.ts:10-51 -->
+<!-- CODE_REF: backend/src/routes/evaluation.ts:65-102 -->
 
 ```typescript
 // Zodスキーマによる厳格なバリデーション
@@ -347,6 +377,7 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
+  screenshot: screenshotDataSchema.optional(), // スクリーンショットデータ（オプション）
 });
 ```
 
@@ -354,7 +385,7 @@ const evaluationRequestSchema = z.object({
 
 バックエンドでは`FigmaNodeType`に対応する`figmaNodeTypeSchema`を使用し、リクエスト時に無効なノードタイプを検出します。これにより、実行時エラーを防ぎ、より堅牢なAPIを実現しています。
 
-<!-- CODE_REF: backend/src/routes/evaluation.ts:24-62 -->
+<!-- CODE_REF: backend/src/routes/evaluation.ts:24-92 -->
 
 ---
 

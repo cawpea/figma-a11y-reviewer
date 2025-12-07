@@ -4,6 +4,7 @@ import type {
   EvaluationResult,
   FigmaNodeData,
   FigmaStylesData,
+  ScreenshotData,
   SelectionState,
 } from '@shared/types';
 
@@ -11,6 +12,7 @@ import { FeatureFlag } from './constants/featureFlags';
 import { callMockEvaluationAPI } from './services/mockApi';
 import { debounce } from './utils/debounce';
 import { extractFileStyles, extractNodeData } from './utils/figma.utils';
+import { captureNodeScreenshot } from './utils/screenshot';
 
 // 設定
 const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:3000/api';
@@ -161,22 +163,39 @@ async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios'
   emit('EVALUATION_STARTED');
 
   try {
+    // スクリーンショットを取得（評価前に取得）
+    const screenshot = await captureNodeScreenshot(selectedNode);
+    if (screenshot) {
+      console.log('✅ Screenshot successfully captured and will be sent to backend');
+    } else {
+      console.warn('⚠️ Screenshot capture failed, continuing evaluation without screenshot');
+    }
+
     // ノードデータを抽出（再帰的に子要素も取得）
     const nodeData = await extractNodeData(selectedNode, 0);
-
-    console.log('Extracted node data:', JSON.stringify(nodeData, null, 2));
-
     // ファイル全体のスタイル情報を取得
     const stylesData = await extractFileStyles();
 
-    console.log('Extracted styles data:', JSON.stringify(stylesData, null, 2));
-
-    // バックエンドAPIに送信
-    const result = await callEvaluationAPI(nodeData, stylesData, evaluationTypes, platformType);
+    // バックエンドAPIに送信（スクリーンショット含む）
+    const result = await callEvaluationAPI(
+      nodeData,
+      stylesData,
+      evaluationTypes,
+      platformType,
+      screenshot
+    );
 
     emit('EVALUATION_COMPLETE', result);
   } catch (error) {
     console.error('Evaluation error:', error);
+
+    // 非表示ノードエラーの特別な処理
+    if (error instanceof Error && error.message.includes('非表示')) {
+      emit('ERROR', error.message);
+      return;
+    }
+
+    // その他のエラーは既存の処理
     emit('ERROR', `評価中にエラーが発生しました: ${error}`);
   }
 }
@@ -186,7 +205,8 @@ async function callEvaluationAPI(
   nodeData: FigmaNodeData,
   stylesData: FigmaStylesData,
   evaluationTypes?: string[],
-  platformType?: 'ios' | 'android'
+  platformType?: 'ios' | 'android',
+  screenshot?: ScreenshotData | null
 ): Promise<EvaluationResult> {
   // 機能フラグの確認
   const flags =
@@ -217,6 +237,11 @@ async function callEvaluationAPI(
 
   if (platformType) {
     requestBody.platformType = platformType;
+  }
+
+  // スクリーンショットを追加（nullの場合は含めない）
+  if (screenshot) {
+    requestBody.screenshot = screenshot;
   }
 
   console.log('Sending request to API:', API_BASE_URL + '/evaluate');

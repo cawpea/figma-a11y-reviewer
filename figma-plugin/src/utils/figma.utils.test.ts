@@ -754,5 +754,152 @@ describe('figma.utils', () => {
       expect(result.textStyleId).toBeUndefined();
       expect(result.textStyleName).toBeUndefined();
     });
+
+    it('ルートノードが非表示の場合、エラーをスローする', async () => {
+      const mockNode = {
+        id: '1:1',
+        name: 'Hidden Frame',
+        type: 'FRAME',
+        visible: false,
+      } as any;
+
+      await expect(extractNodeData(mockNode, 0)).rejects.toThrow('選択したフレームが非表示です');
+    });
+
+    it('非表示の子ノードを除外する', async () => {
+      const mockVisibleChild = {
+        id: '1:2',
+        name: 'Visible Child',
+        type: 'RECTANGLE',
+        visible: true,
+      } as any;
+
+      const mockHiddenChild = {
+        id: '1:3',
+        name: 'Hidden Child',
+        type: 'TEXT',
+        visible: false,
+      } as any;
+
+      const mockParentNode = {
+        id: '1:1',
+        name: 'Parent Frame',
+        type: 'FRAME',
+        visible: true,
+        children: [mockVisibleChild, mockHiddenChild],
+      } as any;
+
+      const result = await extractNodeData(mockParentNode);
+
+      expect(result.children).toHaveLength(1);
+      expect(result.children?.[0].id).toBe('1:2');
+      expect(result.childrenCount).toBe(1);
+    });
+
+    it('すべての子ノードが非表示の場合、空の配列を返す', async () => {
+      const mockHiddenChild1 = {
+        id: '1:2',
+        name: 'Hidden Child 1',
+        type: 'RECTANGLE',
+        visible: false,
+      } as any;
+
+      const mockHiddenChild2 = {
+        id: '1:3',
+        name: 'Hidden Child 2',
+        type: 'TEXT',
+        visible: false,
+      } as any;
+
+      const mockParentNode = {
+        id: '1:1',
+        name: 'Parent Frame',
+        type: 'FRAME',
+        visible: true,
+        children: [mockHiddenChild1, mockHiddenChild2],
+      } as any;
+
+      const result = await extractNodeData(mockParentNode);
+
+      expect(result.children).toHaveLength(0);
+      expect(result.childrenCount).toBe(0);
+    });
+
+    it('非表示ノードの子孫すべてを除外する', async () => {
+      const mockGrandchild = {
+        id: '1:3',
+        name: 'Visible Grandchild',
+        type: 'RECTANGLE',
+        visible: true,
+      } as any;
+
+      const mockHiddenChild = {
+        id: '1:2',
+        name: 'Hidden Child',
+        type: 'FRAME',
+        visible: false,
+        children: [mockGrandchild],
+      } as any;
+
+      const mockParentNode = {
+        id: '1:1',
+        name: 'Parent Frame',
+        type: 'FRAME',
+        visible: true,
+        children: [mockHiddenChild],
+      } as any;
+
+      const result = await extractNodeData(mockParentNode);
+
+      expect(result.children).toHaveLength(0);
+      expect(result.childrenCount).toBe(0);
+    });
+
+    it('表示中のノードは通常通り処理する', async () => {
+      const mockNode = {
+        id: '1:1',
+        name: 'Visible Frame',
+        type: 'FRAME',
+        visible: true,
+      } as any;
+
+      const result = await extractNodeData(mockNode);
+
+      expect(result.id).toBe('1:1');
+      expect(result.name).toBe('Visible Frame');
+      expect(result.type).toBe('FRAME');
+      expect(result.note).toBeUndefined();
+    });
+
+    it('visibleプロパティがないノードは通常通り処理する', async () => {
+      const mockNode = {
+        id: '1:1',
+        name: 'Node Without Visible',
+        type: 'FRAME',
+        // visible property not present
+      } as any;
+
+      const result = await extractNodeData(mockNode);
+
+      expect(result.id).toBe('1:1');
+      expect(result.name).toBe('Node Without Visible');
+      expect(result.note).toBeUndefined();
+    });
+
+    it('非ルートの非表示ノードにはnoteを付与する', async () => {
+      const mockHiddenChild = {
+        id: '1:2',
+        name: 'Hidden Child',
+        type: 'RECTANGLE',
+        visible: false,
+      } as any;
+
+      const result = await extractNodeData(mockHiddenChild, 1);
+
+      expect(result.id).toBe('1:2');
+      expect(result.name).toBe('Hidden Child');
+      expect(result.note).toBe('Hidden layer (excluded from evaluation)');
+      expect(result.children).toBeUndefined();
+    });
   });
 });
