@@ -88,6 +88,8 @@ export abstract class BaseEvaluationAgent {
     } catch (error) {
       console.error(`❌ Error calling Claude API for ${this.category}:`, error);
       throw error;
+    } finally {
+      this.screenshot = null; // 呼び出し後にスクリーンショットをクリア
     }
   }
 
