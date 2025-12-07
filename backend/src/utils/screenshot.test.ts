@@ -171,6 +171,66 @@ describe('screenshot', () => {
       const expectedBuffer = Buffer.from(base64Data, 'base64');
       expect(buffer.equals(expectedBuffer)).toBe(true);
     });
+
+    it('空のBase64データの場合はエラーログを出力する', () => {
+      process.env.NODE_ENV = 'development';
+      mockExistsSync.mockReturnValue(true);
+
+      const screenshotWithEmptyData: ScreenshotData = {
+        ...mockScreenshot,
+        imageData: 'data:image/png;base64,',
+      };
+
+      saveScreenshot(screenshotWithEmptyData);
+
+      expect(mockWriteFileSync).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ Failed to save screenshot file:',
+        expect.objectContaining({
+          message: 'Invalid Base64 format in screenshot data',
+        })
+      );
+    });
+
+    it('不正な形式のBase64データの場合はエラーログを出力する', () => {
+      process.env.NODE_ENV = 'development';
+      mockExistsSync.mockReturnValue(true);
+
+      const screenshotWithInvalidData: ScreenshotData = {
+        ...mockScreenshot,
+        imageData: 'data:image/png;base64,!!!invalid-base64-data@@@',
+      };
+
+      saveScreenshot(screenshotWithInvalidData);
+
+      expect(mockWriteFileSync).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ Failed to save screenshot file:',
+        expect.objectContaining({
+          message: 'Invalid Base64 format in screenshot data',
+        })
+      );
+    });
+
+    it('不正な文字を含むBase64データの場合はエラーログを出力する', () => {
+      process.env.NODE_ENV = 'development';
+      mockExistsSync.mockReturnValue(true);
+
+      const screenshotWithSpecialChars: ScreenshotData = {
+        ...mockScreenshot,
+        imageData: 'data:image/png;base64,ABC123!@#$%^&*()',
+      };
+
+      saveScreenshot(screenshotWithSpecialChars);
+
+      expect(mockWriteFileSync).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        '❌ Failed to save screenshot file:',
+        expect.objectContaining({
+          message: 'Invalid Base64 format in screenshot data',
+        })
+      );
+    });
   });
 
   describe('cleanupOldScreenshots', () => {

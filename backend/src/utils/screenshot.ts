@@ -30,7 +30,19 @@ export function saveScreenshot(screenshot: ScreenshotData): void {
 
     // Base64からバイナリデータを抽出
     const base64Data = screenshot.imageData.replace(/^data:image\/png;base64,/, '');
+
+    // Base64文字列の形式を検証
+    if (!base64Data || !/^[A-Za-z0-9+/]*={0,2}$/.test(base64Data)) {
+      throw new Error('Invalid Base64 format in screenshot data');
+    }
+
+    // Base64デコード
     const buffer = Buffer.from(base64Data, 'base64');
+
+    // デコード結果の検証
+    if (buffer.length === 0) {
+      throw new Error('Base64 decoding resulted in empty buffer');
+    }
 
     // ファイルに保存
     writeFileSync(filepath, buffer);
