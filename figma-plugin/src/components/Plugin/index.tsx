@@ -20,7 +20,7 @@ import '!../../output.css';
 export default function Plugin() {
   const [view, setView] = useState<'initial' | 'result'>('initial');
   const selectionState = useSelectionState();
-  const [isUserContextOverLimit, setIsUserContextOverLimit] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const {
     selectedAgents,
@@ -40,7 +40,10 @@ export default function Plugin() {
   const handleUserContextChangeWithLimit = useCallback(
     (value: string, options: { isOverLimit: boolean }) => {
       handleUserContextChange(value);
-      setIsUserContextOverLimit(options.isOverLimit);
+      // 入力中にエラーが解消されたらvalidationErrorをクリア
+      if (!options.isOverLimit) {
+        setValidationError(null);
+      }
     },
     [handleUserContextChange]
   );
@@ -52,6 +55,16 @@ export default function Plugin() {
   });
 
   const onEvaluate = () => {
+    // 送信時にuserContextのtrim後の長さを検証（usabilityが選択されている場合のみ）
+    const isUsabilitySelected = selectedAgents.includes('usability');
+    if (isUsabilitySelected && userContext.trim().length > 100) {
+      // エラーメッセージを表示
+      setValidationError('想定ユーザーと利用文脈は100文字以内で入力してください');
+      return;
+    }
+
+    // 検証エラーをクリアしてから評価開始
+    setValidationError(null);
     handleEvaluate(selectedAgents, selectedPlatform, userContext);
   };
 
@@ -68,8 +81,10 @@ export default function Plugin() {
 
   // レビュー開始ボタンの無効化条件
   const isUsabilitySelected = selectedAgents.includes('usability');
-  const shouldDisableButton =
-    selectedAgents.length === 0 || (isUsabilitySelected && isUserContextOverLimit);
+  // trim後の長さで検証
+  const userContextTrimmedLength = userContext.trim().length;
+  const isUserContextInvalid = isUsabilitySelected && userContextTrimmedLength > 100;
+  const shouldDisableButton = selectedAgents.length === 0 || isUserContextInvalid;
 
   // 結果ページ表示
   if (view === 'result' && result) {
@@ -126,7 +141,7 @@ export default function Plugin() {
 
         {/* AIによるレビューを開始ボタン */}
         <div className="flex flex-col gap-3">
-          <ErrorDisplay error={error} />
+          <ErrorDisplay error={validationError || error} />
           <Button
             onClick={onEvaluate}
             disabled={shouldDisableButton}

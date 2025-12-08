@@ -310,6 +310,113 @@ describe('TextboxMultilineWithLimit', () => {
     });
   });
 
+  describe('trim検証', () => {
+    it('先頭の空白はカウントしない', () => {
+      render(
+        <TextboxMultilineWithLimit value="   test" limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      // trim後の長さは4文字
+      expect(screen.getByText('4/100')).toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
+    });
+
+    it('末尾の空白はカウントしない', () => {
+      render(
+        <TextboxMultilineWithLimit value="test   " limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      // trim後の長さは4文字
+      expect(screen.getByText('4/100')).toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
+    });
+
+    it('両端の空白はカウントしない', () => {
+      render(
+        <TextboxMultilineWithLimit value="   test   " limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      // trim後の長さは4文字
+      expect(screen.getByText('4/100')).toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
+    });
+
+    it('空白のみの文字列は0文字としてカウントする', () => {
+      render(
+        <TextboxMultilineWithLimit value="     " limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      // trim後の長さは0文字
+      expect(screen.getByText('0/100')).toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
+    });
+
+    it('trim後が制限超過の場合にエラーを表示する', () => {
+      // trim前は105文字、trim後は101文字
+      const value = '  ' + 'a'.repeat(101) + '  ';
+      render(
+        <TextboxMultilineWithLimit value={value} limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      expect(screen.getByText('100文字以内で入力してください')).toBeInTheDocument();
+      expect(screen.getByText('101/100')).toHaveClass('text-red-600');
+    });
+
+    it('trim後が制限内の場合はエラーを表示しない', () => {
+      // trim前は104文字、trim後は100文字
+      const value = '  ' + 'a'.repeat(100) + '  ';
+      render(
+        <TextboxMultilineWithLimit value={value} limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
+      expect(screen.getByText('100/100')).toHaveClass('text-gray-600');
+    });
+
+    it('改行と空白が混在する場合もtrimする', () => {
+      const value = '  \n  test  \n  ';
+      render(
+        <TextboxMultilineWithLimit value={value} limit={100} onValueInput={mockOnValueInput} />
+      );
+
+      // trim後は "test" の4文字
+      expect(screen.getByText('4/100')).toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
+    });
+
+    it('onValueInputにtrim後の長さでisOverLimitフラグを渡す', async () => {
+      const user = userEvent.setup();
+      render(<TextboxMultilineWithLimit value="" limit={100} onValueInput={mockOnValueInput} />);
+
+      const textbox = screen.getByRole('textbox');
+      // 先頭に空白を含む101文字の入力（trim後は100文字）
+      const valueWithSpaces = ' ' + 'a'.repeat(100);
+      await user.clear(textbox);
+      await user.type(textbox, valueWithSpaces);
+
+      // 最後の呼び出しをチェック（trim後は100文字なのでisOverLimit: false）
+      const lastCall = mockOnValueInput.mock.calls[mockOnValueInput.mock.calls.length - 1];
+      expect(lastCall[1]).toEqual({ isOverLimit: false });
+    });
+
+    it('onValueInputにtrim後が制限超過の場合isOverLimit: trueを渡す', async () => {
+      const user = userEvent.setup();
+      render(<TextboxMultilineWithLimit value="" limit={100} onValueInput={mockOnValueInput} />);
+
+      const textbox = screen.getByRole('textbox');
+      // 先頭に空白を含む102文字の入力（trim後は101文字）
+      const valueWithSpaces = ' ' + 'a'.repeat(101);
+      await user.clear(textbox);
+      await user.type(textbox, valueWithSpaces);
+
+      // 制限超過の呼び出しがあるか確認
+      const callsWithOverLimit = mockOnValueInput.mock.calls.filter(
+        (call) => call[1]?.isOverLimit === true
+      );
+      expect(callsWithOverLimit.length).toBeGreaterThan(0);
+    });
+  });
+
   describe('Props伝播', () => {
     it('TextboxMultilineに他のpropsを正しく渡す', () => {
       render(

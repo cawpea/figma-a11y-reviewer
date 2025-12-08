@@ -33,22 +33,23 @@ export default function TextboxMultilineWithLimit({
   onValueInput,
   ...restProps
 }: TextboxMultilineWithLimitProps) {
-  // Calculate character count and over-limit status
-  const currentLength = value.length;
-  const isOverLimit = limit !== undefined && currentLength > limit;
+  // Calculate character count and over-limit status using trimmed length
+  const trimmedLength = value.trim().length;
+  const isOverLimit = limit !== undefined && trimmedLength > limit;
 
-  // Memoize character count display
+  // Memoize character count display (show trimmed length)
   const characterCountText = useMemo(() => {
     if (limit === undefined) return null;
-    return `${currentLength}/${limit}`;
-  }, [currentLength, limit]);
+    return `${trimmedLength}/${limit}`;
+  }, [trimmedLength, limit]);
 
-  // Handle value input with isOverLimit flag
+  // Handle value input with isOverLimit flag (check trimmed length)
   const handleValueInput = useCallback(
     (newValue: string) => {
       if (!onValueInput) return;
 
-      const newIsOverLimit = limit !== undefined && newValue.length > limit;
+      const newTrimmedLength = newValue.trim().length;
+      const newIsOverLimit = limit !== undefined && newTrimmedLength > limit;
       onValueInput(newValue, { isOverLimit: newIsOverLimit });
     },
     [onValueInput, limit]
