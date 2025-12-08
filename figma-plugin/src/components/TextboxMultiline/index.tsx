@@ -75,7 +75,9 @@ export default function TextboxMultilineWithLimit({
       {/* Character count and error message container */}
       <div className="flex justify-between items-start mt-1">
         {/* Error message (left side) */}
-        {isOverLimit && <p className="text-[10px] text-red-600">文字数制限を超えています</p>}
+        {isOverLimit && (
+          <p className="text-[10px] text-red-600">{limit}文字以内で入力してください</p>
+        )}
 
         {/* Spacer when no error */}
         {!isOverLimit && <div />}

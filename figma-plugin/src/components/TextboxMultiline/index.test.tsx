@@ -123,7 +123,7 @@ describe('TextboxMultilineWithLimit', () => {
         />
       );
 
-      expect(screen.getByText('文字数制限を超えています')).toBeInTheDocument();
+      expect(screen.getByText('100文字以内で入力してください')).toBeInTheDocument();
     });
 
     it('エラーメッセージが左寄せで表示される', () => {
@@ -138,7 +138,7 @@ describe('TextboxMultilineWithLimit', () => {
       const flexContainer = container.querySelector('.flex.justify-between');
       expect(flexContainer).toBeInTheDocument();
 
-      const errorMessage = screen.getByText('文字数制限を超えています');
+      const errorMessage = screen.getByText('100文字以内で入力してください');
       expect(errorMessage).toHaveClass('text-red-600');
     });
 
@@ -147,7 +147,7 @@ describe('TextboxMultilineWithLimit', () => {
         <TextboxMultilineWithLimit value="test" limit={100} onValueInput={mockOnValueInput} />
       );
 
-      expect(screen.queryByText('文字数制限を超えています')).not.toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
     });
 
     it('制限以下の場合、ボーダーを表示しない', () => {
@@ -200,7 +200,7 @@ describe('TextboxMultilineWithLimit', () => {
 
       // コンポーネントのロジックを検証
       expect(isOverLimit).toBe(true);
-      expect(screen.getByText('文字数制限を超えています')).toBeInTheDocument();
+      expect(screen.getByText('100文字以内で入力してください')).toBeInTheDocument();
     });
 
     it('limitが未設定の場合、元のシグネチャで呼ばれる', async () => {
@@ -258,7 +258,7 @@ describe('TextboxMultilineWithLimit', () => {
         />
       );
 
-      expect(screen.queryByText('文字数制限を超えています')).not.toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
       expect(screen.getByText('100/100')).toHaveClass('text-gray-600');
     });
 
@@ -271,7 +271,7 @@ describe('TextboxMultilineWithLimit', () => {
         />
       );
 
-      expect(screen.getByText('文字数制限を超えています')).toBeInTheDocument();
+      expect(screen.getByText('100文字以内で入力してください')).toBeInTheDocument();
       expect(screen.getByText('101/100')).toHaveClass('text-red-600');
     });
 
@@ -279,7 +279,7 @@ describe('TextboxMultilineWithLimit', () => {
       render(<TextboxMultilineWithLimit value="" limit={100} onValueInput={mockOnValueInput} />);
 
       expect(screen.getByText('0/100')).toBeInTheDocument();
-      expect(screen.queryByText('文字数制限を超えています')).not.toBeInTheDocument();
+      expect(screen.queryByText('100文字以内で入力してください')).not.toBeInTheDocument();
     });
 
     it('onValueInputが未定義の場合もエラーにならない', () => {
@@ -291,7 +291,7 @@ describe('TextboxMultilineWithLimit', () => {
     it('limit=0の場合も正しく動作する', () => {
       render(<TextboxMultilineWithLimit value="a" limit={0} onValueInput={mockOnValueInput} />);
 
-      expect(screen.getByText('文字数制限を超えています')).toBeInTheDocument();
+      expect(screen.getByText('0文字以内で入力してください')).toBeInTheDocument();
       expect(screen.getByText('1/0')).toHaveClass('text-red-600');
     });
 
