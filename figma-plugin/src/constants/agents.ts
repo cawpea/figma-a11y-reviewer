@@ -10,7 +10,7 @@ export const agentOptions: AgentOption[] = [
   {
     id: 'usability',
     label: 'ユーザビリティ',
-    description: "Nielsen's 10原則に基づき、使いやすさと直感性を評価",
+    description: "Nielsen's 10原則に基づき、使いやすさと効率性を評価",
   },
   {
     id: 'accessibility',

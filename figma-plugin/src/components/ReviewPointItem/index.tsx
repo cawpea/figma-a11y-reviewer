@@ -1,5 +1,5 @@
 import type { DropdownOption } from '@create-figma-plugin/ui';
-import { Checkbox, Dropdown } from '@create-figma-plugin/ui';
+import { Checkbox, Dropdown, TextboxMultiline } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 
 import type { AgentOption } from '../../constants/agents';
@@ -10,6 +10,8 @@ interface ReviewPointItemProps {
   onChange: (agentId: string, checked: boolean) => void;
   selectedPlatform?: string;
   onPlatformChange?: (platform: 'ios' | 'android') => void;
+  userContext?: string;
+  onUserContextChange?: (context: string) => void;
 }
 
 const platformOptions: DropdownOption[] = [
@@ -23,8 +25,11 @@ export default function ReviewPointItem({
   onChange,
   selectedPlatform,
   onPlatformChange,
+  userContext,
+  onUserContextChange,
 }: ReviewPointItemProps) {
   const showPlatformSelect = agent.id === 'platformCompliance' && checked;
+  const showUserContextInput = agent.id === 'usability' && checked;
 
   return (
     <div className="mb-3 p-3 border border-gray-300 rounded-md">
@@ -42,6 +47,21 @@ export default function ReviewPointItem({
             value={selectedPlatform || 'ios'}
             options={platformOptions}
             onValueChange={(value) => onPlatformChange?.(value as 'ios' | 'android')}
+          />
+        </div>
+      )}
+
+      {/* usability選択時にユーザーコンテキスト入力を表示 */}
+      {showUserContextInput && (
+        <div className="mt-2 ml-6">
+          <label className="text-[10px] text-gray-600 font-bold mb-1" htmlFor="userContext">
+            想定ユーザーと利用文脈（任意）
+          </label>
+          <TextboxMultiline
+            id="userContext"
+            value={userContext || ''}
+            onValueInput={(value) => onUserContextChange?.(value)}
+            placeholder="ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
           />
         </div>
       )}

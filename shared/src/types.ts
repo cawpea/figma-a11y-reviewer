@@ -254,6 +254,7 @@ export interface EvaluationRequest {
   evaluationTypes?: string[];
   platformType?: 'ios' | 'android';
   userId?: string;
+  userContext?: string;
   screenshot?: ScreenshotData;
 }
 

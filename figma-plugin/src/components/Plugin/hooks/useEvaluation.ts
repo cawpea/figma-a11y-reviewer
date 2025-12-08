@@ -11,7 +11,11 @@ interface UseEvaluationReturn {
   error: string;
   isLoading: boolean;
   result: EvaluationResult | null;
-  handleEvaluate: (selectedAgents: string[], platformType?: 'ios' | 'android') => void;
+  handleEvaluate: (
+    selectedAgents: string[],
+    platformType?: 'ios' | 'android',
+    userContext?: string
+  ) => void;
   handleIssueClick: (issue: Issue, rootNodeId?: string) => void;
 }
 
@@ -54,13 +58,13 @@ export function useEvaluation(params?: UseEvaluationParams): UseEvaluationReturn
 
   // 評価開始
   const handleEvaluate = useCallback(
-    (selectedAgents: string[], platformType?: 'ios' | 'android') => {
+    (selectedAgents: string[], platformType?: 'ios' | 'android', userContext?: string) => {
       if (selectedAgents.length === 0) {
         setError('評価項目を1つ以上選択してください');
         return;
       }
 
-      emit('EVALUATE_SELECTION', selectedAgents, platformType);
+      emit('EVALUATE_SELECTION', selectedAgents, platformType, userContext);
     },
     []
   );

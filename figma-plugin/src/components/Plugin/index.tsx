@@ -24,8 +24,10 @@ export default function Plugin() {
   const {
     selectedAgents,
     selectedPlatform,
+    userContext,
     handleAgentChange,
     handlePlatformChange,
+    handleUserContextChange,
     handleSelectAll,
     handleDeselectAll,
   } = useAgentSelection(agentOptions);
@@ -41,7 +43,7 @@ export default function Plugin() {
   });
 
   const onEvaluate = () => {
-    handleEvaluate(selectedAgents, selectedPlatform);
+    handleEvaluate(selectedAgents, selectedPlatform, userContext);
   };
 
   const allSelected = selectedAgents.length === agentOptions.length;
@@ -103,6 +105,8 @@ export default function Plugin() {
             onChange={handleAgentChange}
             selectedPlatform={selectedPlatform}
             onPlatformChange={handlePlatformChange}
+            userContext={userContext}
+            onUserContextChange={handleUserContextChange}
           />
         ))}
 

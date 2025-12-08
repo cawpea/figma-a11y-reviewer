@@ -99,6 +99,7 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
+  userContext: z.string().optional(),
   screenshot: screenshotDataSchema.optional(),
 });
 
@@ -136,7 +137,8 @@ router.post('/evaluate', async (req: Request, res: Response) => {
       validatedData.evaluationTypes,
       validatedData.nodeId,
       validatedData.platformType,
-      validatedData.screenshot
+      validatedData.screenshot,
+      validatedData.userContext
     );
 
     const response: ApiResponse<EvaluationResult> = {
