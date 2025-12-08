@@ -12,7 +12,7 @@ interface ReviewPointItemProps {
   selectedPlatform?: string;
   onPlatformChange?: (platform: 'ios' | 'android') => void;
   userContext?: string;
-  onUserContextChange?: (context: string) => void;
+  onUserContextChange?: (context: string, options: { isOverLimit: boolean }) => void;
 }
 
 const platformOptions: DropdownOption[] = [
@@ -61,8 +61,8 @@ export default function ReviewPointItem({
           <TextboxMultilineWithLimit
             id="userContext"
             value={userContext || ''}
-            limit={500}
-            onValueInput={(value) => onUserContextChange?.(value)}
+            limit={100}
+            onValueInput={onUserContextChange}
             placeholder="ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
           />
         </div>

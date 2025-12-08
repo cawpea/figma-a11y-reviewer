@@ -73,17 +73,19 @@ export default function TextboxMultilineWithLimit({
       </div>
 
       {/* Character count and error message container */}
-      <div className="flex justify-between items-start mt-1">
+      <div className="flex justify-between items-start mt-1 gap-2">
         {/* Error message (left side) */}
         {isOverLimit && (
-          <p className="text-[10px] text-red-600">{limit}文字以内で入力してください</p>
+          <p className="text-[10px] text-red-600 flex-1">{limit}文字以内で入力してください</p>
         )}
 
         {/* Spacer when no error */}
-        {!isOverLimit && <div />}
+        {!isOverLimit && <div className="flex-1" />}
 
         {/* Character count (right side) */}
-        <p className={`text-[10px] ${isOverLimit ? 'text-red-600' : 'text-gray-600'}`}>
+        <p
+          className={`text-[10px] whitespace-nowrap ${isOverLimit ? 'text-red-600' : 'text-gray-600'}`}
+        >
           {characterCountText}
         </p>
       </div>

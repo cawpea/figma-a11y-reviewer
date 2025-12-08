@@ -20,6 +20,7 @@ import '!../../output.css';
 export default function Plugin() {
   const [view, setView] = useState<'initial' | 'result'>('initial');
   const selectionState = useSelectionState();
+  const [isUserContextOverLimit, setIsUserContextOverLimit] = useState(false);
 
   const {
     selectedAgents,
@@ -35,6 +36,14 @@ export default function Plugin() {
   const handleBackToInitial = useCallback(() => {
     setView('initial');
   }, []);
+
+  const handleUserContextChangeWithLimit = useCallback(
+    (value: string, options: { isOverLimit: boolean }) => {
+      handleUserContextChange(value);
+      setIsUserContextOverLimit(options.isOverLimit);
+    },
+    [handleUserContextChange]
+  );
 
   const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation({
     onEvaluationComplete: () => {
@@ -56,6 +65,11 @@ export default function Plugin() {
       handleDeselectAll();
     }
   };
+
+  // レビュー開始ボタンの無効化条件
+  const isUsabilitySelected = selectedAgents.includes('usability');
+  const shouldDisableButton =
+    selectedAgents.length === 0 || (isUsabilitySelected && isUserContextOverLimit);
 
   // 結果ページ表示
   if (view === 'result' && result) {
@@ -106,7 +120,7 @@ export default function Plugin() {
             selectedPlatform={selectedPlatform}
             onPlatformChange={handlePlatformChange}
             userContext={userContext}
-            onUserContextChange={handleUserContextChange}
+            onUserContextChange={handleUserContextChangeWithLimit}
           />
         ))}
 
@@ -115,7 +129,7 @@ export default function Plugin() {
           <ErrorDisplay error={error} />
           <Button
             onClick={onEvaluate}
-            disabled={selectedAgents.length === 0}
+            disabled={shouldDisableButton}
             fullWidth
             style={{ height: '32px' }}
           >
