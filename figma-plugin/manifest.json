@@ -1,8 +1,6 @@
 {
   "api": "1.0.0",
-  "editorType": [
-    "figma"
-  ],
+  "editorType": ["figma"],
   "id": "figma-ui-reviewer",
   "name": "Figma UI Reviewer",
   "main": "build/main.js",
