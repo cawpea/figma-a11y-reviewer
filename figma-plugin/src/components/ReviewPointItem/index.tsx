@@ -1,8 +1,9 @@
 import type { DropdownOption } from '@create-figma-plugin/ui';
-import { Checkbox, Dropdown, TextboxMultiline } from '@create-figma-plugin/ui';
+import { Checkbox, Dropdown } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 
 import type { AgentOption } from '../../constants/agents';
+import TextboxMultilineWithLimit from '../TextboxMultiline';
 
 interface ReviewPointItemProps {
   agent: AgentOption;
@@ -57,9 +58,10 @@ export default function ReviewPointItem({
           <label className="text-[10px] text-gray-600 font-bold mb-1" htmlFor="userContext">
             想定ユーザーと利用文脈（任意）
           </label>
-          <TextboxMultiline
+          <TextboxMultilineWithLimit
             id="userContext"
             value={userContext || ''}
+            limit={500}
             onValueInput={(value) => onUserContextChange?.(value)}
             placeholder="ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
           />
