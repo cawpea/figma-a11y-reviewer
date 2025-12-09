@@ -279,12 +279,6 @@ export interface SelectionState {
   errorMessage?: string;
 }
 
-/** スタイル取得時の上限定数 */
-export const STYLES_LIMIT = {
-  /** 各カテゴリごとの最大取得数 */
-  MAX_ITEMS_PER_CATEGORY: 100,
-} as const;
-
 // 機能フラグイベント
 export interface LoadFeatureFlagsHandler {
   name: 'LOAD_FEATURE_FLAGS';

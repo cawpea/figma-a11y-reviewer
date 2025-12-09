@@ -2,6 +2,7 @@ import type { DropdownOption } from '@create-figma-plugin/ui';
 import { Checkbox, Dropdown } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 
+import { USER_CONTEXT_MAX_LENGTH } from '../../../../shared/src/constants';
 import type { AgentOption } from '../../constants/agents';
 import TextboxMultilineWithLimit from '../TextboxMultiline';
 
@@ -61,7 +62,7 @@ export default function ReviewPointItem({
           <TextboxMultilineWithLimit
             id="userContext"
             value={userContext || ''}
-            limit={100}
+            limit={USER_CONTEXT_MAX_LENGTH}
             onValueInput={onUserContextChange}
             placeholder="ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
           />

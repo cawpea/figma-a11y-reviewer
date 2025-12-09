@@ -2,6 +2,7 @@ import { Button, Checkbox, IconAi16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
+import { USER_CONTEXT_MAX_LENGTH } from '../../../../shared/src/constants';
 import { agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
 import ErrorDisplay from '../ErrorDisplay';
@@ -57,9 +58,11 @@ export default function Plugin() {
   const onEvaluate = () => {
     // 送信時にuserContextのtrim後の長さを検証（usabilityが選択されている場合のみ）
     const isUsabilitySelected = selectedAgents.includes('usability');
-    if (isUsabilitySelected && userContext.trim().length > 100) {
+    if (isUsabilitySelected && userContext.trim().length > USER_CONTEXT_MAX_LENGTH) {
       // エラーメッセージを表示
-      setValidationError('想定ユーザーと利用文脈は100文字以内で入力してください');
+      setValidationError(
+        `想定ユーザーと利用文脈は${USER_CONTEXT_MAX_LENGTH}文字以内で入力してください`
+      );
       return;
     }
 
@@ -83,7 +86,8 @@ export default function Plugin() {
   const isUsabilitySelected = selectedAgents.includes('usability');
   // trim後の長さで検証
   const userContextTrimmedLength = userContext.trim().length;
-  const isUserContextInvalid = isUsabilitySelected && userContextTrimmedLength > 100;
+  const isUserContextInvalid =
+    isUsabilitySelected && userContextTrimmedLength > USER_CONTEXT_MAX_LENGTH;
   const shouldDisableButton = selectedAgents.length === 0 || isUserContextInvalid;
 
   // 結果ページ表示
