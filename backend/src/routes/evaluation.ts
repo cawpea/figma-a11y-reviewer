@@ -2,6 +2,7 @@ import { ApiResponse, EvaluationResult, FigmaNodeType } from '@shared/types';
 import { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
+import { USER_CONTEXT_MAX_LENGTH } from '../../../shared/src/constants';
 import { EvaluationService } from '../services/evaluation.service';
 import { saveDebugData } from '../utils/debug';
 import { cleanupOldScreenshots, saveScreenshot } from '../utils/screenshot';
@@ -99,7 +100,13 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
-  userContext: z.string().optional(),
+  userContext: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.trim().length <= USER_CONTEXT_MAX_LENGTH,
+      `想定ユーザーと利用文脈は${USER_CONTEXT_MAX_LENGTH}文字以内で入力してください`
+    ),
   screenshot: screenshotDataSchema.optional(),
 });
 
