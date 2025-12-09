@@ -50,9 +50,10 @@ export async function captureNodeScreenshot(node: SceneNode): Promise<Screenshot
     console.log('📸 Capturing screenshot for node:', node.name);
 
     // 解像度0.5でPNG形式でエクスポート（ファイルサイズ削減のため）
+    const scale = node.width * node.height > 1000000 ? 0.25 : 0.5;
     const imageBytes = await node.exportAsync({
       format: 'PNG',
-      constraint: { type: 'SCALE', value: 0.5 },
+      constraint: { type: 'SCALE', value: scale },
     });
 
     // 5KBを超える場合は警告

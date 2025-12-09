@@ -254,6 +254,7 @@ export interface EvaluationRequest {
   evaluationTypes?: string[];
   platformType?: 'ios' | 'android';
   userId?: string;
+  userContext?: string;
   screenshot?: ScreenshotData;
 }
 
@@ -277,12 +278,6 @@ export interface SelectionState {
   isValid: boolean;
   errorMessage?: string;
 }
-
-/** スタイル取得時の上限定数 */
-export const STYLES_LIMIT = {
-  /** 各カテゴリごとの最大取得数 */
-  MAX_ITEMS_PER_CATEGORY: 100,
-} as const;
 
 // 機能フラグイベント
 export interface LoadFeatureFlagsHandler {

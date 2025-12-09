@@ -25,7 +25,8 @@
       "Bash(npm run build:prod:*)",
       "Bash(npm run test:*)",
       "Bash(npx prettier:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

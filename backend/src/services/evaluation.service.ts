@@ -41,7 +41,8 @@ export class EvaluationService {
     evaluationTypes?: string[],
     rootNodeId?: string,
     platformType?: 'ios' | 'android',
-    screenshot?: ScreenshotData
+    screenshot?: ScreenshotData,
+    userContext?: string
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
 
@@ -82,6 +83,11 @@ export class EvaluationService {
       // StyleConsistencyAgentにスタイル情報を渡す
       if (type === 'styleConsistency' && agent instanceof StyleConsistencyAgent) {
         agent.setStylesData(stylesData);
+      }
+
+      // UsabilityAgentにユーザーコンテキストを渡す
+      if (type === 'usability' && agent instanceof UsabilityAgent && userContext) {
+        agent.setUserContext(userContext);
       }
 
       // スクリーンショットをエージェントに注入

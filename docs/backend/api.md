@@ -83,6 +83,7 @@ Content-Type: application/json
                                      //  "writing", "platformCompliance"]
   "platformType": "ios" | "android", // platformComplianceエージェント用
   "userId": string,                  // 分析用のユーザーID（オプション）
+  "userContext": string,             // ユーザビリティ評価用の想定ユーザーと利用文脈（オプション）
   "screenshot": {                    // スクリーンショットデータ（オプション）
     "imageData": string,             // Base64エンコードされた画像データ（data:image/png;base64,... 形式）
     "nodeName": string,              // 元のノード名（サニタイズ前）
@@ -104,6 +105,43 @@ Content-Type: application/json
 
 **注**: 省略時は`accessibility`, `styleConsistency`, `usability`,
 `writing`の4つが実行されます。
+
+#### userContext フィールドについて
+
+`userContext`は、ユーザビリティ評価を行う際の前提条件として、想定ユーザーと利用文脈を指定するためのフィールドです。
+
+**用途:**
+
+- ターゲットユーザーのプロフィール（年齢層、スキルレベル、属性など）
+- 利用シーン・文脈（どのような状況で使用されるか）
+- 期待される行動やニーズ
+
+**使用例:**
+
+```json
+{
+  "userContext": "ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
+}
+```
+
+**動作:**
+
+- `usability`エージェントのみで使用されます
+- ユーザーコンテキストが提供された場合、Nielsen's 10
+  Heuristicsに基づく評価時に、想定ユーザーの行動や期待を考慮した問題点や改善提案が行われます
+- プロンプトでは「評価の前提条件」として、スクリーンショットの次に配置されます
+
+**バリデーションルール:**
+
+- 文字数制限: trim後100文字以内（`USER_CONTEXT_MAX_LENGTH`定数で定義）
+- 前後の空白は除外して文字数をカウント
+- 制限を超えた場合は400エラーを返す
+- 空文字列や省略は許可される
+
+**注意事項:**
+
+- 空文字列の場合は送信されません（trim()処理済み）
+- 他のエージェント（`accessibility`、`styleConsistency`など）には影響しません
 
 #### screenshot フィールドについて
 
@@ -175,7 +213,8 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
     }
   },
   "evaluationTypes": ["accessibility", "usability"],
-  "userId": "user-12345"
+  "userId": "user-12345",
+  "userContext": "ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
 }
 ```
 
@@ -355,7 +394,7 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
 
 リクエストボディは以下のルールで検証されます：
 
-<!-- CODE_REF: backend/src/routes/evaluation.ts:65-102 -->
+<!-- CODE_REF: backend/src/routes/evaluation.ts:74-111 -->
 
 ```typescript
 // Zodスキーマによる厳格なバリデーション
@@ -377,6 +416,13 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
+  userContext: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.trim().length <= USER_CONTEXT_MAX_LENGTH,
+      `想定ユーザーと利用文脈は${USER_CONTEXT_MAX_LENGTH}文字以内で入力してください`
+    ), // ユーザーコンテキスト（オプション、trim後100文字以内）
   screenshot: screenshotDataSchema.optional(), // スクリーンショットデータ（オプション）
 });
 ```

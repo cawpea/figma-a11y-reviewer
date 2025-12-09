@@ -12,12 +12,23 @@ export abstract class BaseEvaluationAgent {
   // スクリーンショットを保持（サブクラスで設定可能）
   protected screenshot: ScreenshotData | null = null;
 
+  // ユーザーコンテキストを保持（UsabilityAgentで使用）
+  protected userContext: string | null = null;
+
   /**
    * スクリーンショットを設定
    * EvaluationServiceから呼び出される
    */
   setScreenshot(screenshot: ScreenshotData | null): void {
     this.screenshot = screenshot;
+  }
+
+  /**
+   * ユーザーコンテキストを設定
+   * EvaluationServiceから呼び出される
+   */
+  setUserContext(userContext: string | null): void {
+    this.userContext = userContext;
   }
 
   /**
@@ -90,6 +101,7 @@ export abstract class BaseEvaluationAgent {
       throw error;
     } finally {
       this.screenshot = null; // 呼び出し後にスクリーンショットをクリア
+      this.userContext = null; // 呼び出し後にユーザーコンテキストをクリア
     }
   }
 
