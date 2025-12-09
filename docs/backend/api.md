@@ -131,6 +131,13 @@ Content-Type: application/json
   Heuristicsに基づく評価時に、想定ユーザーの行動や期待を考慮した問題点や改善提案が行われます
 - プロンプトでは「評価の前提条件」として、スクリーンショットの次に配置されます
 
+**バリデーションルール:**
+
+- 文字数制限: trim後100文字以内（`USER_CONTEXT_MAX_LENGTH`定数で定義）
+- 前後の空白は除外して文字数をカウント
+- 制限を超えた場合は400エラーを返す
+- 空文字列や省略は許可される
+
 **注意事項:**
 
 - 空文字列の場合は送信されません（trim()処理済み）
@@ -387,7 +394,7 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
 
 リクエストボディは以下のルールで検証されます：
 
-<!-- CODE_REF: backend/src/routes/evaluation.ts:65-102 -->
+<!-- CODE_REF: backend/src/routes/evaluation.ts:74-111 -->
 
 ```typescript
 // Zodスキーマによる厳格なバリデーション
@@ -409,7 +416,13 @@ const evaluationRequestSchema = z.object({
   evaluationTypes: z.array(z.string()).optional(),
   platformType: z.enum(['ios', 'android']).optional(),
   userId: z.string().optional(),
-  userContext: z.string().optional(), // ユーザーコンテキスト（オプション）
+  userContext: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || val.trim().length <= USER_CONTEXT_MAX_LENGTH,
+      `想定ユーザーと利用文脈は${USER_CONTEXT_MAX_LENGTH}文字以内で入力してください`
+    ), // ユーザーコンテキスト（オプション、trim後100文字以内）
   screenshot: screenshotDataSchema.optional(), // スクリーンショットデータ（オプション）
 });
 ```

@@ -15,12 +15,15 @@
   - Suggestion - 改善提案の型
   - CategoryResult - カテゴリ別評価結果の型
   - ScreenshotData - スクリーンショットデータの型
+- **constants.md** - 共通定数の詳細説明、使用例
+  - USER_CONTEXT_MAX_LENGTH - ユーザーコンテキストの文字数制限
+  - STYLES_LIMIT - スタイル取得の上限設定
 
 ## 🎯 このカテゴリの目的
 
 型安全性を確保するための共通型定義を理解し、正しく使用するための情報を提供します。API連携やデータ構造の理解時に参照してください。
 
-## 🔥 主要な型定義
+## 🔥 主要な型定義と定数
 
 <!-- CODE_REF: shared/src/types.ts:7-43 -->
 
@@ -57,6 +60,45 @@ export type FigmaNodeType =
 - `FigmaNodeData.type`
 - `SelectedLayer.type`
 - バックエンドの`figmaNodeTypeSchema`
+
+---
+
+<!-- CODE_REF: shared/src/constants.ts:1-12 -->
+
+### 共通定数（constants.ts）
+
+フロントエンドとバックエンド間で共有される定数を定義しています。
+
+```typescript
+/**
+ * ユーザーコンテキスト（想定ユーザーと利用文脈）の文字数制限
+ */
+export const USER_CONTEXT_MAX_LENGTH = 100;
+
+/** スタイル取得時の上限定数 */
+export const STYLES_LIMIT = {
+  /** 各カテゴリごとの最大取得数 */
+  MAX_ITEMS_PER_CATEGORY: 100,
+} as const;
+```
+
+**USER_CONTEXT_MAX_LENGTH**
+
+- ユーザビリティ評価で使用する「想定ユーザーと利用文脈」の最大文字数
+- フロントエンド、バックエンドの両方で使用
+- trim後の文字数で判定（前後の空白は除外）
+- 超過時はバリデーションエラーを返す
+
+**STYLES_LIMIT**
+
+- Figmaスタイル情報の取得上限
+- トークン数削減のため、各カテゴリ（Variables、TextStyles、ColorStyles、EffectStyles）ごとに最大100個まで
+
+**使用箇所:**
+
+- `figma-plugin/src/components/Plugin/index.tsx` - フロントエンドバリデーション
+- `figma-plugin/src/components/ReviewPointItem/index.tsx` - 入力欄の文字数制限
+- `backend/src/routes/evaluation.ts` - APIバリデーション
 
 ---
 
