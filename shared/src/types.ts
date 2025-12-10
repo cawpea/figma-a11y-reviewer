@@ -181,7 +181,7 @@ export interface Issue {
   severity: 'high' | 'medium' | 'low';
   message: string;
   /**
-   * Figma node ID of the issue target
+   * Figma node ID of the issue target (single node)
    *
    * Formats:
    * - Regular nodes: "1809:1836"
@@ -189,8 +189,19 @@ export interface Issue {
    * - Nested instances: "I1806:984;1809:902;105:1169"
    *
    * If undefined, the rootNodeId will be used as fallback
+   *
+   * @deprecated Use nodeIds array instead for issues affecting multiple nodes
    */
   nodeId?: string;
+  /**
+   * Figma node IDs for issues affecting multiple nodes (recommended for grouped issues)
+   *
+   * When multiple nodes share the same issue (e.g., same color contrast problem),
+   * list all affected node IDs here.
+   *
+   * Priority: If both nodeId and nodeIds are present, nodeIds takes precedence
+   */
+  nodeIds?: string[];
   nodeHierarchy?: string[]; // 階層パス: [rootId, parentId, ..., nodeId]
   autoFixable: boolean;
   suggestion?: string;

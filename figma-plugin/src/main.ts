@@ -141,6 +141,68 @@ async function selectNodeWithFallback(
   }
 }
 
+/**
+ * 複数ノードを同時選択（グループ化されたIssue用）
+ * @param nodeIds - 選択するノードIDの配列
+ * @param fallbackRootNodeId - フォールバック用のルートノードID
+ * @returns 選択に成功したノードが1つでもあればtrue
+ */
+async function selectMultipleNodes(
+  nodeIds: string[],
+  fallbackRootNodeId?: string
+): Promise<boolean> {
+  if (!nodeIds || nodeIds.length === 0) {
+    console.warn('⚠️  No node IDs provided');
+    return false;
+  }
+
+  const selectedNodes: SceneNode[] = [];
+  const failedIds: string[] = [];
+
+  // 各ノードIDを試して選択可能なものを収集
+  for (const nodeId of nodeIds) {
+    try {
+      const node = await figma.getNodeByIdAsync(nodeId);
+      if (node) {
+        selectedNodes.push(node as SceneNode);
+        console.log('✅ Found node:', nodeId, node.name);
+      } else {
+        failedIds.push(nodeId);
+      }
+    } catch (error) {
+      console.error(`Failed to get node ${nodeId}:`, error);
+      failedIds.push(nodeId);
+    }
+  }
+
+  // 選択可能なノードがある場合は選択
+  if (selectedNodes.length > 0) {
+    figma.currentPage.selection = selectedNodes;
+    figma.viewport.scrollAndZoomIntoView(selectedNodes);
+
+    console.log(`✅ Selected ${selectedNodes.length} nodes out of ${nodeIds.length}`);
+    return true;
+  }
+
+  // 全て失敗した場合、ルートノードにフォールバック
+  if (fallbackRootNodeId) {
+    console.log('⚠️  All nodes failed, attempting fallback to root node:', fallbackRootNodeId);
+    const rootNode = await figma.getNodeByIdAsync(fallbackRootNodeId);
+    if (rootNode) {
+      figma.currentPage.selection = [rootNode as SceneNode];
+      figma.viewport.scrollAndZoomIntoView([rootNode as SceneNode]);
+      figma.notify('該当するレイヤーが見つからなかったため、ルートフレームを選択しました');
+      console.log('✅ Fallback: Selected root evaluation frame');
+      return true;
+    }
+  }
+
+  // 完全に失敗
+  console.error('❌ All selection attempts failed');
+  figma.notify('該当するレイヤーが見つかりませんでした');
+  return false;
+}
+
 async function handleEvaluation(
   evaluationTypes?: string[],
   platformType?: 'ios' | 'android',
@@ -397,17 +459,33 @@ export default function () {
 
   on(
     'SELECT_NODE',
-    async ({
-      nodeId,
-      nodeHierarchy,
-      rootNodeId,
-    }: {
-      nodeId: string;
+    async (payload: {
+      nodeIds?: string[];
+      nodeId?: string;
       nodeHierarchy?: string[];
       rootNodeId?: string;
     }) => {
-      if (nodeId) {
-        await selectNodeWithFallback(nodeId, nodeHierarchy, rootNodeId);
+      console.log('SELECT_NODE event received:', payload);
+
+      // nodeIds優先、なければnodeIdを配列に変換
+      const targetNodeIds =
+        payload.nodeIds && payload.nodeIds.length > 0
+          ? payload.nodeIds
+          : payload.nodeId
+            ? [payload.nodeId]
+            : [];
+
+      if (targetNodeIds.length === 0) {
+        console.warn('⚠️  No node IDs provided');
+        return;
+      }
+
+      // 複数ノードの場合は新しい関数を使用
+      if (targetNodeIds.length > 1) {
+        await selectMultipleNodes(targetNodeIds, payload.rootNodeId);
+      } else {
+        // 単一ノードの場合は既存の関数を使用
+        await selectNodeWithFallback(targetNodeIds[0], payload.nodeHierarchy, payload.rootNodeId);
       }
     }
   );

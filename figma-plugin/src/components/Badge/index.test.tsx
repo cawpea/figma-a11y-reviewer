@@ -38,4 +38,17 @@ describe('Badge', () => {
     expect(screen.getByText('HIGH')).toBeInTheDocument();
     expect(screen.queryByText('high')).not.toBeInTheDocument();
   });
+
+  it('neutral severityバッジをレンダリングする', () => {
+    render(<Badge severity="neutral" />);
+    const badge = screen.getByText('NEUTRAL');
+    expect(badge).toBeInTheDocument();
+  });
+
+  it('カスタムlabelを表示する', () => {
+    render(<Badge severity="neutral" label="3個の要素" />);
+    const badge = screen.getByText('3個の要素');
+    expect(badge).toBeInTheDocument();
+    expect(screen.queryByText('NEUTRAL')).not.toBeInTheDocument();
+  });
 });

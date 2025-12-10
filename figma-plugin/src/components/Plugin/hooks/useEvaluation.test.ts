@@ -199,7 +199,7 @@ describe('useEvaluation', () => {
   });
 
   describe('handleIssueClick', () => {
-    it('問題にnodeIdがあるときnodeIdとともにSELECT_NODEを発行する', () => {
+    it('問題にnodeIdがあるときnodeIds配列とともにSELECT_NODEを発行する', () => {
       const { result } = renderHook(() => useEvaluation());
 
       const issue = {
@@ -216,13 +216,13 @@ describe('useEvaluation', () => {
       });
 
       expect(mockEmit).toHaveBeenCalledWith('SELECT_NODE', {
-        nodeId: '1:2',
+        nodeIds: ['1:2'],
         nodeHierarchy: ['1:1', '1:2'],
         rootNodeId: '1:1',
       });
     });
 
-    it('問題にnodeIdがないときrootNodeIdとともにSELECT_NODEを発行する', () => {
+    it('問題にnodeIdがないときrootNodeIdをnodeIds配列に含めてSELECT_NODEを発行する', () => {
       const { result } = renderHook(() => useEvaluation());
 
       const issue = {
@@ -237,8 +237,30 @@ describe('useEvaluation', () => {
       });
 
       expect(mockEmit).toHaveBeenCalledWith('SELECT_NODE', {
-        nodeId: '1:1',
+        nodeIds: ['1:1'],
         nodeHierarchy: undefined,
+        rootNodeId: '1:1',
+      });
+    });
+
+    it('問題にnodeIds配列があるとき全てのnodeIdsとともにSELECT_NODEを発行する', () => {
+      const { result } = renderHook(() => useEvaluation());
+
+      const issue = {
+        severity: 'high' as const,
+        message: 'test',
+        nodeIds: ['1:2', '1:3', '1:4'],
+        nodeHierarchy: ['1:1', '1:2'],
+        autoFixable: false,
+      };
+
+      act(() => {
+        result.current.handleIssueClick(issue, '1:1');
+      });
+
+      expect(mockEmit).toHaveBeenCalledWith('SELECT_NODE', {
+        nodeIds: ['1:2', '1:3', '1:4'],
+        nodeHierarchy: ['1:1', '1:2'],
         rootNodeId: '1:1',
       });
     });
