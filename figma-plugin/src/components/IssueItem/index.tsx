@@ -11,7 +11,10 @@ interface IssueItemProps {
 }
 
 export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItemProps) {
-  const isClickable = issue.nodeId || rootNodeId;
+  // nodeIds優先、なければnodeId、なければrootNodeId
+  const hasNodes = issue.nodeIds ? issue.nodeIds.length > 0 : !!issue.nodeId;
+  const isClickable = hasNodes || rootNodeId;
+  const nodeCount = issue.nodeIds ? issue.nodeIds.length : issue.nodeId ? 1 : 0;
 
   return (
     <article
@@ -24,7 +27,15 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
       `}
     >
       <header className="flex items-center justify-between gap-1">
-        <Badge severity={issue.severity} className="mr-1.5" />
+        <div className="flex items-center gap-2">
+          <Badge severity={issue.severity} className="mr-1.5" />
+          {/* ノード数バッジ（複数の場合のみ表示） */}
+          {nodeCount > 1 && (
+            <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
+              {nodeCount}個のノード
+            </span>
+          )}
+        </div>
         <Button
           onClick={() => isClickable && onIssueClick(issue, rootNodeId)}
           disabled={!isClickable}

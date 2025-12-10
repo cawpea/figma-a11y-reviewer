@@ -71,11 +71,19 @@ export function useEvaluation(params?: UseEvaluationParams): UseEvaluationReturn
 
   // Issue クリックハンドラー
   const handleIssueClick = useCallback((issue: Issue, rootNodeId?: string) => {
-    const targetNodeId = issue.nodeId || rootNodeId;
+    // nodeIds優先、なければnodeId、なければrootNodeId
+    const targetNodeIds =
+      issue.nodeIds && issue.nodeIds.length > 0
+        ? issue.nodeIds
+        : issue.nodeId
+          ? [issue.nodeId]
+          : rootNodeId
+            ? [rootNodeId]
+            : [];
 
-    if (targetNodeId) {
+    if (targetNodeIds.length > 0) {
       emit('SELECT_NODE', {
-        nodeId: targetNodeId,
+        nodeIds: targetNodeIds, // 配列として送信
         nodeHierarchy: issue.nodeHierarchy,
         rootNodeId: rootNodeId,
       });

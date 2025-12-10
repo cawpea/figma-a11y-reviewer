@@ -545,14 +545,20 @@ export function getJsonSchemaTemplate(): string {
     {
       "severity": "high" | "medium" | "low",
       "message": "問題の説明（具体的なノード名を含める）。Figma ID（例: 1809:1836）は含めないでください。",
-      "nodeId": "該当ノードの実際のFigma ID（例: 1809:1836）。プロンプト内の (ID: xxx) 形式から必ず抽出してください",
+      "nodeId": "単一ノードの場合の実際のFigma ID（例: 1809:1836）。プロンプト内の (ID: xxx) 形式から必ず抽出してください",
+      "nodeIds": ["複数ノードに同じ問題がある場合のFigma ID配列（例: [\\"1809:1836\\", \\"1809:1838\\", \\"1809:1840\\"]）。カラーコントラストマップでグループ化されている場合はこちらを使用してください"],
       "autoFixable": true | false,
       "suggestion": "改善案（具体的な数値を含める）。Figma ID（例: 1809:1836）は含めないでください。"
     }
   ],
   "positives": ["良い点の配列（任意）"]
 }
-\`\`\``;
+\`\`\`
+
+**重要**:
+- 単一ノードの問題の場合: nodeIdフィールドを使用
+- 複数ノードに同じ問題がある場合（特にカラーコントラストマップでグループ化されている場合）: nodeIdsフィールドに配列として全てのFigma IDを含めてください
+- nodeIdsとnodeIdの両方を指定した場合、nodeIdsが優先されます`;
 }
 
 /**
@@ -568,7 +574,12 @@ export function getNodeIdInstructions(): string {
 - プロンプトに記載されている通りの形式で、(ID: xxx) から完全にコピーしてください
 - I接頭辞やセミコロンが含まれている場合もそのまま使用してください
 - 独自の説明的な名前（"Header"、"Button (Primary)"など）は使用しないでください
-- 該当ノードにIDが記載されている場合は必ず指定し、記載がない場合のみ省略してください`;
+- 該当ノードにIDが記載されている場合は必ず指定し、記載がない場合のみ省略してください
+
+**複数ノードのグループ化指定方法:**
+- カラーコントラストマップで同じ色の組み合わせが複数のノードに適用されている場合、それらは1つの問題として報告してください
+- グループ内の全てのノードIDをnodeIds配列に含めてください（例: "nodeIds": ["1809:1836", "1809:1838", "1809:1840"]）
+- 単一ノードの問題はnodeIdフィールド、複数ノードの問題はnodeIdsフィールドを使用してください`;
 }
 
 /**
@@ -1109,7 +1120,31 @@ function collectTextColorPairs(
 }
 
 /**
- * カラーコントラスト比マップを生成
+ * 同じ色の組み合わせでテキストノードをグループ化
+ * @param contrastInfos - コントラスト情報の配列
+ * @returns グループ化されたマップ（キー: "textColor|backgroundColor", 値: ColorContrastInfo[]）
+ */
+function groupByColorCombination(
+  contrastInfos: ColorContrastInfo[]
+): Map<string, ColorContrastInfo[]> {
+  const groups = new Map<string, ColorContrastInfo[]>();
+
+  for (const info of contrastInfos) {
+    const key = `${info.textColor}|${info.backgroundColor}`;
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.push(info);
+    } else {
+      groups.set(key, [info]);
+    }
+  }
+
+  return groups;
+}
+
+/**
+ * カラーコントラスト比マップを生成（色の組み合わせでグループ化）
  * @param data - Figmaノードデータ
  * @param maxItems - 最大表示件数（デフォルト: 100）
  */
@@ -1128,29 +1163,54 @@ export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 10
     return 'テキスト要素が見つかりませんでした。';
   }
 
+  // 色の組み合わせでグループ化
+  const groupedByColor = groupByColorCombination(contrastInfos);
+
   const hasMore = contrastInfos.length >= maxItems;
 
-  let output = '## カラーコントラスト比マップ\n\n';
-  output += '以下は、各テキスト要素の文字色と背景色のコントラスト比を事前計算した結果です。\n';
-  output += 'この情報を参照して、WCAG 2.2準拠の評価を行ってください。\n\n';
+  let output = '## カラーコントラスト比マップ（色の組み合わせ別）\n\n';
+  output +=
+    '以下は、各テキスト要素の文字色と背景色のコントラスト比を色の組み合わせごとにグループ化した結果です。\n';
+  output += 'この情報を参照して、WCAG 2.2準拠の評価を行ってください。\n';
+  output +=
+    '**同じ色の組み合わせが複数のノードで使用されている場合、それらは1つの問題として扱ってください。**\n\n';
 
   if (hasMore) {
     output += `> **注意**: テキスト要素が${maxItems}件以上見つかったため、最初の${maxItems}件のみを表示しています。\n\n`;
   }
 
-  contrastInfos.forEach((info, index) => {
-    output += `### ${index + 1}. ${escapeForPrompt(info.nodeName)} (ID: ${info.nodeId})\n`;
-    output += `- 文字色: ${info.textColor}\n`;
-    output += `- 背景色: ${info.backgroundColor}\n`;
-    output += `- **コントラスト比: ${info.contrastRatio}:1**\n`;
-    output += `- WCAG AA準拠:\n`;
-    output += `  - 通常テキスト (4.5:1以上): ${info.wcagCompliance.AA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
-    output += `  - 大きなテキスト (3.0:1以上): ${info.wcagCompliance.AA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
-    output += `- WCAG AAA準拠:\n`;
-    output += `  - 通常テキスト (7.0:1以上): ${info.wcagCompliance.AAA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
-    output += `  - 大きなテキスト (4.5:1以上): ${info.wcagCompliance.AAA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+  let groupIndex = 1;
+  for (const [_colorKey, infos] of groupedByColor) {
+    const firstInfo = infos[0];
+    const nodeCount = infos.length;
+
+    // グループヘッダー
+    output += `### グループ ${groupIndex}: ${firstInfo.textColor} / ${firstInfo.backgroundColor}`;
+    if (nodeCount > 1) {
+      output += ` (${nodeCount}個のノードに適用)`;
+    }
     output += '\n';
-  });
+
+    // コントラスト情報（グループで共通）
+    output += `- 文字色: ${firstInfo.textColor}\n`;
+    output += `- 背景色: ${firstInfo.backgroundColor}\n`;
+    output += `- **コントラスト比: ${firstInfo.contrastRatio}:1**\n`;
+    output += `- WCAG AA準拠:\n`;
+    output += `  - 通常テキスト (4.5:1以上): ${firstInfo.wcagCompliance.AA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `  - 大きなテキスト (3.0:1以上): ${firstInfo.wcagCompliance.AA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `- WCAG AAA準拠:\n`;
+    output += `  - 通常テキスト (7.0:1以上): ${firstInfo.wcagCompliance.AAA.normal_text ? '✅ 合格' : '❌ 不合格'}\n`;
+    output += `  - 大きなテキスト (4.5:1以上): ${firstInfo.wcagCompliance.AAA.large_text ? '✅ 合格' : '❌ 不合格'}\n`;
+
+    // 影響を受けるノードのリスト
+    output += `- **影響を受けるノード** (${nodeCount}個):\n`;
+    infos.forEach((info, idx) => {
+      output += `  ${idx + 1}. ${escapeForPrompt(info.nodeName)} (ID: ${info.nodeId})\n`;
+    });
+    output += '\n';
+
+    groupIndex++;
+  }
 
   if (hasMore) {
     output += `> さらに多くのテキスト要素が存在する可能性がありますが、パフォーマンスのため省略されています。\n`;
