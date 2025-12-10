@@ -31,6 +31,7 @@ export interface Issue {
 - **`low`**: 軽微な問題（改善提案レベル）
 
 **使用箇所**:
+
 - フロントエンドで問題の色分け表示に使用
 - バックエンドでソート順決定（high → medium → low）
 
@@ -39,10 +40,12 @@ export interface Issue {
 具体的な問題内容を日本語で記述します。
 
 **記載例**:
+
 - 「背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、4.5:1 の基準を満たしていません」
 - 「ボタンの背景色がColorStyleを使用せずハードコードされています」
 
 **注意**:
+
 - Figma ID（例: `1809:1836`）は含めない（別途`nodeId`/`nodeIds`で管理）
 - ユーザーが理解しやすい具体的な説明を心がける
 
@@ -53,6 +56,7 @@ export interface Issue {
 単一ノードに関する問題の場合のFigma IDです。後方互換性のために残されています。
 
 **形式**:
+
 - 通常ノード: `"1809:1836"`
 - インスタンスノード: `"I1806:932;589:1207"`
 - ネストされたインスタンス: `"I1806:984;1809:902;105:1169"`
@@ -76,18 +80,22 @@ export interface Issue {
 ```
 
 **利点**:
+
 - 同じ問題を1つのIssueとしてまとめられる（UIがすっきり）
 - フロントエンドで「選択」ボタンをクリックすると全ノードを一括選択
 - LLMへのコンテキストサイズ削減
 
 **フロントエンド表示**:
+
 - `nodeIds`が複数ある場合、「3個の要素」バッジを表示
 - 「選択」ボタンで全ノードを同時選択
 
 **バックエンドでの生成方法**:
 
-1. **カラーコントラストマップでグループ化**: `backend/src/utils/prompt.utils.ts`の`buildColorContrastMap()`関数が同じ色の組み合わせをグループ化
-2. **LLMへの指示**: JSON schemaで「同じ問題が複数ノードにある場合はnodeIds配列を使用」と指示
+1. **カラーコントラストマップでグループ化**:
+   `backend/src/utils/prompt.utils.ts`の`buildColorContrastMap()`関数が同じ色の組み合わせをグループ化
+2. **LLMへの指示**: JSON
+   schemaで「同じ問題が複数ノードにある場合はnodeIds配列を使用」と指示
 3. **自動集約**: AccessibilityAgentなどが自動的に`nodeIds`配列を返す
 
 #### `nodeHierarchy`: ノード階層パス
@@ -99,6 +107,7 @@ export interface Issue {
 **例**: `["1234:5678", "1809:1800", "1809:1836"]`
 
 **用途**:
+
 - ノードが削除された場合、親ノードを段階的に選択
 - `figma-plugin/src/main.ts`の`selectNodeWithFallback()`で使用
 
@@ -106,21 +115,25 @@ export interface Issue {
 
 この問題が自動修正可能かどうかを示すフラグです。
 
-**現在の実装**: UI上では使用されていませんが、将来的な自動修正機能の実装に備えて保持されています。
+**現在の実装**:
+UI上では使用されていませんが、将来的な自動修正機能の実装に備えて保持されています。
 
 #### `suggestion`: 改善提案
 
 問題の具体的な改善方法を記述します。
 
 **記載例**:
+
 - 「テキストカラーを #333333 に変更するか、背景を #FFFFFF に変更してください」
 - 「Button/Primary ColorStyle を使用してください」
 
 **注意**:
+
 - Figma ID（例: `1809:1836`）は含めない
 - 具体的な数値や色コードを含める
 
 **フロントエンド表示**:
+
 - 💡アイコン付きで黄色い背景のボックスで表示
 
 ---
@@ -145,6 +158,7 @@ export interface CategoryResult {
 エージェントが検出した全ての問題を`Issue`型の配列として保持します。
 
 **バックエンドでの処理**:
+
 - 各エージェント（AccessibilityAgent、StyleConsistencyAgentなど）が`issues`配列を返す
 - `evaluation.service.ts`で全エージェントの`issues`を収集してソート
 
@@ -153,10 +167,12 @@ export interface CategoryResult {
 デザインの良い点を文字列配列で保持します。
 
 **使用例**:
+
 - 「カラーコントラスト比が基準を満たしています」
 - 「適切なコンポーネント構造になっています」
 
 **フロントエンド表示**:
+
 - 「Good 👍」セクションで表示
 
 ---
@@ -180,6 +196,7 @@ export interface Suggestion extends Issue {
 問題を検出したエージェントのタイプを示します。
 
 **値**:
+
 - `"accessibility"`: AccessibilityAgent
 - `"styleConsistency"`: StyleConsistencyAgent
 - `"usability"`: UsabilityAgent
@@ -187,6 +204,7 @@ export interface Suggestion extends Issue {
 - `"platformCompliance"`: PlatformIosAgent / PlatformAndroidAgent
 
 **用途**:
+
 - 問題の出典を追跡
 - カテゴリ別のフィルタリング（将来的な実装）
 
@@ -220,6 +238,7 @@ export interface EvaluationResult {
 エージェントタイプをキー、`CategoryResult`を値とするオブジェクトです。
 
 **例**:
+
 ```typescript
 {
   "accessibility": {
@@ -239,6 +258,7 @@ export interface EvaluationResult {
 **ソート順**: `high` → `medium` → `low`
 
 **用途**:
+
 - 優先度順に問題を表示
 - カテゴリ横断的な問題把握
 
@@ -247,6 +267,7 @@ export interface EvaluationResult {
 評価に関するメタ情報を保持します。
 
 **サブフィールド**:
+
 - `evaluatedAt`: 評価実行日時（Date型）
 - `duration`: 評価にかかった時間（ミリ秒）
 - `rootNodeId`: 評価対象のルートノードID（フォールバック用）
@@ -334,7 +355,8 @@ export interface ScreenshotData {
 - Claude APIのVision機能を使用した視覚的デザイン評価
 - 特にUsabilityAgentで視覚的レイアウトの分析に活用
 
-**詳細**: [バックエンドAPI仕様](../backend/api.md#post-apievaluate)を参照してください。
+**詳細**:
+[バックエンドAPI仕様](../backend/api.md#post-apievaluate)を参照してください。
 
 ---
 
@@ -346,10 +368,11 @@ export interface ScreenshotData {
 // AccessibilityAgent での Issue 生成例
 const issue: Issue = {
   severity: 'high',
-  message: '背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、WCAG AA基準（4.5:1）を満たしていません',
+  message:
+    '背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、WCAG AA基準（4.5:1）を満たしていません',
   nodeIds: ['1809:1836', '1809:1850', '1809:1870'], // 複数ノードをグループ化
   autoFixable: false,
-  suggestion: 'テキストカラーを #333333 に変更してください'
+  suggestion: 'テキストカラーを #333333 に変更してください',
 };
 ```
 

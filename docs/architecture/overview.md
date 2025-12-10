@@ -323,29 +323,43 @@ export abstract class BaseEvaluationAgent {
 ```typescript
 // グループ化前（個別）
 [
-  { textColor: "#999999", backgroundColor: "#F5F5F5", nodeId: "1809:1836", nodeName: "Button" },
-  { textColor: "#999999", backgroundColor: "#F5F5F5", nodeId: "1809:1850", nodeName: "Title" },
-  { textColor: "#999999", backgroundColor: "#F5F5F5", nodeId: "1809:1870", nodeName: "Label" }
-]
-
-// グループ化後
-[
   {
-    textColor: "#999999",
-    backgroundColor: "#F5F5F5",
+    textColor: '#999999',
+    backgroundColor: '#F5F5F5',
+    nodeId: '1809:1836',
+    nodeName: 'Button',
+  },
+  {
+    textColor: '#999999',
+    backgroundColor: '#F5F5F5',
+    nodeId: '1809:1850',
+    nodeName: 'Title',
+  },
+  {
+    textColor: '#999999',
+    backgroundColor: '#F5F5F5',
+    nodeId: '1809:1870',
+    nodeName: 'Label',
+  },
+][
+  // グループ化後
+  {
+    textColor: '#999999',
+    backgroundColor: '#F5F5F5',
     contrastRatio: 2.8,
     nodes: [
-      { nodeId: "1809:1836", nodeName: "Button" },
-      { nodeId: "1809:1850", nodeName: "Title" },
-      { nodeId: "1809:1870", nodeName: "Label" }
-    ]
+      { nodeId: '1809:1836', nodeName: 'Button' },
+      { nodeId: '1809:1850', nodeName: 'Title' },
+      { nodeId: '1809:1870', nodeName: 'Label' },
+    ],
   }
-]
+];
 ```
 
 **ステップ2: LLMへの指示**
 
-JSON schemaで「同じ色の組み合わせが複数ノードにある場合は`nodeIds`配列を使用」と指示します。
+JSON
+schemaで「同じ色の組み合わせが複数ノードにある場合は`nodeIds`配列を使用」と指示します。
 
 ```typescript
 {
@@ -375,7 +389,8 @@ JSON schemaで「同じ色の組み合わせが複数ノードにある場合は
 
 `Issue`型は`nodeId`（単一）と`nodeIds`（複数）の両方をサポートし、`nodeIds`が優先されます。
 
-**詳細**: [共通型定義](../shared/types.md#issue型---評価問題の型定義)を参照してください。
+**詳細**:
+[共通型定義](../shared/types.md#issue型---評価問題の型定義)を参照してください。
 
 ---
 
