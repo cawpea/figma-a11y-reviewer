@@ -10,6 +10,6 @@ export const anthropic = new Anthropic({
 
 export const MODEL_CONFIG = {
   default: 'claude-sonnet-4-20250514',
-  maxTokens: 4000,
+  maxTokens: 8000, // Claude Sonnet 4.5の最大出力トークン数は8192
   temperature: 0, // 一貫性のある評価のため低めに設定
 } as const;
