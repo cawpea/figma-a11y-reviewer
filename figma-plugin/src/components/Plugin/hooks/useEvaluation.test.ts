@@ -243,6 +243,28 @@ describe('useEvaluation', () => {
       });
     });
 
+    it('問題にnodeIds配列があるとき全てのnodeIdsとともにSELECT_NODEを発行する', () => {
+      const { result } = renderHook(() => useEvaluation());
+
+      const issue = {
+        severity: 'high' as const,
+        message: 'test',
+        nodeIds: ['1:2', '1:3', '1:4'],
+        nodeHierarchy: ['1:1', '1:2'],
+        autoFixable: false,
+      };
+
+      act(() => {
+        result.current.handleIssueClick(issue, '1:1');
+      });
+
+      expect(mockEmit).toHaveBeenCalledWith('SELECT_NODE', {
+        nodeIds: ['1:2', '1:3', '1:4'],
+        nodeHierarchy: ['1:1', '1:2'],
+        rootNodeId: '1:1',
+      });
+    });
+
     it('nodeIdもrootNodeIdもないときは発行しない', () => {
       const { result } = renderHook(() => useEvaluation());
 

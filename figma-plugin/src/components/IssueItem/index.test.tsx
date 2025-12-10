@@ -143,4 +143,37 @@ describe('IssueItem', () => {
       expect(buttons).toHaveLength(1);
     });
   });
+
+  describe('複数ノード対応', () => {
+    it('nodeIds配列を持つ場合、ノード数バッジを表示する', () => {
+      const issueWithMultipleNodes: Issue = {
+        ...mockIssue,
+        nodeIds: ['node1', 'node2', 'node3'],
+      };
+      render(<IssueItem issue={issueWithMultipleNodes} onIssueClick={mockOnIssueClick} />);
+
+      expect(screen.getByText('3個の要素')).toBeInTheDocument();
+    });
+
+    it('nodeIdsが1つの場合、ノード数バッジを表示しない', () => {
+      const issueWithSingleNode: Issue = {
+        ...mockIssue,
+        nodeIds: ['node1'],
+      };
+      render(<IssueItem issue={issueWithSingleNode} onIssueClick={mockOnIssueClick} />);
+
+      expect(screen.queryByText('1個の要素')).not.toBeInTheDocument();
+    });
+
+    it('nodeIdsがある場合、nodeIdより優先される', () => {
+      const issueWithBoth: Issue = {
+        ...mockIssue,
+        nodeId: 'old-node',
+        nodeIds: ['node1', 'node2'],
+      };
+      render(<IssueItem issue={issueWithBoth} onIssueClick={mockOnIssueClick} />);
+
+      expect(screen.getByText('2個の要素')).toBeInTheDocument();
+    });
+  });
 });
