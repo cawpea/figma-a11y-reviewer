@@ -638,13 +638,39 @@ function extractTextAndBackgroundColors(
 
 /**
  * 兄弟要素から背景色を探す（テキストより前にある要素を優先）
+ * @param siblings - 兄弟要素の配列
+ * @param referenceNode - 参照テキストノード（サイズ比較用）
  */
-function findSiblingBackgroundColor(siblings: FigmaNodeData[]): string | undefined {
+function findSiblingBackgroundColor(
+  siblings: FigmaNodeData[],
+  referenceNode?: FigmaNodeData
+): string | undefined {
   // RECTANGLEやFRAMEなどの背景要素を探す
   for (const sibling of siblings) {
     if (sibling.type !== 'TEXT' && sibling.fills && sibling.fills.length > 0) {
       const fill = sibling.fills[0];
       if (fill.type === 'SOLID' && fill.color) {
+        // 装飾的な小さい要素を除外
+        const siblingWidth = sibling.absoluteBoundingBox?.width ?? 0;
+        const siblingHeight = sibling.absoluteBoundingBox?.height ?? 0;
+
+        // 幅または高さが10px以下の要素は装飾要素としてスキップ
+        if (siblingWidth <= 10 || siblingHeight <= 10) {
+          continue;
+        }
+
+        // 参照テキストノードと比較して面積が小さすぎる場合はスキップ
+        if (referenceNode?.absoluteBoundingBox) {
+          const textArea =
+            referenceNode.absoluteBoundingBox.width * referenceNode.absoluteBoundingBox.height;
+          const siblingArea = siblingWidth * siblingHeight;
+
+          // 兄弟要素の面積がテキストの10%未満の場合はスキップ
+          if (siblingArea < textArea * 0.1) {
+            continue;
+          }
+        }
+
         return rgbToHex(fill.color.r, fill.color.g, fill.color.b);
       }
     }
@@ -686,7 +712,7 @@ function collectTextColorPairs(
 
     // 背景色がない場合、兄弟要素から探す
     if (!finalBackgroundColor && parentNode?.children) {
-      finalBackgroundColor = findSiblingBackgroundColor(parentNode.children);
+      finalBackgroundColor = findSiblingBackgroundColor(parentNode.children, node);
     }
 
     // それでもない場合は親の背景色を使用

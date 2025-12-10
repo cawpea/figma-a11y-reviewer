@@ -416,6 +416,138 @@ describe('prompt.utils', () => {
       expect(result).toContain('最初の50件のみを表示');
       expect(result).toContain('省略されています');
     });
+
+    it('装飾的な小さい兄弟要素を除外して親要素の背景色を使用する', () => {
+      // 親要素（ライトグレー背景）
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [
+          {
+            type: 'SOLID',
+            color: { r: 0.969, g: 0.969, b: 0.969 }, // #F7F7F7（ライトグレー背景）
+            opacity: 1,
+          },
+        ],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 100 },
+        children: [
+          {
+            id: 'h2title',
+            name: 'h2title',
+            type: 'INSTANCE',
+            children: [
+              // 幅3pxの細い青い線（装飾要素）
+              {
+                id: 'blue-line',
+                name: 'Rectangle',
+                type: 'RECTANGLE',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0.024, g: 0.435, b: 0.784 }, // #096FC8（青色）
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 0, y: 0, width: 3, height: 48 },
+              },
+              // テキストノード
+              {
+                id: 'text1',
+                name: 'Heading',
+                type: 'TEXT',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0.224, g: 0.239, b: 0.251 }, // #393D40（ダークグレー）
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 10, y: 0, width: 730, height: 42 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      // 装飾的な青い線（#096FC8）ではなく、親要素の背景色（#F7F7F7）が使用されることを確認
+      expect(result).toContain('Heading (ID: text1)');
+      expect(result).toContain('文字色: #393D40');
+      expect(result).toContain('背景色: #F7F7F7');
+      expect(result).not.toContain('背景色: #096FC8');
+
+      // コントラスト比が10以上（正しい値）であることを確認
+      // #393D40 vs #F7F7F7 のコントラスト比は約10.23:1
+      const contrastMatch = result.match(/コントラスト比: (\d+\.\d+):1/);
+      expect(contrastMatch).not.toBeNull();
+      if (contrastMatch) {
+        const contrast = parseFloat(contrastMatch[1]);
+        expect(contrast).toBeGreaterThan(10);
+      }
+    });
+
+    it('十分に大きい兄弟要素は背景色として使用される', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [
+          {
+            type: 'SOLID',
+            color: { r: 1, g: 1, b: 1 }, // #FFFFFF（白背景）
+            opacity: 1,
+          },
+        ],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 100 },
+        children: [
+          {
+            id: 'parent',
+            name: 'Parent',
+            type: 'FRAME',
+            fills: [], // 背景色なし（明示的に空）
+            children: [
+              // 十分に大きい背景要素
+              {
+                id: 'bg',
+                name: 'Background',
+                type: 'RECTANGLE',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0.969, g: 0.969, b: 0.969 }, // #F7F7F7（グレー）
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 0, y: 0, width: 740, height: 50 },
+              },
+              // テキストノード
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0, g: 0, b: 0 }, // #000000
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 10, y: 10, width: 720, height: 30 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      // 十分に大きい兄弟要素（#F7F7F7）が背景色として使用されることを確認
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('文字色: #000000');
+      expect(result).toContain('背景色: #F7F7F7');
+    });
   });
 
   describe('buildStylesApplicationMap', () => {
