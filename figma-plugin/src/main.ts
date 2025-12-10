@@ -180,12 +180,6 @@ async function selectMultipleNodes(
     figma.currentPage.selection = selectedNodes;
     figma.viewport.scrollAndZoomIntoView(selectedNodes);
 
-    const message =
-      selectedNodes.length === nodeIds.length
-        ? `${selectedNodes.length}個のレイヤーを選択しました`
-        : `${selectedNodes.length}/${nodeIds.length}個のレイヤーを選択しました（一部が見つかりませんでした）`;
-
-    figma.notify(message);
     console.log(`✅ Selected ${selectedNodes.length} nodes out of ${nodeIds.length}`);
     return true;
   }
