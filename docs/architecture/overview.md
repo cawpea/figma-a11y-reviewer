@@ -410,7 +410,8 @@ const evaluationRequestSchema = z.object({
 2. **データ制限**:
    - Figmaノード抽出の最大深度: 10階層
    - スタイル情報: 各カテゴリ最大100個
-3. **トークン最適化**: Claude APIの`max_tokens: 4000`設定
+3. **トークン最適化**: Claude APIの`max_tokens: 8000`設定（Claude Sonnet
+   4.5の最大出力トークン数は8192）
 4. **キャッシング**: （将来実装予定）Prompt Caching for Claude
 
 ## エラーハンドリング戦略

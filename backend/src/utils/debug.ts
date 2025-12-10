@@ -19,7 +19,7 @@ export function log(
   level: 'debug' | 'info' | 'warn' | 'error',
   message: string,
   prefix?: string,
-  ...args: any[]
+  ...args: unknown[]
 ): void {
   // debug/infoは開発環境でのみ出力
   if ((level === 'debug' || level === 'info') && process.env.NODE_ENV !== 'development') {
