@@ -49,7 +49,7 @@ describe('screenshot', () => {
       expect(result?.imageData).toContain('data:image/png;base64,');
       expect(mockNode.exportAsync).toHaveBeenCalledWith({
         format: 'PNG',
-        constraint: { type: 'SCALE', value: 0.5 },
+        constraint: { type: 'SCALE', value: 0.8 },
       });
       expect(consoleLogSpy).toHaveBeenCalledWith(
         '📸 Capturing screenshot for node:',
