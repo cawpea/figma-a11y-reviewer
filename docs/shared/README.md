@@ -4,17 +4,19 @@
 
 ## 📚 ドキュメント一覧
 
-### 計画中のドキュメント
+### 実装済みドキュメント
 
-- **types.md** - 共通型定義の詳細説明、使用例
-  - FigmaNodeType - Figmaノードタイプの列挙型（40種類）
+- **[types.md](./types.md)** - 共通型定義の詳細説明、使用例
+  - Issue - 評価問題の型（nodeIds配列による複数ノード対応）
+  - CategoryResult - カテゴリ別評価結果の型
+  - Suggestion - 改善提案の型
+  - EvaluationResult - 評価結果全体の型
   - FigmaNodeData - Figmaノードデータの型
   - FigmaStylesData - Figmaスタイル情報の型
-  - EvaluationResult - 評価結果の型
-  - Issue - 問題項目の型
-  - Suggestion - 改善提案の型
-  - CategoryResult - カテゴリ別評価結果の型
   - ScreenshotData - スクリーンショットデータの型
+
+### 計画中のドキュメント
+
 - **constants.md** - 共通定数の詳細説明、使用例
   - USER_CONTEXT_MAX_LENGTH - ユーザーコンテキストの文字数制限
   - STYLES_LIMIT - スタイル取得の上限設定

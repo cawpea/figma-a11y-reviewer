@@ -308,6 +308,77 @@ export abstract class BaseEvaluationAgent {
 }
 ```
 
+### 4. 類似Issue集約機能
+
+<!-- CODE_REF: backend/src/utils/prompt.utils.ts:1116-1133 -->
+
+同じ色の組み合わせが複数のテキストノードに適用されている場合、個別のIssueではなく1つのグループ化されたIssueとして返します。
+
+#### グループ化の流れ
+
+**ステップ1: バックエンドでのグループ化**
+
+`buildColorContrastMap()`関数が同じ色の組み合わせ（`textColor|backgroundColor`）でノードをグループ化します。
+
+```typescript
+// グループ化前（個別）
+[
+  { textColor: "#999999", backgroundColor: "#F5F5F5", nodeId: "1809:1836", nodeName: "Button" },
+  { textColor: "#999999", backgroundColor: "#F5F5F5", nodeId: "1809:1850", nodeName: "Title" },
+  { textColor: "#999999", backgroundColor: "#F5F5F5", nodeId: "1809:1870", nodeName: "Label" }
+]
+
+// グループ化後
+[
+  {
+    textColor: "#999999",
+    backgroundColor: "#F5F5F5",
+    contrastRatio: 2.8,
+    nodes: [
+      { nodeId: "1809:1836", nodeName: "Button" },
+      { nodeId: "1809:1850", nodeName: "Title" },
+      { nodeId: "1809:1870", nodeName: "Label" }
+    ]
+  }
+]
+```
+
+**ステップ2: LLMへの指示**
+
+JSON schemaで「同じ色の組み合わせが複数ノードにある場合は`nodeIds`配列を使用」と指示します。
+
+```typescript
+{
+  "nodeIds": ["1809:1836", "1809:1850", "1809:1870"]  // 配列として返す
+}
+```
+
+**ステップ3: フロントエンドでの表示**
+
+<!-- CODE_REF: figma-plugin/src/components/IssueItem/index.tsx:33-36 -->
+
+複数ノードの場合、「○個の要素」バッジを表示し、「選択」ボタンで全ノードを一括選択します。
+
+```typescript
+{nodeCount > 1 && (
+  <Badge severity="neutral" label={`${nodeCount}個の要素`} />
+)}
+```
+
+#### 利点
+
+- **UIがすっきり**: 重複Issueが減り、レビュー結果が見やすい
+- **効率的な修正**: 複数ノードを一括選択できる
+- **トークン削減**: グループ化によりLLMコンテキストサイズが削減
+
+#### 後方互換性
+
+`Issue`型は`nodeId`（単一）と`nodeIds`（複数）の両方をサポートし、`nodeIds`が優先されます。
+
+**詳細**: [共通型定義](../shared/types.md#issue型---評価問題の型定義)を参照してください。
+
+---
+
 ## 評価エージェントシステム
 
 > **詳細**: [agent-system.md](./agent-system.md)
