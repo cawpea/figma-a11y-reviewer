@@ -416,6 +416,421 @@ describe('prompt.utils', () => {
       expect(result).toContain('最初の50件のみを表示');
       expect(result).toContain('省略されています');
     });
+
+    it('装飾的な小さい兄弟要素を除外して親要素の背景色を使用する', () => {
+      // 親要素（ライトグレー背景）
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [
+          {
+            type: 'SOLID',
+            color: { r: 0.969, g: 0.969, b: 0.969 }, // #F7F7F7（ライトグレー背景）
+            opacity: 1,
+          },
+        ],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 100 },
+        children: [
+          {
+            id: 'h2title',
+            name: 'h2title',
+            type: 'INSTANCE',
+            children: [
+              // 幅3pxの細い青い線（装飾要素）
+              {
+                id: 'blue-line',
+                name: 'Rectangle',
+                type: 'RECTANGLE',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0.024, g: 0.435, b: 0.784 }, // #096FC8（青色）
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 0, y: 0, width: 3, height: 48 },
+              },
+              // テキストノード
+              {
+                id: 'text1',
+                name: 'Heading',
+                type: 'TEXT',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0.224, g: 0.239, b: 0.251 }, // #393D40（ダークグレー）
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 10, y: 0, width: 730, height: 42 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      // 装飾的な青い線（#096FC8）ではなく、親要素の背景色（#F7F7F7）が使用されることを確認
+      expect(result).toContain('Heading (ID: text1)');
+      expect(result).toContain('文字色: #393D40');
+      expect(result).toContain('背景色: #F7F7F7');
+      expect(result).not.toContain('背景色: #096FC8');
+
+      // コントラスト比が10以上（正しい値）であることを確認
+      // #393D40 vs #F7F7F7 のコントラスト比は約10.23:1
+      const contrastMatch = result.match(/コントラスト比: (\d+\.\d+):1/);
+      expect(contrastMatch).not.toBeNull();
+      if (contrastMatch) {
+        const contrast = parseFloat(contrastMatch[1]);
+        expect(contrast).toBeGreaterThan(10);
+      }
+    });
+
+    it('十分に大きい兄弟要素は背景色として使用される', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [
+          {
+            type: 'SOLID',
+            color: { r: 1, g: 1, b: 1 }, // #FFFFFF（白背景）
+            opacity: 1,
+          },
+        ],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 100 },
+        children: [
+          {
+            id: 'parent',
+            name: 'Parent',
+            type: 'FRAME',
+            fills: [], // 背景色なし（明示的に空）
+            children: [
+              // 十分に大きい背景要素
+              {
+                id: 'bg',
+                name: 'Background',
+                type: 'RECTANGLE',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0.969, g: 0.969, b: 0.969 }, // #F7F7F7（グレー）
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 0, y: 0, width: 740, height: 50 },
+              },
+              // テキストノード
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [
+                  {
+                    type: 'SOLID',
+                    color: { r: 0, g: 0, b: 0 }, // #000000
+                    opacity: 1,
+                  },
+                ],
+                absoluteBoundingBox: { x: 10, y: 10, width: 720, height: 30 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      // 十分に大きい兄弟要素（#F7F7F7）が背景色として使用されることを確認
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('文字色: #000000');
+      expect(result).toContain('背景色: #F7F7F7');
+    });
+
+    it('座標ベース: 単一の背景がテキストを完全に包含する場合、その背景色を使用する', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 600 },
+        children: [
+          {
+            id: 'container',
+            name: 'Container',
+            type: 'FRAME',
+            fills: [],
+            children: [
+              {
+                id: 'bg-blue',
+                name: 'Background',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 100, y: 100, width: 300, height: 200 },
+              },
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 150, y: 150, width: 200, height: 50 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #0000FF');
+      expect(result).not.toContain('背景色: #FFFFFF');
+    });
+
+    it('座標ベース: 複数の背景が重なる場合、最も手前（topmost）の背景色を使用する', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 600 },
+        children: [
+          {
+            id: 'container',
+            name: 'Container',
+            type: 'FRAME',
+            fills: [],
+            children: [
+              {
+                id: 'bg-red',
+                name: 'Background Red',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 100, y: 100, width: 400, height: 300 },
+              },
+              {
+                id: 'bg-green',
+                name: 'Background Green',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 1, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 150, y: 150, width: 300, height: 200 },
+              },
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 200, y: 200, width: 200, height: 50 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('背景色: #00FF00');
+      expect(result).not.toContain('背景色: #FF0000');
+    });
+
+    it('座標ベース: 部分的に重なる背景は除外され、親の背景色にフォールバックする', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 600 },
+        children: [
+          {
+            id: 'container',
+            name: 'Container',
+            type: 'FRAME',
+            // fills プロパティを削除（未定義）して親の背景色を継承
+            children: [
+              {
+                id: 'bg-partial',
+                name: 'Partial Background',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 100, y: 150, width: 150, height: 50 },
+              },
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 150, y: 150, width: 200, height: 50 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('背景色: #E6E6E6'); // 0.9 * 255 = 229.5 → 230 → 0xE6
+      expect(result).not.toContain('背景色: #0000FF');
+    });
+
+    it('座標ベース: 座標的に重ならない兄弟要素は除外され、親の背景色を使用する', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 0.95, g: 0.95, b: 0.95 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 600 },
+        children: [
+          {
+            id: 'container',
+            name: 'Container',
+            type: 'FRAME',
+            // fills プロパティを削除（未定義）して親の背景色を継承
+            children: [
+              {
+                id: 'bg-left',
+                name: 'Left Background',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 50, y: 100, width: 100, height: 100 },
+              },
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 300, y: 100, width: 200, height: 50 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('背景色: #F2F2F2');
+      expect(result).not.toContain('背景色: #FF0000');
+    });
+
+    it('座標ベース: absoluteBoundingBoxがない場合は既存のサイズフィルタリングにフォールバックする', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+        children: [
+          {
+            id: 'container',
+            name: 'Container',
+            type: 'FRAME',
+            fills: [],
+            children: [
+              {
+                id: 'bg',
+                name: 'Background',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 0, y: 0, width: 500, height: 300 },
+              },
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('背景色:');
+    });
+
+    it('座標ベース: 小さい装飾要素を除外しつつ、包含判定を行う', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'Root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 0, y: 0, width: 800, height: 600 },
+        children: [
+          {
+            id: 'container',
+            name: 'Container',
+            type: 'FRAME',
+            fills: [],
+            children: [
+              {
+                id: 'decoration',
+                name: 'Small Decoration',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 140, y: 140, width: 3, height: 60 },
+              },
+              {
+                id: 'bg',
+                name: 'Background',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 1, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 100, y: 100, width: 300, height: 200 },
+              },
+              {
+                id: 'text1',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 150, y: 150, width: 200, height: 40 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text1)');
+      expect(result).toContain('背景色: #00FF00');
+      expect(result).not.toContain('背景色: #FF0000');
+    });
+
+    it('兄弟要素のRECTANGLEから背景色を正しく検出する', () => {
+      const node: FigmaNodeData = {
+        id: 'header',
+        name: 'header',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'rect',
+            name: 'Rectangle 3954',
+            type: 'RECTANGLE',
+            fills: [{ type: 'SOLID', color: { r: 0.024, g: 0.435, b: 0.784 }, opacity: 1 }],
+            absoluteBoundingBox: { x: 100, y: 100, width: 110, height: 34 },
+          },
+          {
+            id: 'text',
+            name: 'Entry',
+            type: 'TEXT',
+            fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+            absoluteBoundingBox: { x: 110, y: 108, width: 44, height: 16 },
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Entry (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #066FC8'); // 兄弟要素のRECTANGLE
+      expect(result).not.toContain('コントラスト比: 1:1');
+    });
   });
 
   describe('buildStylesApplicationMap', () => {
@@ -1171,6 +1586,396 @@ describe('prompt.utils', () => {
       expect(results[0].language).toBe('japanese');
       expect(results[1].language).toBe('english');
       expect(results[2].language).toBe('mixed');
+    });
+  });
+
+  describe('階層的背景色検索（修正版）', () => {
+    it('兄弟要素から背景色を検出する（優先度1）', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'parent-group',
+            name: 'Parent Group',
+            type: 'GROUP',
+            fills: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 }, opacity: 1 }], // 赤色（親要素の背景）
+            children: [
+              {
+                id: 'sibling-rect',
+                name: 'Sibling Rectangle',
+                type: 'RECTANGLE',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 1 }, opacity: 1 }], // 青色（兄弟）
+                absoluteBoundingBox: { x: 0, y: 0, width: 200, height: 100 },
+              },
+              {
+                id: 'text',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #0000FF'); // 青色（兄弟要素が優先）
+      expect(result).not.toContain('背景色: #FF0000'); // 赤色（親要素の背景）は使われない
+    });
+
+    it('親要素自体の背景色を検出する（優先度2）', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'parent-group',
+            name: 'Parent Group',
+            type: 'FRAME',
+            fills: [{ type: 'SOLID', color: { r: 0.024, g: 0.435, b: 0.784 }, opacity: 1 }], // 青色
+            children: [
+              {
+                id: 'text',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #066FC8'); // 親要素自体の背景色
+    });
+
+    it('親の兄弟要素から背景色を検出する（優先度3）', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'sibling-of-parent',
+            name: 'Sibling of Parent',
+            type: 'RECTANGLE',
+            fills: [{ type: 'SOLID', color: { r: 0.024, g: 0.435, b: 0.784 }, opacity: 1 }], // 青色
+            absoluteBoundingBox: { x: 0, y: 0, width: 300, height: 200 },
+          },
+          {
+            id: 'parent-group',
+            name: 'Parent Group',
+            type: 'GROUP',
+            children: [
+              {
+                id: 'text',
+                name: 'Text',
+                type: 'TEXT',
+                fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #066FC8'); // 親の兄弟要素
+    });
+
+    it('祖父母要素自体の背景色を検出する（優先度4）', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'grandparent',
+            name: 'Grandparent',
+            type: 'FRAME',
+            fills: [{ type: 'SOLID', color: { r: 0.024, g: 0.435, b: 0.784 }, opacity: 1 }], // 青色
+            children: [
+              {
+                id: 'parent-group',
+                name: 'Parent Group',
+                type: 'GROUP',
+                children: [
+                  {
+                    id: 'text',
+                    name: 'Text',
+                    type: 'TEXT',
+                    fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                    absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #066FC8'); // 祖父母要素自体の背景色
+    });
+
+    it('祖父母の兄弟要素から背景色を検出する（優先度5）', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        children: [
+          {
+            id: 'sibling-of-grandparent',
+            name: 'Sibling of Grandparent',
+            type: 'RECTANGLE',
+            fills: [{ type: 'SOLID', color: { r: 0.024, g: 0.435, b: 0.784 }, opacity: 1 }], // 青色
+            absoluteBoundingBox: { x: 0, y: 0, width: 400, height: 300 },
+          },
+          {
+            id: 'grandparent',
+            name: 'Grandparent',
+            type: 'GROUP',
+            children: [
+              {
+                id: 'parent-group',
+                name: 'Parent Group',
+                type: 'GROUP',
+                children: [
+                  {
+                    id: 'text',
+                    name: 'Text',
+                    type: 'TEXT',
+                    fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                    absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #066FC8'); // 祖父母の兄弟要素
+    });
+
+    it('ルート要素の背景色を検出する（優先度7、最終フォールバック）', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 }, opacity: 1 }], // グレー
+        children: [
+          {
+            id: 'grandparent',
+            name: 'Grandparent',
+            type: 'GROUP',
+            children: [
+              {
+                id: 'parent-group',
+                name: 'Parent Group',
+                type: 'GROUP',
+                children: [
+                  {
+                    id: 'text',
+                    name: 'Text',
+                    type: 'TEXT',
+                    fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 1 }],
+                    absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #000000');
+      expect(result).toContain('背景色: #E6E6E6'); // ルート要素の背景色
+    });
+
+    it('ユーザーケース: Job Entry + Rectangle 3898（Group 3666が親）', () => {
+      // Rectangle 3898の親要素がGroup 3666の場合
+      const node: FigmaNodeData = {
+        id: 'group-3666',
+        name: 'Group 3666',
+        type: 'GROUP',
+        children: [
+          {
+            id: 'rect-3898',
+            name: 'Rectangle 3898',
+            type: 'RECTANGLE',
+            fills: [{ type: 'SOLID', color: { r: 0.024, g: 0.435, b: 0.784 }, opacity: 1 }], // 青色
+            absoluteBoundingBox: { x: 0, y: 0, width: 400, height: 300 },
+          },
+          {
+            id: 'group-3665',
+            name: 'Group 3665',
+            type: 'GROUP',
+            children: [
+              {
+                id: 'group-3664',
+                name: 'Group 3664',
+                type: 'GROUP',
+                children: [
+                  {
+                    id: 'text-job-entry',
+                    name: 'Job Entry',
+                    type: 'TEXT',
+                    fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                    absoluteBoundingBox: { x: 50, y: 50, width: 80, height: 30 },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Job Entry (ID: text-job-entry)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #066FC8'); // Rectangle 3898（曾祖父母の兄弟要素）
+    });
+
+    it('最大深度に達した場合は検索を中断', () => {
+      // 深くネストされたツリーを生成（深度25以上）
+      let deepNode: FigmaNodeData = {
+        id: 'text',
+        name: 'Deep Text',
+        type: 'TEXT',
+        fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 10, y: 10, width: 50, height: 20 },
+      };
+
+      for (let i = 0; i < 25; i++) {
+        deepNode = {
+          id: `group-${i}`,
+          name: `Group ${i}`,
+          type: 'GROUP',
+          children: [deepNode],
+        };
+      }
+
+      const rootWithBackground: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 0.9, g: 0.9, b: 0.9 }, opacity: 1 }],
+        children: [deepNode],
+      };
+
+      const result = buildColorContrastMap(rootWithBackground);
+
+      // 最大深度に達した場合、背景色が見つからずColorPairに追加されない
+      expect(result).not.toContain('Deep Text (ID: text)');
+    });
+
+    it('循環参照が検出された場合は検索を中断', () => {
+      const childNode: FigmaNodeData = {
+        id: 'child',
+        name: 'Child',
+        type: 'GROUP',
+        children: [],
+      };
+
+      const textNode: FigmaNodeData = {
+        id: 'text',
+        name: 'Text',
+        type: 'TEXT',
+        fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 0 }, opacity: 1 }],
+        absoluteBoundingBox: { x: 10, y: 10, width: 50, height: 20 },
+      };
+
+      const parentNode: FigmaNodeData = {
+        id: 'parent',
+        name: 'Parent',
+        type: 'GROUP',
+        children: [childNode, textNode],
+      };
+
+      childNode.children = [parentNode];
+
+      const root: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+        children: [parentNode],
+      };
+
+      expect(() => buildColorContrastMap(root)).not.toThrow();
+    });
+
+    it('複数階層で優先順位が正しく機能する', () => {
+      const node: FigmaNodeData = {
+        id: 'root',
+        name: 'root',
+        type: 'FRAME',
+        fills: [{ type: 'SOLID', color: { r: 0.5, g: 0.5, b: 0.5 }, opacity: 1 }], // グレー
+        children: [
+          {
+            id: 'grandparent',
+            name: 'Grandparent',
+            type: 'FRAME',
+            fills: [{ type: 'SOLID', color: { r: 1, g: 0, b: 0 }, opacity: 1 }], // 赤色
+            children: [
+              {
+                id: 'parent-group',
+                name: 'Parent Group',
+                type: 'GROUP',
+                fills: [{ type: 'SOLID', color: { r: 0, g: 1, b: 0 }, opacity: 1 }], // 緑色
+                children: [
+                  {
+                    id: 'sibling-rect',
+                    name: 'Sibling Rectangle',
+                    type: 'RECTANGLE',
+                    fills: [{ type: 'SOLID', color: { r: 0, g: 0, b: 1 }, opacity: 1 }], // 青色
+                    absoluteBoundingBox: { x: 0, y: 0, width: 200, height: 100 },
+                  },
+                  {
+                    id: 'text',
+                    name: 'Text',
+                    type: 'TEXT',
+                    fills: [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }],
+                    absoluteBoundingBox: { x: 10, y: 10, width: 80, height: 30 },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      };
+
+      const result = buildColorContrastMap(node);
+
+      expect(result).toContain('Text (ID: text)');
+      expect(result).toContain('文字色: #FFFFFF');
+      expect(result).toContain('背景色: #0000FF'); // 青色（兄弟要素が最優先）
     });
   });
 });

@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, unlinkSync, statSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, statSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -7,6 +7,42 @@ import { FigmaNodeData } from '@shared/types';
 import { MODEL_CONFIG } from '../config/anthropic';
 
 const logsDir = join(__dirname, '../../logs');
+
+/**
+ * 統合ログ関数: 開発環境ではdebug/infoを出力、warn/errorは常に出力
+ * @param level - ログレベル ('debug' | 'info' | 'warn' | 'error')
+ * @param message - ログメッセージ
+ * @param prefix - オプショナルなプレフィックス（例: '[Sibling Search]'）
+ * @param args - 追加の引数（console.logと同様）
+ */
+export function log(
+  level: 'debug' | 'info' | 'warn' | 'error',
+  message: string,
+  prefix?: string,
+  ...args: unknown[]
+): void {
+  // debug/infoは開発環境でのみ出力
+  if ((level === 'debug' || level === 'info') && process.env.NODE_ENV !== 'development') {
+    return;
+  }
+
+  const formattedMessage = prefix ? `${prefix} ${message}` : message;
+
+  switch (level) {
+    case 'debug':
+      console.debug(formattedMessage, ...args);
+      break;
+    case 'info':
+      console.info(formattedMessage, ...args);
+      break;
+    case 'warn':
+      console.warn(formattedMessage, ...args);
+      break;
+    case 'error':
+      console.error(formattedMessage, ...args);
+      break;
+  }
+}
 
 /**
  * デバッグ用: ノードデータをファイルに保存
@@ -20,7 +56,7 @@ export function saveDebugData(nodeData: FigmaNodeData) {
     // logsディレクトリが存在しない場合は作成
     if (!existsSync(logsDir)) {
       mkdirSync(logsDir, { recursive: true });
-      console.log('📁 Created logs directory:', logsDir);
+      log('info', `📁 Created logs directory: ${logsDir}`);
     }
 
     // タイムスタンプ付きファイル名
@@ -46,10 +82,10 @@ export function saveDebugData(nodeData: FigmaNodeData) {
     };
 
     writeFileSync(filepath, JSON.stringify(debugData, null, 2));
-    console.log(`✅ Debug data saved to: logs/${filename}`);
-    console.log(`   Children count: ${debugData.childrenCount}`);
+    log('info', `✅ Debug data saved to: logs/${filename}`);
+    log('info', `   Children count: ${debugData.childrenCount}`);
   } catch (error) {
-    console.error('❌ Failed to save debug file:', error);
+    log('error', '❌ Failed to save debug file:', undefined, error);
   }
 }
 
@@ -79,10 +115,10 @@ export function cleanupOldDebugFiles() {
     });
 
     if (deletedCount > 0) {
-      console.log(`🗑️  Cleaned up ${deletedCount} old debug files`);
+      log('info', `🗑️  Cleaned up ${deletedCount} old debug files`);
     }
   } catch (error) {
-    console.error('Failed to cleanup old debug files:', error);
+    log('error', 'Failed to cleanup old debug files:', undefined, error);
   }
 }
 
@@ -132,8 +168,8 @@ export function savePromptAndResponse(
     };
 
     writeFileSync(filepath, JSON.stringify(data, null, 2));
-    console.log(`📋 Prompt JSON saved to: logs/prompts/${filename}`);
+    log('info', `📋 Prompt JSON saved to: logs/prompts/${filename}`);
   } catch (error) {
-    console.error('Failed to save prompt JSON:', error);
+    log('error', 'Failed to save prompt JSON:', undefined, error);
   }
 }

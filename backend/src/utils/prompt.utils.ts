@@ -1,6 +1,7 @@
 import { CategoryResult, FigmaNodeData, FigmaStylesData } from '@shared/types';
 
 import { calculateWCAGContrast, rgbToHex } from './accessibility';
+import { log } from './debug';
 
 /**
  * プロンプトインジェクション対策: ユーザー入力をエスケープ
@@ -637,18 +638,346 @@ function extractTextAndBackgroundColors(
 }
 
 /**
- * 兄弟要素から背景色を探す（テキストより前にある要素を優先）
+ * 背景要素がテキスト要素を完全に包含しているか判定
+ * @param textBox - テキスト要素のバウンディングボックス
+ * @param backgroundBox - 背景要素のバウンディングボックス
+ * @returns 完全に包含している場合はtrue
  */
-function findSiblingBackgroundColor(siblings: FigmaNodeData[]): string | undefined {
-  // RECTANGLEやFRAMEなどの背景要素を探す
+function isFullyContainedBy(
+  textBox: { x: number; y: number; width: number; height: number },
+  backgroundBox: { x: number; y: number; width: number; height: number }
+): boolean {
+  return (
+    backgroundBox.x <= textBox.x &&
+    backgroundBox.y <= textBox.y &&
+    backgroundBox.x + backgroundBox.width >= textBox.x + textBox.width &&
+    backgroundBox.y + backgroundBox.height >= textBox.y + textBox.height
+  );
+}
+
+/**
+ * ツリーを探索して、指定ノードの親ノードを見つける
+ * @param root ルートノード
+ * @param targetNode 検索対象ノード
+ * @returns 親ノード、見つからない場合はundefined
+ */
+function findParentNode(root: FigmaNodeData, targetNode: FigmaNodeData): FigmaNodeData | undefined {
+  if (root.children) {
+    for (const child of root.children) {
+      if (child.id === targetNode.id) {
+        return root;
+      }
+
+      const parent = findParentNode(child, targetNode);
+      if (parent) {
+        return parent;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * ノード自体の背景色を抽出する
+ * @param node チェック対象ノード
+ * @returns 背景色、見つからない場合はundefined
+ */
+function extractBackgroundColor(node: FigmaNodeData): string | undefined {
+  // TEXTノードの場合はスキップ（テキスト色として扱われるため）
+  if (node.type === 'TEXT') {
+    return undefined;
+  }
+
+  if (node.fills && Array.isArray(node.fills) && node.fills.length > 0) {
+    const solidFill = node.fills.find(
+      (
+        fill
+      ): fill is { type: 'SOLID'; color: { r: number; g: number; b: number }; opacity?: number } =>
+        fill.type === 'SOLID' && fill.color !== undefined
+    );
+
+    if (solidFill) {
+      const opacity = solidFill.opacity ?? 1;
+      if (opacity > 0) {
+        const { r, g, b } = solidFill.color;
+        return rgbToHex(r, g, b);
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * ノードがルートノードかどうかを判定
+ * @param node チェック対象ノード
+ * @param root ルートノード
+ * @returns ルートノードの場合true
+ */
+function isRootNode(node: FigmaNodeData, root: FigmaNodeData): boolean {
+  return node.id === root.id;
+}
+
+/**
+ * 階層的に背景色を検索する
+ * 各階層で以下の順序で検索:
+ * 1. 兄弟要素から検索
+ * 2. 親要素自体の背景色を確認
+ * 3. 祖父母要素の兄弟要素から検索
+ * 4. 祖父母要素自体の背景色を確認
+ * 5. 同様に親を辿る（再帰的）
+ * 6. ルート要素の背景色を使用
+ *
+ * @param rootNode ツリーのルートノード
+ * @param textNode テキストノード
+ * @param currentParent 現在の親ノード
+ * @param depth 現在の深度（循環参照防止用）
+ * @param visited 訪問済みノードID（循環参照防止用）
+ * @returns 背景色、見つからない場合はundefined
+ */
+function findBackgroundColorWithHierarchy(
+  rootNode: FigmaNodeData,
+  textNode: FigmaNodeData,
+  currentParent: FigmaNodeData | undefined,
+  depth: number = 0,
+  visited: Set<string> = new Set()
+): string | undefined {
+  // 安全対策: 最大深度チェック
+  if (depth > 20) {
+    log(
+      'warn',
+      `Max depth reached for: ${textNode.name}, Depth: ${depth}`,
+      '[Hierarchical Search]'
+    );
+    return undefined;
+  }
+
+  // 親ノードが存在しない場合は終了
+  if (!currentParent) {
+    log('debug', 'No parent found, ending search', '[Hierarchical Search]');
+    return undefined;
+  }
+
+  // 安全対策: 循環参照チェック
+  if (visited.has(currentParent.id)) {
+    log(
+      'warn',
+      `Circular reference detected: Node: ${currentParent.name} (ID: ${currentParent.id})`,
+      '[Hierarchical Search]'
+    );
+    return undefined;
+  }
+
+  visited.add(currentParent.id);
+
+  log(
+    'debug',
+    `Level ${depth}: Searching for: ${textNode.name}, Current parent: ${currentParent.name} (ID: ${currentParent.id})`,
+    '[Hierarchical Search]'
+  );
+
+  // [Step 1] 兄弟要素から検索
+  if (currentParent.children) {
+    log(
+      'debug',
+      `Step 1 (Level ${depth}): Searching siblings, Siblings count: ${currentParent.children.length}`,
+      '[Hierarchical Search]'
+    );
+
+    const siblingBackground = findSiblingBackgroundColor(currentParent.children, textNode, false);
+
+    if (siblingBackground) {
+      log(
+        'info',
+        `✓ Found sibling background at depth ${depth}: Background: ${siblingBackground}, Parent: ${currentParent.name}`,
+        '[Hierarchical Search]'
+      );
+      return siblingBackground;
+    }
+  }
+
+  // [Step 2] 親要素自体の背景色を確認
+  log(
+    'debug',
+    `Step 2 (Level ${depth}): Checking parent's own background`,
+    '[Hierarchical Search]'
+  );
+
+  const parentBackground = extractBackgroundColor(currentParent);
+
+  if (parentBackground) {
+    log(
+      'info',
+      `✓ Found parent's own background at depth ${depth}: Background: ${parentBackground}, Parent: ${currentParent.name}`,
+      '[Hierarchical Search]'
+    );
+    return parentBackground;
+  }
+
+  // [Step 3] ルートノードに到達した場合は終了
+  if (isRootNode(currentParent, rootNode)) {
+    log('debug', 'Reached root, no background found', '[Hierarchical Search]');
+    return undefined;
+  }
+
+  // [Step 4] 祖父母ノードを取得
+  const grandparent = findParentNode(rootNode, currentParent);
+
+  if (!grandparent) {
+    log('debug', `No grandparent found for: ${currentParent.name}`, '[Hierarchical Search]');
+    return undefined;
+  }
+
+  // [Step 5] 再帰的に上位階層へ
+  log(
+    'debug',
+    `Moving up to level ${depth + 1}: Grandparent: ${grandparent.name} (ID: ${grandparent.id})`,
+    '[Hierarchical Search]'
+  );
+
+  return findBackgroundColorWithHierarchy(rootNode, textNode, grandparent, depth + 1, visited);
+}
+
+/**
+ * 兄弟要素から背景色を探す（座標ベースの完全包含検出 + サイズフィルタリング）
+ * Z-orderを考慮して最も手前（topmost）の背景を優先的に検出します。
+ * @param siblings - 兄弟要素の配列（前から順にz-order後ろ→前）
+ * @param referenceNode - 参照テキストノード（サイズ・座標比較用）
+ * @param isDebug - デバッグログを出力するかどうか（デフォルト: false）
+ * @returns 検出された背景色（hex形式）、見つからない場合はundefined
+ */
+function findSiblingBackgroundColor(
+  siblings: FigmaNodeData[],
+  referenceNode?: FigmaNodeData,
+  isDebug: boolean = false
+): string | undefined {
+  // 座標ベースの検出を試みる（テキストノードに座標情報がある場合）
+  if (referenceNode?.absoluteBoundingBox) {
+    const textBox = referenceNode.absoluteBoundingBox;
+
+    if (isDebug) {
+      log(
+        'debug',
+        `Text box: x=${textBox.x}, y=${textBox.y}, w=${textBox.width}, h=${textBox.height}`,
+        '[Sibling Search]'
+      );
+    }
+
+    // Z-orderを考慮して逆順で探索（最も手前から）
+    for (let i = siblings.length - 1; i >= 0; i--) {
+      const sibling = siblings[i];
+
+      // スキップ条件のデバッグログ
+      if (sibling.type === 'TEXT') {
+        if (isDebug) log('debug', `Skip TEXT: ${sibling.name}`, '[Sibling Search]');
+        continue;
+      }
+      if (!sibling.fills || sibling.fills.length === 0) {
+        if (isDebug) log('debug', `Skip no fills: ${sibling.name}`, '[Sibling Search]');
+        continue;
+      }
+
+      const fill = sibling.fills[0];
+      if (fill.type !== 'SOLID' || !fill.color) {
+        if (isDebug) log('debug', `Skip non-SOLID fill: ${sibling.name}`, '[Sibling Search]');
+        continue;
+      }
+      if (fill.opacity !== undefined && fill.opacity <= 0.1) {
+        if (isDebug) log('debug', `Skip low opacity: ${sibling.name}`, '[Sibling Search]');
+        continue;
+      }
+
+      // サイズフィルタリング
+      if (!sibling.absoluteBoundingBox) {
+        if (isDebug) log('debug', `Skip no boundingBox: ${sibling.name}`, '[Sibling Search]');
+        continue;
+      }
+
+      const siblingBox = sibling.absoluteBoundingBox;
+      const siblingWidth = siblingBox.width;
+      const siblingHeight = siblingBox.height;
+
+      if (isDebug) {
+        log(
+          'debug',
+          `Checking: ${sibling.name} (${sibling.type}), x=${siblingBox.x}, y=${siblingBox.y}, w=${siblingWidth}, h=${siblingHeight}`,
+          '[Sibling Search]'
+        );
+      }
+
+      // 幅または高さが10px以下の要素は装飾要素としてスキップ
+      if (siblingWidth <= 10 || siblingHeight <= 10) {
+        if (isDebug) log('debug', `Skip too small: ${sibling.name}`, '[Sibling Search]');
+        continue;
+      }
+
+      const textArea = textBox.width * textBox.height;
+      const siblingArea = siblingWidth * siblingHeight;
+
+      // 兄弟要素の面積がテキストの10%未満の場合はスキップ
+      if (siblingArea < textArea * 0.1) {
+        if (isDebug) {
+          log(
+            'debug',
+            `Skip too small area: ${sibling.name}, siblingArea=${siblingArea}, textArea=${textArea}, ratio=${siblingArea / textArea}`,
+            '[Sibling Search]'
+          );
+        }
+        continue;
+      }
+
+      // 完全包含チェック
+      const isContained = isFullyContainedBy(textBox, siblingBox);
+      if (isDebug) {
+        log(
+          'debug',
+          `Containment check: ${sibling.name}, isContained=${isContained}`,
+          '[Sibling Search]'
+        );
+      }
+
+      if (isContained) {
+        const bgColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
+        log('info', `✓ Found background: ${sibling.name}, color=${bgColor}`, '[Sibling Search]');
+        return bgColor;
+      }
+    }
+
+    // 座標情報がある場合、完全包含する背景が見つからなければ
+    // 親要素の背景色にフォールバック（undefinedを返す）
+    log('warn', 'No matching sibling found, returning undefined', '[Sibling Search]');
+    return undefined;
+  }
+
+  // フォールバック：座標情報がない場合のみサイズでフィルタリング（後方互換性維持）
   for (const sibling of siblings) {
     if (sibling.type !== 'TEXT' && sibling.fills && sibling.fills.length > 0) {
       const fill = sibling.fills[0];
       if (fill.type === 'SOLID' && fill.color) {
+        if (fill.opacity !== undefined && fill.opacity <= 0.1) continue;
+
+        const siblingWidth = sibling.absoluteBoundingBox?.width ?? 0;
+        const siblingHeight = sibling.absoluteBoundingBox?.height ?? 0;
+
+        // 幅または高さが10px以下の要素は装飾要素としてスキップ
+        if (siblingWidth <= 10 || siblingHeight <= 10) continue;
+
+        // 参照テキストノードと比較して面積が小さすぎる場合はスキップ
+        if (referenceNode?.absoluteBoundingBox) {
+          const textArea =
+            referenceNode.absoluteBoundingBox.width * referenceNode.absoluteBoundingBox.height;
+          const siblingArea = siblingWidth * siblingHeight;
+
+          // 兄弟要素の面積がテキストの10%未満の場合はスキップ
+          if (siblingArea < textArea * 0.1) continue;
+        }
+
         return rgbToHex(fill.color.r, fill.color.g, fill.color.b);
       }
     }
   }
+
   return undefined;
 }
 
@@ -658,6 +987,7 @@ function findSiblingBackgroundColor(siblings: FigmaNodeData[]): string | undefin
  */
 function collectTextColorPairs(
   node: FigmaNodeData,
+  rootNode: FigmaNodeData,
   parentBackgroundColor?: string,
   parentNode?: FigmaNodeData,
   results: ColorContrastInfo[] = [],
@@ -682,16 +1012,60 @@ function collectTextColorPairs(
 
   // テキストノードの場合
   if (node.type === 'TEXT' && textColor) {
-    let finalBackgroundColor = backgroundColor;
+    let finalBackgroundColor: string | undefined;
 
-    // 背景色がない場合、兄弟要素から探す
-    if (!finalBackgroundColor && parentNode?.children) {
-      finalBackgroundColor = findSiblingBackgroundColor(parentNode.children);
+    // TEXTノードの場合、階層的に背景色を探す
+    log(
+      'debug',
+      `Starting hierarchical search for: ${node.name} (ID: ${node.id})`,
+      '[Background Detection]'
+    );
+
+    // [Step 1] 階層的検索を実行
+    finalBackgroundColor = findBackgroundColorWithHierarchy(rootNode, node, parentNode);
+
+    if (finalBackgroundColor) {
+      log(
+        'info',
+        `✓ Found via hierarchical search: ${finalBackgroundColor}`,
+        '[Background Detection]'
+      );
+    } else {
+      log(
+        'warn',
+        `Hierarchical search failed for: ${node.name}, No background color found in hierarchy`,
+        '[Background Detection]'
+      );
     }
 
-    // それでもない場合は親の背景色を使用
-    if (!finalBackgroundColor) {
-      finalBackgroundColor = parentBackgroundColor;
+    // 【新規】異常値検出: 文字色と背景色が同一
+    if (finalBackgroundColor && textColor === finalBackgroundColor) {
+      log(
+        'warn',
+        `TEXT node has identical text and background color: Node: ${node.name} (ID: ${node.id}), Color: ${textColor}`,
+        '[Contrast Anomaly]'
+      );
+
+      // デバッグモード時の詳細ログ
+      log('debug', 'Node data:', '[Contrast Anomaly]', {
+        name: node.name,
+        id: node.id,
+        type: node.type,
+        fills: node.fills,
+        parentNode: parentNode?.name,
+        parentBackground: parentBackgroundColor,
+        siblings: parentNode?.children?.map((c) => ({
+          name: c.name,
+          type: c.type,
+          fills: c.fills,
+        })),
+      });
+
+      // 対策: 親要素の背景色を再確認
+      if (parentBackgroundColor && parentBackgroundColor !== textColor) {
+        finalBackgroundColor = parentBackgroundColor;
+        log('info', `Using parent background: ${parentBackgroundColor}`, '[Contrast Anomaly]');
+      }
     }
 
     // 背景色が見つかった場合のみコントラスト比を計算
@@ -711,7 +1085,7 @@ function collectTextColorPairs(
           wcagCompliance: contrastResult.wcag_compliance,
         });
       } catch (error) {
-        console.error(`Failed to calculate contrast for node ${node.name}:`, error);
+        log('error', `Failed to calculate contrast for node ${node.name}:`, undefined, error);
       }
     }
   }
@@ -723,7 +1097,7 @@ function collectTextColorPairs(
     const currentBg = backgroundColor || (hasExplicitNoFill ? undefined : parentBackgroundColor);
 
     for (const child of node.children) {
-      collectTextColorPairs(child, currentBg, node, results, visited, maxResults);
+      collectTextColorPairs(child, rootNode, currentBg, node, results, visited, maxResults);
       // 最大件数に達したら処理を中断
       if (results.length >= maxResults) {
         break;
@@ -740,7 +1114,15 @@ function collectTextColorPairs(
  * @param maxItems - 最大表示件数（デフォルト: 100）
  */
 export function buildColorContrastMap(data: FigmaNodeData, maxItems: number = 100): string {
-  const contrastInfos = collectTextColorPairs(data, undefined, undefined, [], new Set(), maxItems);
+  const contrastInfos = collectTextColorPairs(
+    data,
+    data,
+    undefined,
+    undefined,
+    [],
+    new Set(),
+    maxItems
+  );
 
   if (contrastInfos.length === 0) {
     return 'テキスト要素が見つかりませんでした。';
