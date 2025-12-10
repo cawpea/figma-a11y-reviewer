@@ -31,9 +31,7 @@ export default function IssueItem({ issue, rootNodeId, onIssueClick }: IssueItem
           <Badge severity={issue.severity} className="mr-1.5" />
           {/* ノード数バッジ（複数の場合のみ表示） */}
           {nodeCount > 1 && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
-              {nodeCount}個のノード
-            </span>
+            <Badge severity="neutral" label={`${nodeCount}個の要素`} className="mr-1.5" />
           )}
         </div>
         <Button
