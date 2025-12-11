@@ -32,7 +32,8 @@
       "Bash(node debug-test.js:*)",
       "Bash(npx tsc:*)",
       "Bash(test:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "WebFetch(domain:www.w3.org)"
     ],
     "deny": [],
     "ask": []
