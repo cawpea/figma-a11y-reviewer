@@ -105,7 +105,9 @@ scripts/               # ユーティリティスクリプト
 現在のシステムは**アクセシビリティ評価専用**です。
 
 **利用可能なエージェント**:
-- `AccessibilityAgent`: WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズを評価
+
+- `AccessibilityAgent`: WCAG 2.2
+  AA準拠、色のコントラスト、タッチターゲットサイズを評価
 
 各エージェントは`BaseEvaluationAgent`を継承し、以下を実装します：
 

@@ -197,7 +197,8 @@ export interface Suggestion extends Issue {
 
 **現在利用可能な値**:
 
-- `"accessibility"`: AccessibilityAgent（WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズ）
+- `"accessibility"`: AccessibilityAgent（WCAG 2.2
+  AA準拠、色のコントラスト、タッチターゲットサイズ）
 
 **用途**:
 
