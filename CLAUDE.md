@@ -106,8 +106,13 @@ scripts/               # ユーティリティスクリプト
 
 **利用可能なエージェント**:
 
-- `AccessibilityAgent`: WCAG 2.2
-  AA準拠、色のコントラスト、タッチターゲットサイズを評価
+- `AccessibilityAAgent`: WCAG 2.2 A基準準拠、コントラスト比 3:1以上（大テキスト 1.5:1）
+- `AccessibilityAAAgent`: WCAG 2.2 AA基準準拠、コントラスト比 4.5:1以上（大テキスト 3:1）
+- `AccessibilityAAAAgent`: WCAG 2.2 AAA基準準拠、コントラスト比 7:1以上（大テキスト 4.5:1）
+
+**WCAG基準選択**:
+
+Figma Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選択できます。選択された基準に応じて、対応するエージェントが自動的に実行されます。デフォルトはAA基準です。
 
 各エージェントは`BaseEvaluationAgent`を継承し、以下を実装します：
 
