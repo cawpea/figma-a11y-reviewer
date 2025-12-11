@@ -1,4 +1,6 @@
+import { RadioButtons } from '@create-figma-plugin/ui';
 import { h } from 'preact';
+import { useMemo } from 'preact/hooks';
 
 import { type WCAGLevel } from '../Plugin/hooks/useWCAGLevelSelection';
 
@@ -10,43 +12,45 @@ interface WCAGLevelSelectorProps {
 const wcagLevels: Array<{ value: WCAGLevel; label: string; description: string }> = [
   {
     value: 'A',
-    label: 'WCAG 2.2 A基準',
-    description: 'コントラスト比 3:1以上（大テキスト 1.5:1）',
+    label: 'WCAG 2.2 Level A',
+    description: '情報や機能に到達するための最低限の基準',
   },
   {
     value: 'AA',
-    label: 'WCAG 2.2 AA基準',
-    description: 'コントラスト比 4.5:1以上（大テキスト 3:1）',
+    label: 'WCAG 2.2 Level AA',
+    description: 'より多くの人が問題なく使えることを目的とした実用的な基準',
   },
   {
     value: 'AAA',
-    label: 'WCAG 2.2 AAA基準',
-    description: 'コントラスト比 7:1以上（大テキスト 4.5:1）',
+    label: 'WCAG 2.2 Level AAA',
+    description: 'さまざまな障害のある人に対して最大限の配慮を行う最高レベルの基準',
   },
 ];
 
 export default function WCAGLevelSelector({ wcagLevel, onChange }: WCAGLevelSelectorProps) {
-  return (
-    <div className="flex flex-col gap-2">
-      {wcagLevels.map((level) => (
-        <label
-          key={level.value}
-          className="flex items-start gap-2 cursor-pointer p-2 rounded hover:bg-gray-50"
-        >
-          <input
-            type="radio"
-            name="wcag-level"
-            value={level.value}
-            checked={wcagLevel === level.value}
-            onChange={() => onChange(level.value)}
-            className="mt-1 cursor-pointer"
-          />
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-gray-800">{level.label}</span>
-            <span className="text-xs text-gray-500">{level.description}</span>
+  const options = useMemo(
+    () =>
+      wcagLevels.map((level, index) => ({
+        value: level.value,
+        children: (
+          <div className={`${index < wcagLevels.length - 1 ? 'mb-2' : ''}`}>
+            <div className="flex-1 relative top-[-4px]">
+              <div className="font-medium text-xs mb-1.5">{level.label}</div>
+              <div className="text-[10px] text-gray-500 leading-tight">{level.description}</div>
+            </div>
           </div>
-        </label>
-      ))}
-    </div>
+        ),
+      })),
+    []
+  );
+
+  return (
+    <RadioButtons
+      value={wcagLevel}
+      onValueChange={(value) => onChange(value as WCAGLevel)}
+      options={options}
+      direction="vertical"
+      space="extraSmall"
+    />
   );
 }

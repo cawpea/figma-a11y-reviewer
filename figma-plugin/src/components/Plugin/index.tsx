@@ -73,20 +73,9 @@ export default function Plugin() {
 
       {/* WCAG基準選択セクション */}
       <section>
-        <Heading>WCAG基準</Heading>
+        <Heading>レビュー基準</Heading>
         <WCAGLevelSelector wcagLevel={wcagLevel} onChange={handleWCAGLevelChange} />
       </section>
-
-      {/* 選択されたエージェント情報 */}
-      {selectedAgentInfo && (
-        <section>
-          <Heading>評価内容</Heading>
-          <div className="flex flex-col gap-1 p-3 bg-gray-50 rounded">
-            <span className="text-xs font-medium text-gray-800">{selectedAgentInfo.label}</span>
-            <span className="text-xs text-gray-600">{selectedAgentInfo.description}</span>
-          </div>
-        </section>
-      )}
 
       {/* AIによるレビューを開始ボタン */}
       <section>

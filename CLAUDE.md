@@ -106,13 +106,17 @@ scripts/               # ユーティリティスクリプト
 
 **利用可能なエージェント**:
 
-- `AccessibilityAAgent`: WCAG 2.2 A基準準拠、コントラスト比 3:1以上（大テキスト 1.5:1）
-- `AccessibilityAAAgent`: WCAG 2.2 AA基準準拠、コントラスト比 4.5:1以上（大テキスト 3:1）
-- `AccessibilityAAAAgent`: WCAG 2.2 AAA基準準拠、コントラスト比 7:1以上（大テキスト 4.5:1）
+- `AccessibilityAAgent`: WCAG 2.2 Level
+  A、情報や機能に到達するための最低限の基準
+- `AccessibilityAAAgent`: WCAG 2.2 Level
+  AA、より多くの人が問題なく使えることを目的とした実用的な基準
+- `AccessibilityAAAAgent`: WCAG 2.2 Level
+  AAA、さまざまな障害のある人に対して最大限の配慮を行う最高レベルの基準
 
 **WCAG基準選択**:
 
-Figma Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選択できます。選択された基準に応じて、対応するエージェントが自動的に実行されます。デフォルトはAA基準です。
+Figma
+Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選択できます。選択された基準に応じて、対応するエージェントが自動的に実行されます。デフォルトはAA基準です。
 
 各エージェントは`BaseEvaluationAgent`を継承し、以下を実装します：
 
