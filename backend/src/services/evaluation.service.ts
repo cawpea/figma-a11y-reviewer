@@ -8,7 +8,9 @@ import {
   Suggestion,
 } from '@shared/types';
 
-import { AccessibilityAgent } from './agents/accessibility.agent';
+import { AccessibilityAAgent } from './agents/accessibility-a.agent';
+import { AccessibilityAAAgent } from './agents/accessibility-aa.agent';
+import { AccessibilityAAAAgent } from './agents/accessibility-aaa.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
 // 参考: https://www.anthropic.com/pricing
@@ -20,7 +22,9 @@ const PRICING = {
 
 export class EvaluationService {
   private agents = {
-    accessibility: new AccessibilityAgent(),
+    'accessibility-a': new AccessibilityAAgent(),
+    'accessibility-aa': new AccessibilityAAAgent(),
+    'accessibility-aaa': new AccessibilityAAAAgent(),
   };
 
   /**

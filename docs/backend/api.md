@@ -92,11 +92,17 @@ Content-Type: application/json
 
 #### evaluationTypes の指定可能な値
 
-| 値              | 説明                                | 推定実行時間 |
-| --------------- | ----------------------------------- | ------------ |
-| `accessibility` | アクセシビリティ評価（WCAG 2.2 AA） | ~15秒        |
+| 値                  | 説明                                       | 推定実行時間 |
+| ------------------- | ------------------------------------------ | ------------ |
+| `accessibility-a`   | アクセシビリティ評価（WCAG 2.2 Level A）   | ~15秒        |
+| `accessibility-aa`  | アクセシビリティ評価（WCAG 2.2 Level AA）  | ~15秒        |
+| `accessibility-aaa` | アクセシビリティ評価（WCAG 2.2 Level AAA） | ~15秒        |
 
-**注**: 現在のシステムはアクセシビリティ評価専用です。省略時は`accessibility`が実行されます。
+**注**:
+
+- 現在のシステムはアクセシビリティ評価専用です。
+- FigmaプラグインのUIでWCAG適合レベル（A/AA/AAA）を選択すると、対応するevaluationTypeが自動的に送信されます。
+- 省略時のデフォルト動作は実装により異なります（通常はAAレベル）。
 
 #### スクリーンショット機能
 
@@ -116,12 +122,12 @@ APIを使用して視覚的な評価が可能になります。
 
 **アクセシビリティ評価での活用:**
 
-- 視覚的なカラーコントラストの確認（背景パターン、グラデーション、画像上のテキストなど）
-- タッチターゲットの視覚的なサイズ確認
-- 情報の階層と構造の視覚的評価
-- 計算に含まれない視覚的要素の検証
+- **Level
+  AA/AAA**: 視覚的なカラーコントラストの確認（背景パターン、グラデーション、画像上のテキストなど）
+- **Level A/AA**: タッチターゲットの視覚的なサイズ確認
+- **全レベル共通**: 情報の階層と構造の視覚的評価、計算に含まれない視覚的要素の検証
 
-スクリーンショットが提供された場合、`accessibility`エージェントでは画像からの視覚的分析を優先し、Figmaノードデータと照合して具体的な問題点を特定します。
+スクリーンショットが提供された場合、各アクセシビリティエージェント（`accessibility-a`/`accessibility-aa`/`accessibility-aaa`）では画像からの視覚的分析を優先し、Figmaノードデータと照合して具体的な問題点を特定します。
 
 #### リクエスト例
 
@@ -168,7 +174,7 @@ APIを使用して視覚的な評価が可能になります。
       "truncated": false
     }
   },
-  "evaluationTypes": ["accessibility"],
+  "evaluationTypes": ["accessibility-aa"],
   "userId": "user-12345"
 }
 ```
@@ -185,7 +191,7 @@ APIを使用して視覚的な評価が可能になります。
   "data": {
     "overallScore": number,           // 総合スコア（0-100）
     "categories": {
-      "accessibility": {
+      "accessibility-aa": {           // 選択されたWCAGレベルに応じて変わる（accessibility-a/accessibility-aa/accessibility-aaa）
         "score": number,              // カテゴリスコア（0-100）
         "issues": [
           {

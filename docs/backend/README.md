@@ -15,7 +15,8 @@
 - **agents/** - 評価エージェントのサブディレクトリ
   - **README.md** - エージェントシステムの概要
   - **base-agent.md** - BaseEvaluationAgentの詳細実装
-  - **accessibility.md** - アクセシビリティエージェント（WCAG 2.2 AA準拠）
+  - **accessibility.md** - アクセシビリティエージェント（WCAG 2.2 Level
+    A/AA/AAA準拠）
   - **style-consistency.md** - スタイル一貫性エージェント
   - **usability.md** - ユーザビリティエージェント（Nielsen's 10原則）
   - **writing.md** - ライティングエージェント

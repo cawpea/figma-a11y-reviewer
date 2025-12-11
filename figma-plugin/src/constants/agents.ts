@@ -8,14 +8,26 @@ export interface AgentOption {
 
 export const agentOptions: AgentOption[] = [
   {
-    id: 'accessibility',
-    label: 'アクセシビリティ',
-    description: 'WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズを評価',
+    id: 'accessibility-a',
+    label: 'WCAG 2.2 A基準',
+    description: 'コントラスト比 3:1以上（大テキスト 1.5:1）',
+  },
+  {
+    id: 'accessibility-aa',
+    label: 'WCAG 2.2 AA基準',
+    description: 'コントラスト比 4.5:1以上（大テキスト 3:1）',
+  },
+  {
+    id: 'accessibility-aaa',
+    label: 'WCAG 2.2 AAA基準',
+    description: 'コントラスト比 7:1以上（大テキスト 4.5:1）',
   },
 ];
 
 export const categoryLabels: Record<string, string> = {
-  accessibility: 'アクセシビリティ',
+  'accessibility-a': 'アクセシビリティ (A)',
+  'accessibility-aa': 'アクセシビリティ (AA)',
+  'accessibility-aaa': 'アクセシビリティ (AAA)',
   layout: 'レイアウト',
   naming: '命名規則',
 };

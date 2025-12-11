@@ -1,6 +1,6 @@
-import { Button, Checkbox, IconAi16 } from '@create-figma-plugin/ui';
+import { Button, IconAi16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
-import { useCallback, useState } from 'preact/hooks';
+import { useCallback, useEffect, useState } from 'preact/hooks';
 
 import { agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
@@ -8,12 +8,12 @@ import ErrorDisplay from '../ErrorDisplay';
 import FeatureTogglePanel from '../FeatureTogglePanel';
 import Heading from '../Heading';
 import LoadingView from '../LoadingView';
-import ReviewPointItem from '../ReviewPointItem';
 import ReviewResultView from '../ReviewResultView';
 import SelectionDisplay from '../SelectionDisplay';
+import WCAGLevelSelector from '../WCAGLevelSelector';
 
-import { useAgentSelection } from './hooks/useAgentSelection';
 import { useEvaluation } from './hooks/useEvaluation';
+import { useWCAGLevelSelection } from './hooks/useWCAGLevelSelection';
 
 import '!../../output.css';
 
@@ -22,8 +22,15 @@ export default function Plugin() {
   const selectionState = useSelectionState();
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const { selectedAgents, handleAgentChange, handleSelectAll, handleDeselectAll } =
-    useAgentSelection(agentOptions);
+  const { wcagLevel, handleWCAGLevelChange } = useWCAGLevelSelection();
+
+  // WCAG基準に基づいてエージェントIDを自動決定
+  const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
+
+  useEffect(() => {
+    const agentId = `accessibility-${wcagLevel.toLowerCase()}`;
+    setSelectedAgents([agentId]);
+  }, [wcagLevel]);
 
   const handleBackToInitial = useCallback(() => {
     setView('initial');
@@ -41,16 +48,8 @@ export default function Plugin() {
     handleEvaluate(selectedAgents);
   };
 
-  const allSelected = selectedAgents.length === agentOptions.length;
-  const someSelected = selectedAgents.length > 0 && selectedAgents.length < agentOptions.length;
-
-  const handleSelectAllToggle = (checked: boolean) => {
-    if (checked || someSelected) {
-      handleSelectAll();
-    } else {
-      handleDeselectAll();
-    }
-  };
+  // 選択されたエージェントの情報を取得
+  const selectedAgentInfo = agentOptions.find((agent) => agent.id === selectedAgents[0]);
 
   // レビュー開始ボタンの無効化条件
   const shouldDisableButton = selectedAgents.length === 0;
@@ -69,42 +68,17 @@ export default function Plugin() {
 
   // 初期ページ表示
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-5">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-6">
       <SelectionDisplay selectionState={selectionState} />
 
-      {/* レビュー項目セクション */}
+      {/* WCAG基準選択セクション */}
       <section>
-        {/* 見出しと選択数 */}
-        <Heading
-          rightContent={
-            <div className="flex items-center gap-3">
-              {/* すべて選択チェックボックス */}
-              <Checkbox value={allSelected} onValueChange={handleSelectAllToggle}>
-                <div className="relative top-[-3px]">
-                  <span className="font-medium text-xs">すべて選択</span>
-                </div>
-              </Checkbox>
-              {/* 選択数 */}
-              <span className="text-xs text-gray-500">
-                {selectedAgents.length} / {agentOptions.length}
-              </span>
-            </div>
-          }
-        >
-          レビュー項目
-        </Heading>
+        <Heading>レビュー基準</Heading>
+        <WCAGLevelSelector wcagLevel={wcagLevel} onChange={handleWCAGLevelChange} />
+      </section>
 
-        {/* 評価項目リスト */}
-        {agentOptions.map((agent) => (
-          <ReviewPointItem
-            key={agent.id}
-            agent={agent}
-            checked={selectedAgents.includes(agent.id)}
-            onChange={handleAgentChange}
-          />
-        ))}
-
-        {/* AIによるレビューを開始ボタン */}
+      {/* AIによるレビューを開始ボタン */}
+      <section>
         <div className="flex flex-col gap-3">
           <ErrorDisplay error={validationError || error} />
           <Button

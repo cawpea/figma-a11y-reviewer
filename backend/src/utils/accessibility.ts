@@ -50,6 +50,10 @@ export type WCAGContrastResult = {
     luminance: number;
   };
   wcag_compliance: {
+    A: {
+      normal_text: null;
+      large_text: null;
+    };
     AA: {
       normal_text: boolean;
       large_text: boolean;
@@ -106,6 +110,10 @@ export function calculateWCAGContrast({
       luminance: Math.round(l2 * 1000) / 1000,
     },
     wcag_compliance: {
+      A: {
+        normal_text: null,
+        large_text: null,
+      },
       AA: {
         normal_text: contrastRatio >= 4.5,
         large_text: contrastRatio >= 3.0,

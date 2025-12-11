@@ -410,6 +410,31 @@ export default function () {
     }
   });
 
+  // WCAG基準選択ハンドラー
+  const WCAG_LEVEL_STORAGE_KEY = 'figma-ui-reviewer-wcag-level';
+
+  on('LOAD_WCAG_LEVEL', async () => {
+    try {
+      const wcagLevel = await figma.clientStorage.getAsync(WCAG_LEVEL_STORAGE_KEY);
+      emit('WCAG_LEVEL_LOADED', {
+        wcagLevel: wcagLevel || null,
+      });
+    } catch (e) {
+      console.error('Failed to load WCAG level:', e);
+      emit('WCAG_LEVEL_LOADED', {
+        wcagLevel: null,
+      });
+    }
+  });
+
+  on('SAVE_WCAG_LEVEL', async (wcagLevel: string) => {
+    try {
+      await figma.clientStorage.setAsync(WCAG_LEVEL_STORAGE_KEY, wcagLevel);
+    } catch (e) {
+      console.error('Failed to save WCAG level:', e);
+    }
+  });
+
   on(
     'SELECT_NODE',
     async (payload: {
