@@ -2,7 +2,7 @@
 
 > **注**: このファイルは旧 `docs/api/endpoints.md` から移動されました。
 
-このドキュメントでは、Figma UI
+このドキュメントでは、Figma A11y
 Reviewer バックエンドAPIのエンドポイント仕様を説明します。
 
 ## ベースURL
@@ -79,11 +79,8 @@ Content-Type: application/json
     }
   },
   "evaluationTypes": string[],      // 実行するエージェント（省略時は全て実行）
-                                     // ["accessibility", "styleConsistency", "usability",
-                                     //  "writing", "platformCompliance"]
-  "platformType": "ios" | "android", // platformComplianceエージェント用
+                                     // 現在は ["accessibility"] のみ利用可能
   "userId": string,                  // 分析用のユーザーID（オプション）
-  "userContext": string,             // ユーザビリティ評価用の想定ユーザーと利用文脈（オプション）
   "screenshot": {                    // スクリーンショットデータ（オプション）
     "imageData": string,             // Base64エンコードされた画像データ（data:image/png;base64,... 形式）
     "nodeName": string,              // 元のノード名（サニタイズ前）
@@ -95,58 +92,15 @@ Content-Type: application/json
 
 #### evaluationTypes の指定可能な値
 
-| 値                   | 説明                                                  | 推定実行時間 |
-| -------------------- | ----------------------------------------------------- | ------------ |
-| `accessibility`      | アクセシビリティ評価（WCAG 2.2 AA）                   | ~15秒        |
-| `styleConsistency`   | スタイルの一貫性評価                                  | ~18秒        |
-| `usability`          | ユーザビリティ評価（Nielsen's 10 Heuristics）         | ~20秒        |
-| `writing`            | ライティング・コピー品質評価                          | ~15秒        |
-| `platformCompliance` | プラットフォーム準拠評価（iOS HIG / Material Design） | ~20秒        |
+| 値              | 説明                                  | 推定実行時間 |
+| --------------- | ------------------------------------- | ------------ |
+| `accessibility` | アクセシビリティ評価（WCAG 2.2 AA）   | ~15秒        |
 
-**注**: 省略時は`accessibility`, `styleConsistency`, `usability`,
-`writing`の4つが実行されます。
+**注**: 現在のシステムはアクセシビリティ評価専用です。省略時は`accessibility`が実行されます。
 
-#### userContext フィールドについて
+#### スクリーンショット機能
 
-`userContext`は、ユーザビリティ評価を行う際の前提条件として、想定ユーザーと利用文脈を指定するためのフィールドです。
-
-**用途:**
-
-- ターゲットユーザーのプロフィール（年齢層、スキルレベル、属性など）
-- 利用シーン・文脈（どのような状況で使用されるか）
-- 期待される行動やニーズ
-
-**使用例:**
-
-```json
-{
-  "userContext": "ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
-}
-```
-
-**動作:**
-
-- `usability`エージェントのみで使用されます
-- ユーザーコンテキストが提供された場合、Nielsen's 10
-  Heuristicsに基づく評価時に、想定ユーザーの行動や期待を考慮した問題点や改善提案が行われます
-- プロンプトでは「評価の前提条件」として、スクリーンショットの次に配置されます
-
-**バリデーションルール:**
-
-- 文字数制限: trim後100文字以内（`USER_CONTEXT_MAX_LENGTH`定数で定義）
-- 前後の空白は除外して文字数をカウント
-- 制限を超えた場合は400エラーを返す
-- 空文字列や省略は許可される
-
-**注意事項:**
-
-- 空文字列の場合は送信されません（trim()処理済み）
-- 他のエージェント（`accessibility`、`styleConsistency`など）には影響しません
-
-#### screenshot フィールドについて
-
-スクリーンショットデータは、Claude
-APIのVision機能を使用してデザインの視覚的評価を行うために使用されます。
+`screenshot`フィールドを指定すると、Claude Vision APIを使用して視覚的な評価が可能になります。
 
 **特徴:**
 
@@ -156,7 +110,7 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
 
 **制約:**
 
-- 画像サイズは可能な限り小さくすることを推奨（5KB以下）
+- 画像サイズ制限: 1MB以下（超過した場合はスクリーンショットなしで評価実行）
 - スクリーンショットの取得に失敗しても評価は継続（nullの場合は送信されない）
 
 **アクセシビリティ評価での活用:**
@@ -166,13 +120,7 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
 - 情報の階層と構造の視覚的評価
 - 計算に含まれない視覚的要素の検証
 
-**ユーザビリティ評価での活用:**
-
-- 視覚的なレイアウトとスペーシングの評価
-- インタラクション要素の識別性評価
-- ビジュアル階層とコンテキストの評価
-
-スクリーンショットが提供された場合、`accessibility`および`usability`エージェントでは画像からの視覚的分析を優先し、Figmaノードデータと照合して具体的な問題点を特定します。
+スクリーンショットが提供された場合、`accessibility`エージェントでは画像からの視覚的分析を優先し、Figmaノードデータと照合して具体的な問題点を特定します。
 
 #### リクエスト例
 
@@ -219,9 +167,8 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
       "truncated": false
     }
   },
-  "evaluationTypes": ["accessibility", "usability"],
-  "userId": "user-12345",
-  "userContext": "ECサイトで買い物をする40代のユーザー。通勤中にスマートフォンで商品を閲覧することが多い。"
+  "evaluationTypes": ["accessibility"],
+  "userId": "user-12345"
 }
 ```
 
@@ -307,23 +254,6 @@ APIのVision機能を使用してデザインの視覚的評価を行うため�
         "positives": [
           "適切なフォントサイズ（16px）が使用されています",
           "テキストフィールドにplaceholderが設定されています"
-        ]
-      },
-      "usability": {
-        "score": 80,
-        "issues": [
-          {
-            "severity": "low",
-            "message": "エラーメッセージの表示位置が不明確です。",
-            "nodeId": "1809:1850",
-            "nodeHierarchy": "Login Screen > Error Message",
-            "autoFixable": false,
-            "suggestion": "エラーメッセージを入力フィールドの直下に配置してください。"
-          }
-        ],
-        "positives": [
-          "一貫した視覚的階層が保たれています",
-          "明確なCTA（行動喚起）ボタンが配置されています"
         ]
       }
     },

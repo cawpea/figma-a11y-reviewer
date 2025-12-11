@@ -195,13 +195,9 @@ export interface Suggestion extends Issue {
 
 問題を検出したエージェントのタイプを示します。
 
-**値**:
+**現在利用可能な値**:
 
-- `"accessibility"`: AccessibilityAgent
-- `"styleConsistency"`: StyleConsistencyAgent
-- `"usability"`: UsabilityAgent
-- `"writing"`: WritingAgent
-- `"platformCompliance"`: PlatformIosAgent / PlatformAndroidAgent
+- `"accessibility"`: AccessibilityAgent（WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズ）
 
 **用途**:
 
@@ -244,9 +240,6 @@ export interface EvaluationResult {
   "accessibility": {
     "issues": [...],
     "positives": [...]
-  },
-  "styleConsistency": {
-    "issues": [...]
   }
 }
 ```

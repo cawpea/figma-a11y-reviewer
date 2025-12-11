@@ -65,18 +65,13 @@ export type FigmaNodeType =
 
 ---
 
-<!-- CODE_REF: shared/src/constants.ts:1-12 -->
+<!-- CODE_REF: shared/src/constants.ts:1-9 -->
 
 ### 共通定数（constants.ts）
 
 フロントエンドとバックエンド間で共有される定数を定義しています。
 
 ```typescript
-/**
- * ユーザーコンテキスト（想定ユーザーと利用文脈）の文字数制限
- */
-export const USER_CONTEXT_MAX_LENGTH = 100;
-
 /** スタイル取得時の上限定数 */
 export const STYLES_LIMIT = {
   /** 各カテゴリごとの最大取得数 */
@@ -84,23 +79,10 @@ export const STYLES_LIMIT = {
 } as const;
 ```
 
-**USER_CONTEXT_MAX_LENGTH**
-
-- ユーザビリティ評価で使用する「想定ユーザーと利用文脈」の最大文字数
-- フロントエンド、バックエンドの両方で使用
-- trim後の文字数で判定（前後の空白は除外）
-- 超過時はバリデーションエラーを返す
-
 **STYLES_LIMIT**
 
 - Figmaスタイル情報の取得上限
 - トークン数削減のため、各カテゴリ（Variables、TextStyles、ColorStyles、EffectStyles）ごとに最大100個まで
-
-**使用箇所:**
-
-- `figma-plugin/src/components/Plugin/index.tsx` - フロントエンドバリデーション
-- `figma-plugin/src/components/ReviewPointItem/index.tsx` - 入力欄の文字数制限
-- `backend/src/routes/evaluation.ts` - APIバリデーション
 
 ---
 

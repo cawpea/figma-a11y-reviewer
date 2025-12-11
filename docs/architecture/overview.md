@@ -1,18 +1,20 @@
 # システムアーキテクチャ概要
 
-このドキュメントでは、Figma UI
+このドキュメントでは、Figma A11y
 Reviewerのシステム全体のアーキテクチャを説明します。
 
 ## システム構成
 
-Figma UI
+Figma A11y
 Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.jsバックエンドAPI**の2つの主要コンポーネントで構成されています。
+
+**評価対象**: アクセシビリティ（WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズ）
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Figma Desktop                        │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │              Figma UI Reviewer Plugin                 │  │
+│  │              Figma A11y Reviewer Plugin               │  │
 │  │  ┌─────────────────────────────────────────────────┐  │  │
 │  │  │  UI (Preact + TailwindCSS)                      │  │  │
 │  │  │  - Plugin (初期ページ、エージェント選択)       │  │  │
@@ -36,10 +38,10 @@ Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.js
 │  │  EvaluationService                                    │  │
 │  │  ┌─────────────────────────────────────────────────┐  │  │
 │  │  │  並列実行 (Promise.all)                         │  │  │
-│  │  │  ┌──────────────┐  ┌──────────────┐             │  │  │
-│  │  │  │ Accessibility│  │StyleConsist. │  ...        │  │  │
-│  │  │  │    Agent     │  │    Agent     │             │  │  │
-│  │  │  └──────────────┘  └──────────────┘             │  │  │
+│  │  │  ┌──────────────┐                                │  │  │
+│  │  │  │ Accessibility│                                │  │  │
+│  │  │  │    Agent     │                                │  │  │
+│  │  │  └──────────────┘                                │  │  │
 │  │  └─────────────────────────────────────────────────┘  │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -157,20 +159,20 @@ export async function extractNodeData(
 ```typescript
 /**
  * デザインを評価（並列実行）
+ * 現在はAccessibilityAgentのみ利用可能
  */
 async evaluateDesign(
   data: FigmaNodeData,
   stylesData?: FigmaStylesData,
   evaluationTypes?: string[],
   rootNodeId?: string,
-  platformType?: 'ios' | 'android',
   screenshot?: ScreenshotData // スクリーンショットデータ（オプション）
 ): Promise<EvaluationResult> {
   const startTime = Date.now();
 
   // 評価タイプが指定されていない場合は全て実行
   const typesToRun = evaluationTypes
-    ? evaluationTypes.filter((type) => type in this.agents || type === 'platformCompliance')
+    ? evaluationTypes.filter((type) => type in this.agents)
     : Object.keys(this.agents);
 
   console.log(`Starting evaluation for types: ${typesToRun.join(', ')}`);
@@ -180,15 +182,7 @@ async evaluateDesign(
 
   // 並列実行（Promise.all）
   const evaluationPromises = typesToRun.map(async (type) => {
-    let agent: BaseEvaluationAgent | undefined;
-
-    // platformComplianceの場合、platformTypeに応じて動的にエージェントを選択
-    if (type === 'platformCompliance') {
-      const selectedPlatform = platformType || 'ios';
-      agent = selectedPlatform === 'ios' ? new PlatformIosAgent() : new PlatformAndroidAgent();
-    } else {
-      agent = this.agents[type as keyof typeof this.agents];
-    }
+    const agent = this.agents[type as keyof typeof this.agents];
 
     if (!agent) {
       console.warn(`Unknown evaluation type: ${type}`);
