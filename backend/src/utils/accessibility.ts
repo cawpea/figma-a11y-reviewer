@@ -51,8 +51,8 @@ export type WCAGContrastResult = {
   };
   wcag_compliance: {
     A: {
-      normal_text: boolean;
-      large_text: boolean;
+      normal_text: null;
+      large_text: null;
     };
     AA: {
       normal_text: boolean;
@@ -111,8 +111,8 @@ export function calculateWCAGContrast({
     },
     wcag_compliance: {
       A: {
-        normal_text: contrastRatio >= 3.0,
-        large_text: contrastRatio >= 1.5,
+        normal_text: null,
+        large_text: null,
       },
       AA: {
         normal_text: contrastRatio >= 4.5,
