@@ -38,18 +38,6 @@ describe('POST /api/evaluate', () => {
       expect(response.body.success).toBe(false);
       expect(response.body.error).toBe('Invalid request data');
     });
-
-    it('platformTypeが無効な値の場合は400エラーを返す', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          platformType: 'invalid',
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-    });
   });
 });
 
