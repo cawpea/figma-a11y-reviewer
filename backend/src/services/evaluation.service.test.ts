@@ -28,7 +28,7 @@ describe('EvaluationService', () => {
 
       expect(result.categories).toHaveProperty('accessibility');
       expect(result.categories).toHaveProperty('styleConsistency');
-      expect(result.categories).toHaveProperty('usability');
+      expect(result.categories).toHaveProperty('writing');
       expect(Array.isArray(result.suggestions)).toBe(true);
       expect(result.metadata).toHaveProperty('evaluatedAt');
       expect(result.metadata).toHaveProperty('duration');
@@ -40,17 +40,17 @@ describe('EvaluationService', () => {
 
       expect(result.categories).toHaveProperty('accessibility');
       expect(result.categories).not.toHaveProperty('styleConsistency');
-      expect(result.categories).not.toHaveProperty('usability');
+      expect(result.categories).not.toHaveProperty('writing');
     });
 
     it('複数の指定されたタイプを評価する', async () => {
       const result = await service.evaluateDesign(mockData, undefined, [
         'accessibility',
-        'usability',
+        'writing',
       ]);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).toHaveProperty('usability');
+      expect(result.categories).toHaveProperty('writing');
       expect(result.categories).not.toHaveProperty('styleConsistency');
     });
 
@@ -146,11 +146,11 @@ describe('EvaluationService', () => {
       const result = await service.evaluateDesign(mockData, undefined, [
         'accessibility',
         'invalid',
-        'usability',
+        'writing',
       ]);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).toHaveProperty('usability');
+      expect(result.categories).toHaveProperty('writing');
       expect(result.categories).not.toHaveProperty('invalid');
     });
 
@@ -167,7 +167,7 @@ describe('EvaluationService', () => {
 
       expect(agents).toHaveProperty('accessibility');
       expect(agents).toHaveProperty('styleConsistency');
-      expect(agents).toHaveProperty('usability');
+      expect(agents).toHaveProperty('writing');
     });
   });
 });

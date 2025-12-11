@@ -3,7 +3,7 @@ import type { EvaluationResult } from '@shared/types';
 /**
  * モックAPI用の評価結果データ
  *
- * 全ての評価タイプ（accessibility, usability, styleConsistency, platformCompliance, writing）に対応したモックデータ。
+ * 全ての評価タイプ（accessibility, styleConsistency, platformCompliance, writing）に対応したモックデータ。
  * 開発環境でバックエンドAPIなしにUI開発・テストを行うために使用します。
  */
 export const MOCK_EVALUATION_RESULT: EvaluationResult = {
@@ -38,36 +38,6 @@ export const MOCK_EVALUATION_RESULT: EvaluationResult = {
       positives: [
         '適切なフォーカスインジケーターが設定されています',
         'セマンティックな見出し階層が使用されています',
-      ],
-    },
-    usability: {
-      issues: [
-        {
-          severity: 'high',
-          message: 'タップターゲットのサイズが小さすぎます（現在: 32x32px、推奨: 44x44px以上）。',
-          nodeId: '123:460',
-          nodeHierarchy: ['mock-root-node', 'navigation', 'close-button'],
-          autoFixable: false,
-          suggestion: 'ボタンのパディングを増やして44x44px以上にしてください',
-        },
-        {
-          severity: 'medium',
-          message: 'テキスト入力フィールドのラベルが不明瞭です。',
-          nodeId: '123:461',
-          autoFixable: false,
-          suggestion: 'プレースホルダーの代わりに明確なラベルを配置してください',
-        },
-        {
-          severity: 'low',
-          message: 'エラーメッセージの表示位置が分かりにくいです。',
-          nodeId: '123:462',
-          autoFixable: false,
-          suggestion: 'エラーメッセージを関連する入力フィールドの直下に配置してください',
-        },
-      ],
-      positives: [
-        'アクション可能な要素が明確に区別されています',
-        '一貫したビジュアルヒエラルキーが維持されています',
       ],
     },
     styleConsistency: {

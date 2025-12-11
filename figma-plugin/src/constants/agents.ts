@@ -8,11 +8,6 @@ export interface AgentOption {
 
 export const agentOptions: AgentOption[] = [
   {
-    id: 'usability',
-    label: 'ユーザビリティ',
-    description: "Nielsen's 10原則に基づき、使いやすさと効率性を評価",
-  },
-  {
     id: 'accessibility',
     label: 'アクセシビリティ',
     description: 'WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズを評価',
@@ -37,7 +32,6 @@ export const agentOptions: AgentOption[] = [
 export const categoryLabels: Record<string, string> = {
   accessibility: 'アクセシビリティ',
   styleConsistency: 'スタイルの一貫性',
-  usability: 'ユーザビリティ',
   platformCompliance: 'プラットフォーム準拠',
   layout: 'レイアウト',
   naming: '命名規則',

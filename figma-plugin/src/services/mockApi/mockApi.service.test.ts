@@ -13,19 +13,19 @@ describe('callMockEvaluationAPI', () => {
 
   it('evaluationTypesでフィルタリングする', async () => {
     const result = await callMockEvaluationAPI({
-      evaluationTypes: ['accessibility', 'usability'],
+      evaluationTypes: ['accessibility', 'writing'],
       delay: 0,
     });
 
     expect(result.categories.accessibility).toBeDefined();
-    expect(result.categories.usability).toBeDefined();
+    expect(result.categories.writing).toBeDefined();
     expect(result.categories.styleConsistency).toBeUndefined();
   });
 
   it('evaluationTypesが未指定の場合は全カテゴリを返す', async () => {
     const result = await callMockEvaluationAPI({ delay: 0 });
 
-    expect(Object.keys(result.categories)).toHaveLength(5);
+    expect(Object.keys(result.categories)).toHaveLength(4);
   });
 
   it('platformTypeをログ出力する', async () => {
@@ -42,9 +42,9 @@ describe('callMockEvaluationAPI', () => {
       delay: 0,
     });
 
-    // 2回目: usabilityのみ
+    // 2回目: writingのみ
     const result2 = await callMockEvaluationAPI({
-      evaluationTypes: ['usability'],
+      evaluationTypes: ['writing'],
       delay: 0,
     });
 
@@ -53,14 +53,14 @@ describe('callMockEvaluationAPI', () => {
 
     // 各結果が独立していることを確認
     expect(result1.categories.accessibility).toBeDefined();
-    expect(result1.categories.usability).toBeUndefined();
+    expect(result1.categories.writing).toBeUndefined();
 
-    expect(result2.categories.usability).toBeDefined();
+    expect(result2.categories.writing).toBeDefined();
     expect(result2.categories.accessibility).toBeUndefined();
 
-    expect(Object.keys(result3.categories)).toHaveLength(5);
+    expect(Object.keys(result3.categories)).toHaveLength(4);
     expect(result3.categories.accessibility).toBeDefined();
-    expect(result3.categories.usability).toBeDefined();
+    expect(result3.categories.writing).toBeDefined();
   });
 
   it('返されたデータを変更しても元のデータに影響しない', async () => {
@@ -68,12 +68,12 @@ describe('callMockEvaluationAPI', () => {
 
     // 返されたデータを変更
     result.categories.accessibility.issues[0].message = 'Modified message';
-    delete result.categories.usability;
+    delete result.categories.writing;
 
     // 再度取得して、元のデータが変更されていないことを確認
     const result2 = await callMockEvaluationAPI({ delay: 0 });
 
     expect(result2.categories.accessibility.issues[0].message).not.toBe('Modified message');
-    expect(result2.categories.usability).toBeDefined();
+    expect(result2.categories.writing).toBeDefined();
   });
 });

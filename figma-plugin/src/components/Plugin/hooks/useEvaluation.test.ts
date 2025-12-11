@@ -63,7 +63,6 @@ describe('useEvaluation', () => {
       expect(mockEmit).toHaveBeenCalledWith(
         'EVALUATE_SELECTION',
         ['accessibility', 'styleConsistency'],
-        undefined,
         undefined
       );
     });
@@ -75,31 +74,7 @@ describe('useEvaluation', () => {
         result.current.handleEvaluate(['platformCompliance'], 'ios');
       });
 
-      expect(mockEmit).toHaveBeenCalledWith(
-        'EVALUATE_SELECTION',
-        ['platformCompliance'],
-        'ios',
-        undefined
-      );
-    });
-
-    it('userContextを指定してEVALUATE_SELECTIONを発行する', () => {
-      const { result } = renderHook(() => useEvaluation());
-
-      act(() => {
-        result.current.handleEvaluate(
-          ['usability'],
-          undefined,
-          'ECサイトで買い物をする40代のユーザー'
-        );
-      });
-
-      expect(mockEmit).toHaveBeenCalledWith(
-        'EVALUATE_SELECTION',
-        ['usability'],
-        undefined,
-        'ECサイトで買い物をする40代のユーザー'
-      );
+      expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', ['platformCompliance'], 'ios');
     });
 
     it('エージェントが選択されていないときにエラーを設定する', () => {

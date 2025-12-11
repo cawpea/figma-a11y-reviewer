@@ -1,8 +1,6 @@
 import express, { Express } from 'express';
 import request from 'supertest';
 
-import { USER_CONTEXT_MAX_LENGTH } from '../../../shared/src/constants';
-
 import evaluationRouter from './evaluation';
 
 // EvaluationServiceをモック
@@ -29,86 +27,7 @@ describe('POST /api/evaluate', () => {
     },
   };
 
-  describe('userContextバリデーション', () => {
-    it('userContextが制限以内の場合は受け付ける', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          userContext: 'a'.repeat(USER_CONTEXT_MAX_LENGTH),
-        });
-
-      expect(response.status).not.toBe(400);
-    });
-
-    it('userContextがtrim後に制限以内の場合は受け付ける', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          userContext: '  ' + 'a'.repeat(USER_CONTEXT_MAX_LENGTH) + '  ',
-        });
-
-      expect(response.status).not.toBe(400);
-    });
-
-    it('userContextが制限を超える場合は400エラーを返す', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          userContext: 'a'.repeat(USER_CONTEXT_MAX_LENGTH + 1),
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid request data');
-      expect(response.body.details).toBeDefined();
-    });
-
-    it('userContextがtrim後に制限を超える場合は400エラーを返す', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          userContext: '  ' + 'a'.repeat(USER_CONTEXT_MAX_LENGTH + 1) + '  ',
-        });
-
-      expect(response.status).toBe(400);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Invalid request data');
-    });
-
-    it('userContextが空文字列の場合は受け付ける', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          userContext: '',
-        });
-
-      expect(response.status).not.toBe(400);
-    });
-
-    it('userContextが省略された場合は受け付ける', async () => {
-      const response = await request(app).post('/api/evaluate').send(validRequestBody);
-
-      expect(response.status).not.toBe(400);
-    });
-
-    it('userContextが空白のみの場合は受け付ける（trim後は0文字）', async () => {
-      const response = await request(app)
-        .post('/api/evaluate')
-        .send({
-          ...validRequestBody,
-          userContext: '   ',
-        });
-
-      expect(response.status).not.toBe(400);
-    });
-  });
-
-  describe('その他のバリデーション', () => {
+  describe('バリデーション', () => {
     it('必須フィールドが欠けている場合は400エラーを返す', async () => {
       const response = await request(app).post('/api/evaluate').send({
         fileKey: 'test-file-key',

@@ -13,7 +13,6 @@ import { BaseEvaluationAgent } from './agents/base.agent';
 import { PlatformAndroidAgent } from './agents/platform-android.agent';
 import { PlatformIosAgent } from './agents/platform-ios.agent';
 import { StyleConsistencyAgent } from './agents/style-consistency.agent';
-import { UsabilityAgent } from './agents/usability.agent';
 import { WritingAgent } from './agents/writing.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
@@ -28,7 +27,6 @@ export class EvaluationService {
   private agents = {
     accessibility: new AccessibilityAgent(),
     styleConsistency: new StyleConsistencyAgent(),
-    usability: new UsabilityAgent(),
     writing: new WritingAgent(),
   };
 
@@ -41,8 +39,7 @@ export class EvaluationService {
     evaluationTypes?: string[],
     rootNodeId?: string,
     platformType?: 'ios' | 'android',
-    screenshot?: ScreenshotData,
-    userContext?: string
+    screenshot?: ScreenshotData
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
 
@@ -83,11 +80,6 @@ export class EvaluationService {
       // StyleConsistencyAgentにスタイル情報を渡す
       if (type === 'styleConsistency' && agent instanceof StyleConsistencyAgent) {
         agent.setStylesData(stylesData);
-      }
-
-      // UsabilityAgentにユーザーコンテキストを渡す
-      if (type === 'usability' && agent instanceof UsabilityAgent && userContext) {
-        agent.setUserContext(userContext);
       }
 
       // スクリーンショットをエージェントに注入

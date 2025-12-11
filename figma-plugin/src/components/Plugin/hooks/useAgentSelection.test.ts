@@ -15,7 +15,6 @@ const mockEmit = jest.fn((event: string, _data?: any) => {
         messageHandlers['AGENT_SELECTION_LOADED']({
           selectedAgents: null,
           selectedPlatform: null,
-          userContext: null,
         });
       }
     }, 0);
@@ -35,7 +34,7 @@ describe('useAgentSelection', () => {
   const mockAgentOptions: AgentOption[] = [
     { id: 'accessibility', label: 'Accessibility', description: 'Test' },
     { id: 'styleConsistency', label: 'Style Consistency', description: 'Test' },
-    { id: 'usability', label: 'Usability', description: 'Test' },
+    { id: 'writing', label: 'Writing', description: 'Test' },
   ];
 
   beforeEach(() => {
@@ -60,7 +59,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
         'styleConsistency',
-        'usability',
+        'writing',
       ]);
     });
   });
@@ -74,7 +73,6 @@ describe('useAgentSelection', () => {
             messageHandlers['AGENT_SELECTION_LOADED']({
               selectedAgents: ['accessibility'],
               selectedPlatform: 'android',
-              userContext: null,
             });
           }
         }, 0);
@@ -140,7 +138,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
         'styleConsistency',
-        'usability',
+        'writing',
       ]);
     });
   });
@@ -154,7 +152,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -181,7 +179,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -191,7 +189,7 @@ describe('useAgentSelection', () => {
 
       expect(result.current.selectedAgents).not.toContain('accessibility');
       expect(result.current.selectedAgents).toContain('styleConsistency');
-      expect(result.current.selectedAgents).toContain('usability');
+      expect(result.current.selectedAgents).toContain('writing');
     });
     it('選択を保存する', async () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
@@ -201,7 +199,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -209,7 +207,7 @@ describe('useAgentSelection', () => {
         result.current.handleAgentChange('styleConsistency', false);
       });
 
-      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility', 'usability']);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility', 'writing']);
     });
 
     it('複数の変更を処理する', async () => {
@@ -220,7 +218,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -232,7 +230,7 @@ describe('useAgentSelection', () => {
         result.current.handleAgentChange('styleConsistency', false);
       });
 
-      expect(result.current.selectedAgents).toEqual(['usability']);
+      expect(result.current.selectedAgents).toEqual(['writing']);
     });
   });
 
@@ -245,7 +243,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -264,7 +262,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
         'styleConsistency',
-        'usability',
+        'writing',
       ]);
     });
     it('選択されたすべてのエージェントを保存する', async () => {
@@ -275,7 +273,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -286,7 +284,7 @@ describe('useAgentSelection', () => {
       expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', [
         'accessibility',
         'styleConsistency',
-        'usability',
+        'writing',
       ]);
     });
   });
@@ -300,7 +298,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -319,7 +317,7 @@ describe('useAgentSelection', () => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
           'styleConsistency',
-          'usability',
+          'writing',
         ]);
       });
 
@@ -339,7 +337,7 @@ describe('useAgentSelection', () => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
         'styleConsistency',
-        'usability',
+        'writing',
       ]);
     });
 
@@ -352,217 +350,13 @@ describe('useAgentSelection', () => {
     });
 
     act(() => {
-      result.current.handleAgentChange('usability', true);
+      result.current.handleAgentChange('writing', true);
     });
 
     act(() => {
       result.current.handleAgentChange('accessibility', false);
     });
 
-    expect(result.current.selectedAgents).toEqual(['usability']);
-  });
-
-  describe('userContext', () => {
-    it('初期状態では空文字列である', async () => {
-      const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-      // データがロードされるまで待つ
-      await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'styleConsistency',
-          'usability',
-        ]);
-      });
-
-      expect(result.current.userContext).toBe('');
-    });
-
-    it('保存されたuserContextを読み込む', async () => {
-      // モックを設定して保存済みデータを返すようにする
-      mockEmit.mockImplementation((event: string, _data?: any) => {
-        if (event === 'LOAD_AGENT_SELECTION') {
-          setTimeout(() => {
-            if (messageHandlers['AGENT_SELECTION_LOADED']) {
-              messageHandlers['AGENT_SELECTION_LOADED']({
-                selectedAgents: ['accessibility'],
-                selectedPlatform: 'ios',
-                userContext: 'このUIはログイン画面です',
-              });
-            }
-          }, 0);
-        }
-      });
-
-      const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-      await waitFor(() => {
-        expect(result.current.userContext).toBe('このUIはログイン画面です');
-      });
-    });
-
-    it('nullのuserContextは空文字列として扱われる', async () => {
-      // モックを設定してnullを返すようにする
-      mockEmit.mockImplementation((event: string, _data?: any) => {
-        if (event === 'LOAD_AGENT_SELECTION') {
-          setTimeout(() => {
-            if (messageHandlers['AGENT_SELECTION_LOADED']) {
-              messageHandlers['AGENT_SELECTION_LOADED']({
-                selectedAgents: ['accessibility'],
-                selectedPlatform: 'ios',
-                userContext: null,
-              });
-            }
-          }, 0);
-        }
-      });
-
-      const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-      await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual(['accessibility']);
-      });
-
-      expect(result.current.userContext).toBe('');
-    });
-
-    it('空文字列のuserContextを読み込む', async () => {
-      // モックを設定して空文字列を返すようにする
-      mockEmit.mockImplementation((event: string, _data?: any) => {
-        if (event === 'LOAD_AGENT_SELECTION') {
-          setTimeout(() => {
-            if (messageHandlers['AGENT_SELECTION_LOADED']) {
-              messageHandlers['AGENT_SELECTION_LOADED']({
-                selectedAgents: ['accessibility'],
-                selectedPlatform: 'ios',
-                userContext: '',
-              });
-            }
-          }, 0);
-        }
-      });
-
-      const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-      await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual(['accessibility']);
-      });
-
-      expect(result.current.userContext).toBe('');
-    });
-
-    describe('handleUserContextChange', () => {
-      beforeEach(() => {
-        // handleUserContextChangeのテストではデフォルトのモック実装を復元
-        mockEmit.mockImplementation((event: string, _data?: any) => {
-          if (event === 'LOAD_AGENT_SELECTION') {
-            setTimeout(() => {
-              if (messageHandlers['AGENT_SELECTION_LOADED']) {
-                messageHandlers['AGENT_SELECTION_LOADED']({
-                  selectedAgents: null,
-                  selectedPlatform: null,
-                  userContext: null,
-                });
-              }
-            }, 0);
-          }
-        });
-      });
-
-      it('userContextを更新する', async () => {
-        const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-        // データがロードされるまで待つ
-        await waitFor(() => {
-          expect(result.current.selectedAgents).toEqual([
-            'accessibility',
-            'styleConsistency',
-            'usability',
-          ]);
-        });
-
-        act(() => {
-          result.current.handleUserContextChange('新しいコンテキスト');
-        });
-
-        expect(result.current.userContext).toBe('新しいコンテキスト');
-      });
-
-      it('userContextの変更を保存する', async () => {
-        const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-        // データがロードされるまで待つ
-        await waitFor(() => {
-          expect(result.current.selectedAgents).toEqual([
-            'accessibility',
-            'styleConsistency',
-            'usability',
-          ]);
-        });
-
-        act(() => {
-          result.current.handleUserContextChange('ユーザー情報入力フォーム');
-        });
-
-        expect(mockEmit).toHaveBeenCalledWith('SAVE_USER_CONTEXT', 'ユーザー情報入力フォーム');
-      });
-
-      it('空文字列のuserContextを保存する', async () => {
-        const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-        // データがロードされるまで待つ
-        await waitFor(() => {
-          expect(result.current.selectedAgents).toEqual([
-            'accessibility',
-            'styleConsistency',
-            'usability',
-          ]);
-        });
-
-        // まずコンテキストを設定
-        act(() => {
-          result.current.handleUserContextChange('一時的なコンテキスト');
-        });
-
-        // 空文字列に変更
-        act(() => {
-          result.current.handleUserContextChange('');
-        });
-
-        expect(result.current.userContext).toBe('');
-        expect(mockEmit).toHaveBeenCalledWith('SAVE_USER_CONTEXT', '');
-      });
-
-      it('複数回の変更を処理する', async () => {
-        const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
-
-        // データがロードされるまで待つ
-        await waitFor(() => {
-          expect(result.current.selectedAgents).toEqual([
-            'accessibility',
-            'styleConsistency',
-            'usability',
-          ]);
-        });
-
-        act(() => {
-          result.current.handleUserContextChange('コンテキスト1');
-        });
-
-        expect(result.current.userContext).toBe('コンテキスト1');
-
-        act(() => {
-          result.current.handleUserContextChange('コンテキスト2');
-        });
-
-        expect(result.current.userContext).toBe('コンテキスト2');
-
-        act(() => {
-          result.current.handleUserContextChange('コンテキスト3');
-        });
-
-        expect(result.current.userContext).toBe('コンテキスト3');
-      });
-    });
+    expect(result.current.selectedAgents).toEqual(['writing']);
   });
 });

@@ -203,11 +203,7 @@ async function selectMultipleNodes(
   return false;
 }
 
-async function handleEvaluation(
-  evaluationTypes?: string[],
-  platformType?: 'ios' | 'android',
-  userContext?: string
-) {
+async function handleEvaluation(evaluationTypes?: string[], platformType?: 'ios' | 'android') {
   const selection = figma.currentPage.selection;
 
   // 選択を検証
@@ -248,8 +244,7 @@ async function handleEvaluation(
       stylesData,
       evaluationTypes,
       platformType,
-      screenshot,
-      userContext
+      screenshot
     );
 
     emit('EVALUATION_COMPLETE', result);
@@ -273,8 +268,7 @@ async function callEvaluationAPI(
   stylesData: FigmaStylesData,
   evaluationTypes?: string[],
   platformType?: 'ios' | 'android',
-  screenshot?: ScreenshotData | null,
-  userContext?: string
+  screenshot?: ScreenshotData | null
 ): Promise<EvaluationResult> {
   // 機能フラグの確認
   const flags =
@@ -305,11 +299,6 @@ async function callEvaluationAPI(
 
   if (platformType) {
     requestBody.platformType = platformType;
-  }
-
-  // ユーザーコンテキストを追加（空文字列でない場合のみ）
-  if (userContext && userContext.trim()) {
-    requestBody.userContext = userContext.trim();
   }
 
   // スクリーンショットを追加（nullの場合は含めない）
@@ -411,24 +400,20 @@ export default function () {
   // エージェント選択ハンドラー
   const AGENT_SELECTION_STORAGE_KEY = 'figma-ui-reviewer-selected-agents';
   const PLATFORM_SELECTION_STORAGE_KEY = 'figma-ui-reviewer-selected-platform';
-  const USER_CONTEXT_STORAGE_KEY = 'figma-ui-reviewer-user-context';
 
   on('LOAD_AGENT_SELECTION', async () => {
     try {
       const selectedAgents = await figma.clientStorage.getAsync(AGENT_SELECTION_STORAGE_KEY);
       const selectedPlatform = await figma.clientStorage.getAsync(PLATFORM_SELECTION_STORAGE_KEY);
-      const userContext = await figma.clientStorage.getAsync(USER_CONTEXT_STORAGE_KEY);
       emit('AGENT_SELECTION_LOADED', {
         selectedAgents: selectedAgents || null,
         selectedPlatform: selectedPlatform || null,
-        userContext: userContext || null,
       });
     } catch (e) {
       console.error('Failed to load agent selection:', e);
       emit('AGENT_SELECTION_LOADED', {
         selectedAgents: null,
         selectedPlatform: null,
-        userContext: null,
       });
     }
   });
@@ -446,14 +431,6 @@ export default function () {
       await figma.clientStorage.setAsync(PLATFORM_SELECTION_STORAGE_KEY, selectedPlatform);
     } catch (e) {
       console.error('Failed to save platform selection:', e);
-    }
-  });
-
-  on('SAVE_USER_CONTEXT', async (userContext: string) => {
-    try {
-      await figma.clientStorage.setAsync(USER_CONTEXT_STORAGE_KEY, userContext);
-    } catch (e) {
-      console.error('Failed to save user context:', e);
     }
   });
 
