@@ -26,7 +26,7 @@ export interface Issue {
 
 問題の優先度を3段階で表現します。
 
-- **`high`**: 重大な問題（WCAGコントラスト比不合格、重要な表記揺れなど）
+- **`high`**: 重大な問題（WCAG適合基準不合格、重要な表記揺れなど）
 - **`medium`**: 中程度の問題（スタイル不一致、推奨されない実装など）
 - **`low`**: 軽微な問題（改善提案レベル）
 
@@ -72,7 +72,7 @@ export interface Issue {
 ```typescript
 {
   severity: 'high',
-  message: '背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、WCAG AA基準（4.5:1）を満たしていません',
+  message: '背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、WCAG 2.2 Level AA基準（4.5:1）を満たしていません',
   nodeIds: ['1809:1836', '1809:1850', '1809:1870'],
   autoFixable: false,
   suggestion: 'テキストカラーを #333333 に変更してください'
@@ -197,8 +197,9 @@ export interface Suggestion extends Issue {
 
 **現在利用可能な値**:
 
-- `"accessibility"`: AccessibilityAgent（WCAG 2.2
-  AA準拠、色のコントラスト、タッチターゲットサイズ）
+- `"accessibility-a"`: AccessibilityAAgent（WCAG 2.2 Level A準拠）
+- `"accessibility-aa"`: AccessibilityAAAgent（WCAG 2.2 Level AA準拠）
+- `"accessibility-aaa"`: AccessibilityAAAAgent（WCAG 2.2 Level AAA準拠）
 
 **用途**:
 
@@ -238,7 +239,7 @@ export interface EvaluationResult {
 
 ```typescript
 {
-  "accessibility": {
+  "accessibility-aa": {  // または "accessibility-a", "accessibility-aaa"
     "issues": [...],
     "positives": [...]
   }
@@ -359,11 +360,11 @@ export interface ScreenshotData {
 ### バックエンド: Issue生成
 
 ```typescript
-// AccessibilityAgent での Issue 生成例
+// AccessibilityAAAgent での Issue 生成例
 const issue: Issue = {
   severity: 'high',
   message:
-    '背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、WCAG AA基準（4.5:1）を満たしていません',
+    '背景色 #F5F5F5 とテキスト #999999 のコントラスト比は 2.8:1 で、WCAG 2.2 Level AA基準（4.5:1）を満たしていません',
   nodeIds: ['1809:1836', '1809:1850', '1809:1870'], // 複数ノードをグループ化
   autoFixable: false,
   suggestion: 'テキストカラーを #333333 に変更してください',
