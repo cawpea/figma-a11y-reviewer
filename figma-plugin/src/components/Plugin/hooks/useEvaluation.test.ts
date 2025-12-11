@@ -57,49 +57,10 @@ describe('useEvaluation', () => {
       const { result } = renderHook(() => useEvaluation());
 
       act(() => {
-        result.current.handleEvaluate(['accessibility', 'styleConsistency']);
+        result.current.handleEvaluate(['accessibility', 'writing']);
       });
 
-      expect(mockEmit).toHaveBeenCalledWith(
-        'EVALUATE_SELECTION',
-        ['accessibility', 'styleConsistency'],
-        undefined,
-        undefined
-      );
-    });
-
-    it('platformTypeを指定してEVALUATE_SELECTIONを発行する', () => {
-      const { result } = renderHook(() => useEvaluation());
-
-      act(() => {
-        result.current.handleEvaluate(['platformCompliance'], 'ios');
-      });
-
-      expect(mockEmit).toHaveBeenCalledWith(
-        'EVALUATE_SELECTION',
-        ['platformCompliance'],
-        'ios',
-        undefined
-      );
-    });
-
-    it('userContextを指定してEVALUATE_SELECTIONを発行する', () => {
-      const { result } = renderHook(() => useEvaluation());
-
-      act(() => {
-        result.current.handleEvaluate(
-          ['usability'],
-          undefined,
-          'ECサイトで買い物をする40代のユーザー'
-        );
-      });
-
-      expect(mockEmit).toHaveBeenCalledWith(
-        'EVALUATE_SELECTION',
-        ['usability'],
-        undefined,
-        'ECサイトで買い物をする40代のユーザー'
-      );
+      expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', ['accessibility', 'writing']);
     });
 
     it('エージェントが選択されていないときにエラーを設定する', () => {

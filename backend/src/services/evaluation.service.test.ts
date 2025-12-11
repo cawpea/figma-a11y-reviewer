@@ -27,8 +27,6 @@ describe('EvaluationService', () => {
       const result = await service.evaluateDesign(mockData);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).toHaveProperty('styleConsistency');
-      expect(result.categories).toHaveProperty('usability');
       expect(Array.isArray(result.suggestions)).toBe(true);
       expect(result.metadata).toHaveProperty('evaluatedAt');
       expect(result.metadata).toHaveProperty('duration');
@@ -39,19 +37,14 @@ describe('EvaluationService', () => {
       const result = await service.evaluateDesign(mockData, undefined, ['accessibility']);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).not.toHaveProperty('styleConsistency');
-      expect(result.categories).not.toHaveProperty('usability');
+      expect(Object.keys(result.categories).length).toBe(1);
     });
 
-    it('複数の指定されたタイプを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, undefined, [
-        'accessibility',
-        'usability',
-      ]);
+    it('単一の指定されたタイプのみを評価する', async () => {
+      const result = await service.evaluateDesign(mockData, undefined, ['accessibility']);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).toHaveProperty('usability');
-      expect(result.categories).not.toHaveProperty('styleConsistency');
+      expect(Object.keys(result.categories).length).toBe(1);
     });
 
     it('有効な評価タイプが提供されていないときにエラーをスローする', async () => {
@@ -146,12 +139,11 @@ describe('EvaluationService', () => {
       const result = await service.evaluateDesign(mockData, undefined, [
         'accessibility',
         'invalid',
-        'usability',
       ]);
 
       expect(result.categories).toHaveProperty('accessibility');
-      expect(result.categories).toHaveProperty('usability');
       expect(result.categories).not.toHaveProperty('invalid');
+      expect(Object.keys(result.categories).length).toBe(1);
     });
 
     it('空の評価タイプ配列を処理する', async () => {
@@ -166,8 +158,7 @@ describe('EvaluationService', () => {
       const agents = (service as any).agents;
 
       expect(agents).toHaveProperty('accessibility');
-      expect(agents).toHaveProperty('styleConsistency');
-      expect(agents).toHaveProperty('usability');
+      expect(Object.keys(agents).length).toBe(1);
     });
   });
 });

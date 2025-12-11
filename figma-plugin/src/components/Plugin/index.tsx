@@ -2,7 +2,6 @@ import { Button, Checkbox, IconAi16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useState } from 'preact/hooks';
 
-import { USER_CONTEXT_MAX_LENGTH } from '../../../../shared/src/constants';
 import { agentOptions } from '../../constants/agents';
 import { useSelectionState } from '../../hooks/useSelectionState';
 import ErrorDisplay from '../ErrorDisplay';
@@ -23,31 +22,12 @@ export default function Plugin() {
   const selectionState = useSelectionState();
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const {
-    selectedAgents,
-    selectedPlatform,
-    userContext,
-    handleAgentChange,
-    handlePlatformChange,
-    handleUserContextChange,
-    handleSelectAll,
-    handleDeselectAll,
-  } = useAgentSelection(agentOptions);
+  const { selectedAgents, handleAgentChange, handleSelectAll, handleDeselectAll } =
+    useAgentSelection(agentOptions);
 
   const handleBackToInitial = useCallback(() => {
     setView('initial');
   }, []);
-
-  const handleUserContextChangeWithLimit = useCallback(
-    (value: string, options: { isOverLimit: boolean }) => {
-      handleUserContextChange(value);
-      // 入力中にエラーが解消されたらvalidationErrorをクリア
-      if (!options.isOverLimit) {
-        setValidationError(null);
-      }
-    },
-    [handleUserContextChange]
-  );
 
   const { error, isLoading, result, handleEvaluate, handleIssueClick } = useEvaluation({
     onEvaluationComplete: () => {
@@ -56,19 +36,9 @@ export default function Plugin() {
   });
 
   const onEvaluate = () => {
-    // 送信時にuserContextのtrim後の長さを検証（usabilityが選択されている場合のみ）
-    const isUsabilitySelected = selectedAgents.includes('usability');
-    if (isUsabilitySelected && userContext.trim().length > USER_CONTEXT_MAX_LENGTH) {
-      // エラーメッセージを表示
-      setValidationError(
-        `想定ユーザーと利用文脈は${USER_CONTEXT_MAX_LENGTH}文字以内で入力してください`
-      );
-      return;
-    }
-
     // 検証エラーをクリアしてから評価開始
     setValidationError(null);
-    handleEvaluate(selectedAgents, selectedPlatform, userContext);
+    handleEvaluate(selectedAgents);
   };
 
   const allSelected = selectedAgents.length === agentOptions.length;
@@ -83,12 +53,7 @@ export default function Plugin() {
   };
 
   // レビュー開始ボタンの無効化条件
-  const isUsabilitySelected = selectedAgents.includes('usability');
-  // trim後の長さで検証
-  const userContextTrimmedLength = userContext.trim().length;
-  const isUserContextInvalid =
-    isUsabilitySelected && userContextTrimmedLength > USER_CONTEXT_MAX_LENGTH;
-  const shouldDisableButton = selectedAgents.length === 0 || isUserContextInvalid;
+  const shouldDisableButton = selectedAgents.length === 0;
 
   // 結果ページ表示
   if (view === 'result' && result) {
@@ -136,10 +101,6 @@ export default function Plugin() {
             agent={agent}
             checked={selectedAgents.includes(agent.id)}
             onChange={handleAgentChange}
-            selectedPlatform={selectedPlatform}
-            onPlatformChange={handlePlatformChange}
-            userContext={userContext}
-            onUserContextChange={handleUserContextChangeWithLimit}
           />
         ))}
 

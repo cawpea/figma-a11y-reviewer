@@ -5,11 +5,7 @@ import { type AgentOption } from '../../../constants/agents';
 
 interface UseAgentSelectionReturn {
   selectedAgents: string[];
-  selectedPlatform: 'ios' | 'android';
-  userContext: string;
   handleAgentChange: (agentId: string, checked: boolean) => void;
-  handlePlatformChange: (platform: 'ios' | 'android') => void;
-  handleUserContextChange: (context: string) => void;
   handleSelectAll: () => void;
   handleDeselectAll: () => void;
 }
@@ -17,19 +13,13 @@ interface UseAgentSelectionReturn {
 export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectionReturn {
   // 初期状態は空配列（ちらつき防止）
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
-  const [selectedPlatform, setSelectedPlatform] = useState<'ios' | 'android'>('ios');
-  const [userContext, setUserContext] = useState<string>('');
 
   // 初期化:保存された選択状態を復元
   useEffect(() => {
     const handleAgentSelectionLoaded = ({
       selectedAgents: savedAgents,
-      selectedPlatform: savedPlatform,
-      userContext: savedUserContext,
     }: {
       selectedAgents: string[] | null;
-      selectedPlatform: 'ios' | 'android' | null;
-      userContext: string | null;
     }) => {
       // 保存された選択状態がある場合は復元（空の配列も含む）
       if (savedAgents !== null && Array.isArray(savedAgents)) {
@@ -37,14 +27,6 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
       } else {
         // 保存された選択状態がない場合（null）はすべて選択
         setSelectedAgents(agentOptions.map((agent) => agent.id));
-      }
-
-      if (savedPlatform === 'ios' || savedPlatform === 'android') {
-        setSelectedPlatform(savedPlatform);
-      }
-
-      if (savedUserContext) {
-        setUserContext(savedUserContext);
       }
     };
 
@@ -89,25 +71,9 @@ export function useAgentSelection(agentOptions: AgentOption[]): UseAgentSelectio
     saveAgentSelection([]);
   }, [saveAgentSelection]);
 
-  // プラットフォーム変更ハンドラー
-  const handlePlatformChange = useCallback((platform: 'ios' | 'android') => {
-    setSelectedPlatform(platform);
-    emit('SAVE_PLATFORM_SELECTION', platform);
-  }, []);
-
-  // ユーザーコンテキスト変更ハンドラー
-  const handleUserContextChange = useCallback((context: string) => {
-    setUserContext(context);
-    emit('SAVE_USER_CONTEXT', context);
-  }, []);
-
   return {
     selectedAgents,
-    selectedPlatform,
-    userContext,
     handleAgentChange,
-    handlePlatformChange,
-    handleUserContextChange,
     handleSelectAll,
     handleDeselectAll,
   };

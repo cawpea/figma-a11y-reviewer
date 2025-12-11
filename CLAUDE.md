@@ -7,9 +7,11 @@ code in this repository.
 
 ## プロジェクト概要
 
-Figma UI Reviewerは、FigmaデザインをAnthropicのClaude
-APIを使ってAIによる自動評価を行うシステムです。Figmaプラグイン（Preact +
+Figma A11y Reviewerは、FigmaデザインのアクセシビリティをAnthropicのClaude
+APIを使ってAI評価するシステムです。Figmaプラグイン（Preact +
 TailwindCSS）とバックエンドAPI（Express.js）で構成されています。
+
+**評価項目**: WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズ
 
 **詳細**: [docs/architecture/overview.md](docs/architecture/overview.md)
 
@@ -100,6 +102,13 @@ scripts/               # ユーティリティスクリプト
 
 ### 評価エージェントシステム
 
+現在のシステムは**アクセシビリティ評価専用**です。
+
+**利用可能なエージェント**:
+
+- `AccessibilityAgent`: WCAG 2.2
+  AA準拠、色のコントラスト、タッチターゲットサイズを評価
+
 各エージェントは`BaseEvaluationAgent`を継承し、以下を実装します：
 
 - `systemPrompt`: 評価基準とJSON出力フォーマット
@@ -167,9 +176,12 @@ if (isEnabled(FeatureFlag.MOCK_API)) {
 
 ### エージェント追加
 
+**注意**: 現在のシステムはアクセシビリティ評価専用です。新しいエージェントを追加する場合：
+
 1. `backend/src/services/agents/`に新しいエージェントクラスを作成
 2. `BaseEvaluationAgent`を継承して実装
 3. `evaluation.service.ts`の`agents`オブジェクトに追加
+4. `figma-plugin/src/constants/agents.ts`の`agentOptions`に追加
 
 **詳細**: [docs/guides/](docs/guides/)
 

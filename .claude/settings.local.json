@@ -30,7 +30,9 @@
       "Bash(node -e:*)",
       "Bash(python3:*)",
       "Bash(node debug-test.js:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(test:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
