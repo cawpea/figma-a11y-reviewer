@@ -12,17 +12,17 @@ interface WCAGLevelSelectorProps {
 const wcagLevels: Array<{ value: WCAGLevel; label: string; description: string }> = [
   {
     value: 'A',
-    label: 'WCAG 2.2 Level A',
+    label: 'WCAG 2.2 A',
     description: '情報や機能に到達するための最低限の基準',
   },
   {
     value: 'AA',
-    label: 'WCAG 2.2 Level AA',
+    label: 'WCAG 2.2 AA',
     description: 'より多くの人が問題なく使えることを目的とした実用的な基準',
   },
   {
     value: 'AAA',
-    label: 'WCAG 2.2 Level AAA',
+    label: 'WCAG 2.2 AAA',
     description: 'さまざまな障害のある人に対して最大限の配慮を行う最高レベルの基準',
   },
 ];

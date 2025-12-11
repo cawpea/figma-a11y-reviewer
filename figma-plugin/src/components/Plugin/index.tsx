@@ -68,7 +68,7 @@ export default function Plugin() {
 
   // 初期ページ表示
   return (
-    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-5">
+    <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-6">
       <SelectionDisplay selectionState={selectionState} />
 
       {/* WCAG基準選択セクション */}
