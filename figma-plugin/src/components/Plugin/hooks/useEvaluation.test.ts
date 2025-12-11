@@ -62,19 +62,8 @@ describe('useEvaluation', () => {
 
       expect(mockEmit).toHaveBeenCalledWith(
         'EVALUATE_SELECTION',
-        ['accessibility', 'writing'],
-        undefined
+        ['accessibility', 'writing']
       );
-    });
-
-    it('platformTypeを指定してEVALUATE_SELECTIONを発行する', () => {
-      const { result } = renderHook(() => useEvaluation());
-
-      act(() => {
-        result.current.handleEvaluate(['platformCompliance'], 'ios');
-      });
-
-      expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', ['platformCompliance'], 'ios');
     });
 
     it('エージェントが選択されていないときにエラーを設定する', () => {

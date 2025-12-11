@@ -14,7 +14,6 @@ const mockEmit = jest.fn((event: string, _data?: any) => {
       if (messageHandlers['AGENT_SELECTION_LOADED']) {
         messageHandlers['AGENT_SELECTION_LOADED']({
           selectedAgents: null,
-          selectedPlatform: null,
         });
       }
     }, 0);
@@ -33,7 +32,6 @@ jest.mock('@create-figma-plugin/utilities', () => ({
 describe('useAgentSelection', () => {
   const mockAgentOptions: AgentOption[] = [
     { id: 'accessibility', label: 'Accessibility', description: 'Test' },
-    { id: 'platformCompliance', label: 'Style Consistency', description: 'Test' },
     { id: 'writing', label: 'Writing', description: 'Test' },
   ];
 
@@ -58,7 +56,6 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'platformCompliance',
         'writing',
       ]);
     });
@@ -72,7 +69,6 @@ describe('useAgentSelection', () => {
           if (messageHandlers['AGENT_SELECTION_LOADED']) {
             messageHandlers['AGENT_SELECTION_LOADED']({
               selectedAgents: ['accessibility'],
-              selectedPlatform: 'android',
             });
           }
         }, 0);
@@ -84,8 +80,6 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual(['accessibility']);
     });
-
-    expect(result.current.selectedPlatform).toBe('android');
   });
 
   it('空の配列が保存されている場合も空として復元される', async () => {
@@ -96,8 +90,6 @@ describe('useAgentSelection', () => {
           if (messageHandlers['AGENT_SELECTION_LOADED']) {
             messageHandlers['AGENT_SELECTION_LOADED']({
               selectedAgents: [],
-              selectedPlatform: 'ios',
-              userContext: null,
             });
           }
         }, 0);
@@ -123,8 +115,6 @@ describe('useAgentSelection', () => {
           if (messageHandlers['AGENT_SELECTION_LOADED']) {
             messageHandlers['AGENT_SELECTION_LOADED']({
               selectedAgents: 'invalid data', // 配列でない
-              selectedPlatform: null,
-              userContext: null,
             });
           }
         }, 0);
@@ -137,7 +127,6 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'platformCompliance',
         'writing',
       ]);
     });
@@ -151,7 +140,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -178,7 +166,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -188,7 +175,6 @@ describe('useAgentSelection', () => {
       });
 
       expect(result.current.selectedAgents).not.toContain('accessibility');
-      expect(result.current.selectedAgents).toContain('platformCompliance');
       expect(result.current.selectedAgents).toContain('writing');
     });
     it('選択を保存する', async () => {
@@ -198,16 +184,15 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
 
       act(() => {
-        result.current.handleAgentChange('platformCompliance', false);
+        result.current.handleAgentChange('writing', false);
       });
 
-      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility', 'writing']);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility']);
     });
 
     it('複数の変更を処理する', async () => {
@@ -217,7 +202,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -227,10 +211,10 @@ describe('useAgentSelection', () => {
       });
 
       act(() => {
-        result.current.handleAgentChange('platformCompliance', false);
+        result.current.handleAgentChange('writing', false);
       });
 
-      expect(result.current.selectedAgents).toEqual(['writing']);
+      expect(result.current.selectedAgents).toEqual([]);
     });
   });
 
@@ -242,7 +226,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -261,7 +244,6 @@ describe('useAgentSelection', () => {
 
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'platformCompliance',
         'writing',
       ]);
     });
@@ -272,7 +254,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -283,7 +264,6 @@ describe('useAgentSelection', () => {
 
       expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', [
         'accessibility',
-        'platformCompliance',
         'writing',
       ]);
     });
@@ -297,7 +277,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -316,7 +295,6 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'platformCompliance',
           'writing',
         ]);
       });
@@ -336,7 +314,6 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'platformCompliance',
         'writing',
       ]);
     });

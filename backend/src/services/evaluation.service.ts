@@ -10,8 +10,6 @@ import {
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
 import { BaseEvaluationAgent } from './agents/base.agent';
-import { PlatformAndroidAgent } from './agents/platform-android.agent';
-import { PlatformIosAgent } from './agents/platform-ios.agent';
 import { WritingAgent } from './agents/writing.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
@@ -36,14 +34,13 @@ export class EvaluationService {
     stylesData?: FigmaStylesData,
     evaluationTypes?: string[],
     rootNodeId?: string,
-    platformType?: 'ios' | 'android',
     screenshot?: ScreenshotData
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
 
     // 評価タイプが指定されていない場合は全て実行
     const typesToRun = evaluationTypes
-      ? evaluationTypes.filter((type) => type in this.agents || type === 'platformCompliance')
+      ? evaluationTypes.filter((type) => type in this.agents)
       : Object.keys(this.agents);
 
     if (evaluationTypes && typesToRun.length === 0) {
@@ -57,18 +54,7 @@ export class EvaluationService {
 
     // 並列実行
     const evaluationPromises = typesToRun.map(async (type) => {
-      let agent: BaseEvaluationAgent | undefined;
-
-      // platformComplianceの場合、platformTypeに応じて動的にエージェントを選択
-      if (type === 'platformCompliance') {
-        const selectedPlatform = platformType || 'ios'; // デフォルトはiOS
-        agent = selectedPlatform === 'ios' ? new PlatformIosAgent() : new PlatformAndroidAgent();
-        console.log(
-          `Using ${selectedPlatform === 'ios' ? 'iOS (HIG)' : 'Android (Material Design)'} platform agent`
-        );
-      } else {
-        agent = this.agents[type as keyof typeof this.agents];
-      }
+      const agent = this.agents[type as keyof typeof this.agents];
 
       if (!agent) {
         console.warn(`Unknown evaluation type: ${type}`);

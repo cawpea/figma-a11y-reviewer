@@ -24,14 +24,7 @@ describe('callMockEvaluationAPI', () => {
   it('evaluationTypesが未指定の場合は全カテゴリを返す', async () => {
     const result = await callMockEvaluationAPI({ delay: 0 });
 
-    expect(Object.keys(result.categories)).toHaveLength(3);
-  });
-
-  it('platformTypeをログ出力する', async () => {
-    const consoleSpy = jest.spyOn(console, 'log');
-    await callMockEvaluationAPI({ platformType: 'ios', delay: 0 });
-
-    expect(consoleSpy).toHaveBeenCalledWith('[Mock API] Platform type: ios');
+    expect(Object.keys(result.categories)).toHaveLength(2);
   });
 
   it('複数回呼び出しても元のデータが変更されない（ディープコピー検証）', async () => {
@@ -57,7 +50,7 @@ describe('callMockEvaluationAPI', () => {
     expect(result2.categories.writing).toBeDefined();
     expect(result2.categories.accessibility).toBeUndefined();
 
-    expect(Object.keys(result3.categories)).toHaveLength(3);
+    expect(Object.keys(result3.categories)).toHaveLength(2);
     expect(result3.categories.accessibility).toBeDefined();
     expect(result3.categories.writing).toBeDefined();
   });

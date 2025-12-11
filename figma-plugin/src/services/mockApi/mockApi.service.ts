@@ -4,7 +4,6 @@ import { MOCK_EVALUATION_RESULT } from './mockData';
 
 export interface MockApiOptions {
   evaluationTypes?: string[];
-  platformType?: 'ios' | 'android';
   delay?: number; // ネットワーク遅延のシミュレーション（ミリ秒）
 }
 
@@ -15,23 +14,17 @@ export interface MockApiOptions {
  * ネットワーク遅延をシミュレートし、リアルな動作確認が可能です。
  *
  * @param options - モックAPIのオプション
- * @param options.evaluationTypes - 評価タイプのフィルタ（例: ['accessibility', 'usability']）
- * @param options.platformType - プラットフォームタイプ（'ios' | 'android'）
+ * @param options.evaluationTypes - 評価タイプのフィルタ（例: ['accessibility', 'writing']）
  * @param options.delay - シミュレートする遅延時間（デフォルト: 1500ms）
  * @returns 評価結果（EvaluationResult）
  */
 export async function callMockEvaluationAPI(
   options: MockApiOptions = {}
 ): Promise<EvaluationResult> {
-  const { evaluationTypes, platformType, delay = 1500 } = options;
+  const { evaluationTypes, delay = 1500 } = options;
 
   // ネットワーク遅延をシミュレート
   await new Promise((resolve) => setTimeout(resolve, delay));
-
-  // プラットフォームタイプが指定されている場合のログ出力（将来的な拡張用）
-  if (platformType) {
-    console.log(`[Mock API] Platform type: ${platformType}`);
-  }
 
   // ディープコピーを作成（JSON経由で参照を完全に分離）
   const resultCopy: typeof MOCK_EVALUATION_RESULT = JSON.parse(

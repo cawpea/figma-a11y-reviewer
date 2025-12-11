@@ -3,7 +3,7 @@ import type { EvaluationResult } from '@shared/types';
 /**
  * モックAPI用の評価結果データ
  *
- * 全ての評価タイプ（accessibility, platformCompliance, writing）に対応したモックデータ。
+ * 全ての評価タイプ（accessibility, writing）に対応したモックデータ。
  * 開発環境でバックエンドAPIなしにUI開発・テストを行うために使用します。
  */
 export const MOCK_EVALUATION_RESULT: EvaluationResult = {
@@ -40,29 +40,6 @@ export const MOCK_EVALUATION_RESULT: EvaluationResult = {
         'セマンティックな見出し階層が使用されています',
       ],
     },
-    platformCompliance: {
-      issues: [
-        {
-          severity: 'high',
-          message:
-            'iOSのSafe Areaを考慮していません。ノッチやホームインジケーターでコンテンツが隠れる可能性があります。',
-          nodeId: '123:470',
-          autoFixable: false,
-          suggestion: '画面上下に適切なパディング（Safe Area Insets）を追加してください',
-        },
-        {
-          severity: 'medium',
-          message: 'ナビゲーションバーの高さがiOSガイドライン（44pt）に準拠していません。',
-          nodeId: '123:471',
-          autoFixable: false,
-          suggestion: 'ナビゲーションバーの高さを44ptに変更してください',
-        },
-      ],
-      positives: [
-        'iOSのシステムフォント（SF Pro）が使用されています',
-        'タブバーのアイコンサイズが適切です',
-      ],
-    },
     writing: {
       issues: [
         {
@@ -90,13 +67,6 @@ export const MOCK_EVALUATION_RESULT: EvaluationResult = {
       category: 'accessibility',
       message:
         'アクセシビリティテストツール（例: Axe、Lighthouse）を使用して、自動チェックを実施することをお勧めします。',
-      autoFixable: false,
-    },
-    {
-      severity: 'low',
-      category: 'platformCompliance',
-      message:
-        'プラットフォーム固有のガイドライン（iOS Human Interface Guidelines、Material Design）を参照し、ベストプラクティスに従ってください。',
       autoFixable: false,
     },
   ],

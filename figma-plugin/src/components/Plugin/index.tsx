@@ -24,9 +24,7 @@ export default function Plugin() {
 
   const {
     selectedAgents,
-    selectedPlatform,
     handleAgentChange,
-    handlePlatformChange,
     handleSelectAll,
     handleDeselectAll,
   } = useAgentSelection(agentOptions);
@@ -44,7 +42,7 @@ export default function Plugin() {
   const onEvaluate = () => {
     // 検証エラーをクリアしてから評価開始
     setValidationError(null);
-    handleEvaluate(selectedAgents, selectedPlatform);
+    handleEvaluate(selectedAgents);
   };
 
   const allSelected = selectedAgents.length === agentOptions.length;
@@ -107,8 +105,6 @@ export default function Plugin() {
             agent={agent}
             checked={selectedAgents.includes(agent.id)}
             onChange={handleAgentChange}
-            selectedPlatform={selectedPlatform}
-            onPlatformChange={handlePlatformChange}
           />
         ))}
 
