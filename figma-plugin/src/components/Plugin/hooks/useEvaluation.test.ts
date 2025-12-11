@@ -57,12 +57,12 @@ describe('useEvaluation', () => {
       const { result } = renderHook(() => useEvaluation());
 
       act(() => {
-        result.current.handleEvaluate(['accessibility', 'styleConsistency']);
+        result.current.handleEvaluate(['accessibility', 'writing']);
       });
 
       expect(mockEmit).toHaveBeenCalledWith(
         'EVALUATE_SELECTION',
-        ['accessibility', 'styleConsistency'],
+        ['accessibility', 'writing'],
         undefined
       );
     });

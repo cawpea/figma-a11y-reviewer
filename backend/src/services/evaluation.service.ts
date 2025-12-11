@@ -12,7 +12,6 @@ import { AccessibilityAgent } from './agents/accessibility.agent';
 import { BaseEvaluationAgent } from './agents/base.agent';
 import { PlatformAndroidAgent } from './agents/platform-android.agent';
 import { PlatformIosAgent } from './agents/platform-ios.agent';
-import { StyleConsistencyAgent } from './agents/style-consistency.agent';
 import { WritingAgent } from './agents/writing.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
@@ -26,7 +25,6 @@ const PRICING = {
 export class EvaluationService {
   private agents = {
     accessibility: new AccessibilityAgent(),
-    styleConsistency: new StyleConsistencyAgent(),
     writing: new WritingAgent(),
   };
 
@@ -75,11 +73,6 @@ export class EvaluationService {
       if (!agent) {
         console.warn(`Unknown evaluation type: ${type}`);
         return null;
-      }
-
-      // StyleConsistencyAgentにスタイル情報を渡す
-      if (type === 'styleConsistency' && agent instanceof StyleConsistencyAgent) {
-        agent.setStylesData(stylesData);
       }
 
       // スクリーンショットをエージェントに注入

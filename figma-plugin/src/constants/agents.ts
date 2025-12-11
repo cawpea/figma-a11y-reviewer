@@ -13,11 +13,6 @@ export const agentOptions: AgentOption[] = [
     description: 'WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズを評価',
   },
   {
-    id: 'styleConsistency',
-    label: 'スタイルの一貫性',
-    description: 'カラー、テキスト、エフェクトスタイル、命名規則の一貫性を評価',
-  },
-  {
     id: 'platformCompliance',
     label: 'プラットフォーム準拠',
     description: 'iOS (HIG) または Android (Material Design) のガイドラインに準拠',
@@ -31,7 +26,6 @@ export const agentOptions: AgentOption[] = [
 
 export const categoryLabels: Record<string, string> = {
   accessibility: 'アクセシビリティ',
-  styleConsistency: 'スタイルの一貫性',
   platformCompliance: 'プラットフォーム準拠',
   layout: 'レイアウト',
   naming: '命名規則',

@@ -33,7 +33,7 @@ jest.mock('@create-figma-plugin/utilities', () => ({
 describe('useAgentSelection', () => {
   const mockAgentOptions: AgentOption[] = [
     { id: 'accessibility', label: 'Accessibility', description: 'Test' },
-    { id: 'styleConsistency', label: 'Style Consistency', description: 'Test' },
+    { id: 'platformCompliance', label: 'Style Consistency', description: 'Test' },
     { id: 'writing', label: 'Writing', description: 'Test' },
   ];
 
@@ -58,7 +58,7 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'styleConsistency',
+        'platformCompliance',
         'writing',
       ]);
     });
@@ -137,7 +137,7 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'styleConsistency',
+        'platformCompliance',
         'writing',
       ]);
     });
@@ -151,7 +151,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -178,7 +178,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -188,7 +188,7 @@ describe('useAgentSelection', () => {
       });
 
       expect(result.current.selectedAgents).not.toContain('accessibility');
-      expect(result.current.selectedAgents).toContain('styleConsistency');
+      expect(result.current.selectedAgents).toContain('platformCompliance');
       expect(result.current.selectedAgents).toContain('writing');
     });
     it('選択を保存する', async () => {
@@ -198,13 +198,13 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
 
       act(() => {
-        result.current.handleAgentChange('styleConsistency', false);
+        result.current.handleAgentChange('platformCompliance', false);
       });
 
       expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility', 'writing']);
@@ -217,7 +217,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -227,7 +227,7 @@ describe('useAgentSelection', () => {
       });
 
       act(() => {
-        result.current.handleAgentChange('styleConsistency', false);
+        result.current.handleAgentChange('platformCompliance', false);
       });
 
       expect(result.current.selectedAgents).toEqual(['writing']);
@@ -242,7 +242,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -261,7 +261,7 @@ describe('useAgentSelection', () => {
 
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'styleConsistency',
+        'platformCompliance',
         'writing',
       ]);
     });
@@ -272,7 +272,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -283,7 +283,7 @@ describe('useAgentSelection', () => {
 
       expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', [
         'accessibility',
-        'styleConsistency',
+        'platformCompliance',
         'writing',
       ]);
     });
@@ -297,7 +297,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -316,7 +316,7 @@ describe('useAgentSelection', () => {
       await waitFor(() => {
         expect(result.current.selectedAgents).toEqual([
           'accessibility',
-          'styleConsistency',
+          'platformCompliance',
           'writing',
         ]);
       });
@@ -336,7 +336,7 @@ describe('useAgentSelection', () => {
     await waitFor(() => {
       expect(result.current.selectedAgents).toEqual([
         'accessibility',
-        'styleConsistency',
+        'platformCompliance',
         'writing',
       ]);
     });

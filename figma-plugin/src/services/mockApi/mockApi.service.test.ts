@@ -19,13 +19,12 @@ describe('callMockEvaluationAPI', () => {
 
     expect(result.categories.accessibility).toBeDefined();
     expect(result.categories.writing).toBeDefined();
-    expect(result.categories.styleConsistency).toBeUndefined();
   });
 
   it('evaluationTypesが未指定の場合は全カテゴリを返す', async () => {
     const result = await callMockEvaluationAPI({ delay: 0 });
 
-    expect(Object.keys(result.categories)).toHaveLength(4);
+    expect(Object.keys(result.categories)).toHaveLength(3);
   });
 
   it('platformTypeをログ出力する', async () => {
@@ -58,7 +57,7 @@ describe('callMockEvaluationAPI', () => {
     expect(result2.categories.writing).toBeDefined();
     expect(result2.categories.accessibility).toBeUndefined();
 
-    expect(Object.keys(result3.categories)).toHaveLength(4);
+    expect(Object.keys(result3.categories)).toHaveLength(3);
     expect(result3.categories.accessibility).toBeDefined();
     expect(result3.categories.writing).toBeDefined();
   });

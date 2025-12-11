@@ -3,7 +3,7 @@ import type { EvaluationResult } from '@shared/types';
 /**
  * モックAPI用の評価結果データ
  *
- * 全ての評価タイプ（accessibility, styleConsistency, platformCompliance, writing）に対応したモックデータ。
+ * 全ての評価タイプ（accessibility, platformCompliance, writing）に対応したモックデータ。
  * 開発環境でバックエンドAPIなしにUI開発・テストを行うために使用します。
  */
 export const MOCK_EVALUATION_RESULT: EvaluationResult = {
@@ -39,32 +39,6 @@ export const MOCK_EVALUATION_RESULT: EvaluationResult = {
         '適切なフォーカスインジケーターが設定されています',
         'セマンティックな見出し階層が使用されています',
       ],
-    },
-    styleConsistency: {
-      issues: [
-        {
-          severity: 'medium',
-          message: '複数の異なる青色が使用されています（#1E90FF、#4169E1、#0066CC）。',
-          nodeId: '123:465',
-          autoFixable: false,
-          suggestion: 'カラーパレットを統一し、定義済みのカラースタイルを使用してください',
-        },
-        {
-          severity: 'medium',
-          message: 'フォントサイズが統一されていません（14px、15px、16pxが混在）。',
-          nodeId: '123:466',
-          autoFixable: false,
-          suggestion: 'タイポグラフィスケールを定義し、テキストスタイルを使用してください',
-        },
-        {
-          severity: 'low',
-          message: 'スペーシング（マージン/パディング）が一貫していません。',
-          nodeId: '123:467',
-          autoFixable: false,
-          suggestion: '8pxグリッドシステムなど、一貫したスペーシングルールを適用してください',
-        },
-      ],
-      positives: ['ボーダー半径が統一されています', 'シャドウスタイルが一貫して使用されています'],
     },
     platformCompliance: {
       issues: [
@@ -111,13 +85,6 @@ export const MOCK_EVALUATION_RESULT: EvaluationResult = {
     },
   },
   suggestions: [
-    {
-      severity: 'low',
-      category: 'styleConsistency',
-      message:
-        'デザインシステムの導入を検討してください。カラーパレット、タイポグラフィスケール、スペーシングルールを標準化することで、一貫性を向上できます。',
-      autoFixable: false,
-    },
     {
       severity: 'low',
       category: 'accessibility',
