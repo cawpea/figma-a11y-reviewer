@@ -11,7 +11,10 @@ Figma A11y Reviewerは、FigmaデザインのアクセシビリティをAnthropi
 APIを使ってAI評価するシステムです。Figmaプラグイン（Preact +
 TailwindCSS）とバックエンドAPI（Express.js）で構成されています。
 
-**評価項目**: WCAG 2.2 AA準拠、色のコントラスト、タッチターゲットサイズ
+**評価項目**: WCAG 2.2 Level A/AA/AAA準拠
+- Level A: 色の使用、情報構造、ラベル、リンクの目的など（**コントラスト比は含まない**）
+- Level AA: Level A + **色のコントラスト（4.5:1 / 3:1）**、タッチターゲットサイズなど
+- Level AAA: Level AA + **より厳格なコントラスト（7:1 / 4.5:1）**など
 
 **詳細**: [docs/architecture/overview.md](docs/architecture/overview.md)
 
@@ -106,12 +109,13 @@ scripts/               # ユーティリティスクリプト
 
 **利用可能なエージェント**:
 
-- `AccessibilityAAgent`: WCAG 2.2 Level
-  A、情報や機能に到達するための最低限の基準
-- `AccessibilityAAAgent`: WCAG 2.2 Level
-  AA、より多くの人が問題なく使えることを目的とした実用的な基準
-- `AccessibilityAAAAgent`: WCAG 2.2 Level
-  AAA、さまざまな障害のある人に対して最大限の配慮を行う最高レベルの基準
+- `AccessibilityAAgent`: WCAG 2.2 Level A、情報や機能に到達するための最低限の基準
+  - 評価項目: 色の使用（1.4.1）、情報構造（1.3.1, 1.3.2）、ラベル（3.3.2）、リンクの目的（2.4.4）など
+  - **注意**: Level Aには色のコントラスト比の要件は含まれません
+- `AccessibilityAAAgent`: WCAG 2.2 Level AA、より多くの人が問題なく使えることを目的とした実用的な基準
+  - 評価項目: Level A + 色のコントラスト（通常4.5:1、大きなテキスト3:1）、タッチターゲットサイズなど
+- `AccessibilityAAAAgent`: WCAG 2.2 Level AAA、さまざまな障害のある人に対して最大限の配慮を行う最高レベルの基準
+  - 評価項目: Level AA + より厳格なコントラスト（通常7:1、大きなテキスト4.5:1）など
 
 **WCAG基準選択**:
 

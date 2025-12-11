@@ -26,7 +26,9 @@ describe('EvaluationService', () => {
     it('デフォルトですべてのエージェントを評価する', async () => {
       const result = await service.evaluateDesign(mockData);
 
-      expect(result.categories).toHaveProperty('accessibility');
+      expect(result.categories).toHaveProperty('accessibility-a');
+      expect(result.categories).toHaveProperty('accessibility-aa');
+      expect(result.categories).toHaveProperty('accessibility-aaa');
       expect(Array.isArray(result.suggestions)).toBe(true);
       expect(result.metadata).toHaveProperty('evaluatedAt');
       expect(result.metadata).toHaveProperty('duration');
@@ -34,16 +36,16 @@ describe('EvaluationService', () => {
     });
 
     it('指定されたタイプのみを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, undefined, ['accessibility']);
+      const result = await service.evaluateDesign(mockData, undefined, ['accessibility-aa']);
 
-      expect(result.categories).toHaveProperty('accessibility');
+      expect(result.categories).toHaveProperty('accessibility-aa');
       expect(Object.keys(result.categories).length).toBe(1);
     });
 
     it('単一の指定されたタイプのみを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, undefined, ['accessibility']);
+      const result = await service.evaluateDesign(mockData, undefined, ['accessibility-a']);
 
-      expect(result.categories).toHaveProperty('accessibility');
+      expect(result.categories).toHaveProperty('accessibility-a');
       expect(Object.keys(result.categories).length).toBe(1);
     });
 
@@ -137,11 +139,11 @@ describe('EvaluationService', () => {
 
     it('無効な評価タイプをフィルタリングする', async () => {
       const result = await service.evaluateDesign(mockData, undefined, [
-        'accessibility',
+        'accessibility-aaa',
         'invalid',
       ]);
 
-      expect(result.categories).toHaveProperty('accessibility');
+      expect(result.categories).toHaveProperty('accessibility-aaa');
       expect(result.categories).not.toHaveProperty('invalid');
       expect(Object.keys(result.categories).length).toBe(1);
     });
@@ -157,8 +159,10 @@ describe('EvaluationService', () => {
     it('すべての必要なエージェントを持つ', () => {
       const agents = (service as any).agents;
 
-      expect(agents).toHaveProperty('accessibility');
-      expect(Object.keys(agents).length).toBe(1);
+      expect(agents).toHaveProperty('accessibility-a');
+      expect(agents).toHaveProperty('accessibility-aa');
+      expect(agents).toHaveProperty('accessibility-aaa');
+      expect(Object.keys(agents).length).toBe(3);
     });
   });
 });
