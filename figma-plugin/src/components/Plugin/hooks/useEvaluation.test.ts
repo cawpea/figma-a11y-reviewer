@@ -60,10 +60,7 @@ describe('useEvaluation', () => {
         result.current.handleEvaluate(['accessibility', 'writing']);
       });
 
-      expect(mockEmit).toHaveBeenCalledWith(
-        'EVALUATE_SELECTION',
-        ['accessibility', 'writing']
-      );
+      expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', ['accessibility', 'writing']);
     });
 
     it('エージェントが選択されていないときにエラーを設定する', () => {

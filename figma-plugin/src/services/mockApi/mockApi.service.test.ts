@@ -13,18 +13,17 @@ describe('callMockEvaluationAPI', () => {
 
   it('evaluationTypesでフィルタリングする', async () => {
     const result = await callMockEvaluationAPI({
-      evaluationTypes: ['accessibility', 'writing'],
+      evaluationTypes: ['accessibility'],
       delay: 0,
     });
 
     expect(result.categories.accessibility).toBeDefined();
-    expect(result.categories.writing).toBeDefined();
   });
 
   it('evaluationTypesが未指定の場合は全カテゴリを返す', async () => {
     const result = await callMockEvaluationAPI({ delay: 0 });
 
-    expect(Object.keys(result.categories)).toHaveLength(2);
+    expect(Object.keys(result.categories)).toHaveLength(1);
   });
 
   it('複数回呼び出しても元のデータが変更されない（ディープコピー検証）', async () => {
@@ -34,25 +33,14 @@ describe('callMockEvaluationAPI', () => {
       delay: 0,
     });
 
-    // 2回目: writingのみ
-    const result2 = await callMockEvaluationAPI({
-      evaluationTypes: ['writing'],
-      delay: 0,
-    });
-
-    // 3回目: フィルタなし
-    const result3 = await callMockEvaluationAPI({ delay: 0 });
+    // 2回目: フィルタなし
+    const result2 = await callMockEvaluationAPI({ delay: 0 });
 
     // 各結果が独立していることを確認
     expect(result1.categories.accessibility).toBeDefined();
-    expect(result1.categories.writing).toBeUndefined();
 
-    expect(result2.categories.writing).toBeDefined();
-    expect(result2.categories.accessibility).toBeUndefined();
-
-    expect(Object.keys(result3.categories)).toHaveLength(2);
-    expect(result3.categories.accessibility).toBeDefined();
-    expect(result3.categories.writing).toBeDefined();
+    expect(Object.keys(result2.categories)).toHaveLength(1);
+    expect(result2.categories.accessibility).toBeDefined();
   });
 
   it('返されたデータを変更しても元のデータに影響しない', async () => {
@@ -60,12 +48,10 @@ describe('callMockEvaluationAPI', () => {
 
     // 返されたデータを変更
     result.categories.accessibility.issues[0].message = 'Modified message';
-    delete result.categories.writing;
 
     // 再度取得して、元のデータが変更されていないことを確認
     const result2 = await callMockEvaluationAPI({ delay: 0 });
 
     expect(result2.categories.accessibility.issues[0].message).not.toBe('Modified message');
-    expect(result2.categories.writing).toBeDefined();
   });
 });

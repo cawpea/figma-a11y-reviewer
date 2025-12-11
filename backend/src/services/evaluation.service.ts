@@ -9,8 +9,6 @@ import {
 } from '@shared/types';
 
 import { AccessibilityAgent } from './agents/accessibility.agent';
-import { BaseEvaluationAgent } from './agents/base.agent';
-import { WritingAgent } from './agents/writing.agent';
 
 // Claude Sonnet 4 の料金（2025年1月時点）
 // 参考: https://www.anthropic.com/pricing
@@ -23,7 +21,6 @@ const PRICING = {
 export class EvaluationService {
   private agents = {
     accessibility: new AccessibilityAgent(),
-    writing: new WritingAgent(),
   };
 
   /**

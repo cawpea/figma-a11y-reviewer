@@ -22,12 +22,8 @@ export default function Plugin() {
   const selectionState = useSelectionState();
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const {
-    selectedAgents,
-    handleAgentChange,
-    handleSelectAll,
-    handleDeselectAll,
-  } = useAgentSelection(agentOptions);
+  const { selectedAgents, handleAgentChange, handleSelectAll, handleDeselectAll } =
+    useAgentSelection(agentOptions);
 
   const handleBackToInitial = useCallback(() => {
     setView('initial');

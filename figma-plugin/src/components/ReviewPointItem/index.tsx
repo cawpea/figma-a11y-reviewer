@@ -9,12 +9,7 @@ interface ReviewPointItemProps {
   onChange: (agentId: string, checked: boolean) => void;
 }
 
-export default function ReviewPointItem({
-  agent,
-  checked,
-  onChange,
-}: ReviewPointItemProps) {
-
+export default function ReviewPointItem({ agent, checked, onChange }: ReviewPointItemProps) {
   return (
     <div className="mb-3 p-3 border border-gray-300 rounded-md">
       <Checkbox value={checked} onValueChange={(isChecked) => onChange(agent.id, isChecked)}>

@@ -32,7 +32,6 @@ jest.mock('@create-figma-plugin/utilities', () => ({
 describe('useAgentSelection', () => {
   const mockAgentOptions: AgentOption[] = [
     { id: 'accessibility', label: 'Accessibility', description: 'Test' },
-    { id: 'writing', label: 'Writing', description: 'Test' },
   ];
 
   beforeEach(() => {
@@ -54,10 +53,7 @@ describe('useAgentSelection', () => {
 
     // AGENT_SELECTION_LOADEDが発火されるとすべて選択される
     await waitFor(() => {
-      expect(result.current.selectedAgents).toEqual([
-        'accessibility',
-        'writing',
-      ]);
+      expect(result.current.selectedAgents).toEqual(['accessibility']);
     });
   });
 
@@ -125,10 +121,7 @@ describe('useAgentSelection', () => {
 
     // デフォルト値にフォールバック（すべて選択）
     await waitFor(() => {
-      expect(result.current.selectedAgents).toEqual([
-        'accessibility',
-        'writing',
-      ]);
+      expect(result.current.selectedAgents).toEqual(['accessibility']);
     });
   });
 
@@ -138,10 +131,7 @@ describe('useAgentSelection', () => {
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
@@ -164,10 +154,7 @@ describe('useAgentSelection', () => {
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
@@ -175,24 +162,21 @@ describe('useAgentSelection', () => {
       });
 
       expect(result.current.selectedAgents).not.toContain('accessibility');
-      expect(result.current.selectedAgents).toContain('writing');
+      expect(result.current.selectedAgents).toEqual([]);
     });
     it('選択を保存する', async () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
-        result.current.handleAgentChange('writing', false);
+        result.current.handleAgentChange('accessibility', false);
       });
 
-      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility']);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', []);
     });
 
     it('複数の変更を処理する', async () => {
@@ -200,10 +184,7 @@ describe('useAgentSelection', () => {
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
@@ -211,10 +192,10 @@ describe('useAgentSelection', () => {
       });
 
       act(() => {
-        result.current.handleAgentChange('writing', false);
+        result.current.handleAgentChange('accessibility', true);
       });
 
-      expect(result.current.selectedAgents).toEqual([]);
+      expect(result.current.selectedAgents).toEqual(['accessibility']);
     });
   });
 
@@ -224,10 +205,7 @@ describe('useAgentSelection', () => {
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       // First deselect all
@@ -242,30 +220,21 @@ describe('useAgentSelection', () => {
         result.current.handleSelectAll();
       });
 
-      expect(result.current.selectedAgents).toEqual([
-        'accessibility',
-        'writing',
-      ]);
+      expect(result.current.selectedAgents).toEqual(['accessibility']);
     });
     it('選択されたすべてのエージェントを保存する', async () => {
       const { result } = renderHook(() => useAgentSelection(mockAgentOptions));
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
         result.current.handleSelectAll();
       });
 
-      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', [
-        'accessibility',
-        'writing',
-      ]);
+      expect(mockEmit).toHaveBeenCalledWith('SAVE_AGENT_SELECTION', ['accessibility']);
     });
   });
 
@@ -275,10 +244,7 @@ describe('useAgentSelection', () => {
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
@@ -293,10 +259,7 @@ describe('useAgentSelection', () => {
 
       // データがロードされるまで待つ
       await waitFor(() => {
-        expect(result.current.selectedAgents).toEqual([
-          'accessibility',
-          'writing',
-        ]);
+        expect(result.current.selectedAgents).toEqual(['accessibility']);
       });
 
       act(() => {
@@ -312,28 +275,25 @@ describe('useAgentSelection', () => {
 
     // データがロードされるまで待つ
     await waitFor(() => {
-      expect(result.current.selectedAgents).toEqual([
-        'accessibility',
-        'writing',
-      ]);
+      expect(result.current.selectedAgents).toEqual(['accessibility']);
     });
 
     act(() => {
       result.current.handleDeselectAll();
     });
 
+    expect(result.current.selectedAgents).toEqual([]);
+
     act(() => {
       result.current.handleAgentChange('accessibility', true);
     });
 
-    act(() => {
-      result.current.handleAgentChange('writing', true);
-    });
+    expect(result.current.selectedAgents).toEqual(['accessibility']);
 
     act(() => {
       result.current.handleAgentChange('accessibility', false);
     });
 
-    expect(result.current.selectedAgents).toEqual(['writing']);
+    expect(result.current.selectedAgents).toEqual([]);
   });
 });

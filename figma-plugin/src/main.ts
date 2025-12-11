@@ -239,12 +239,7 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     const stylesData = await extractFileStyles();
 
     // バックエンドAPIに送信（スクリーンショット含む）
-    const result = await callEvaluationAPI(
-      nodeData,
-      stylesData,
-      evaluationTypes,
-      screenshot
-    );
+    const result = await callEvaluationAPI(nodeData, stylesData, evaluationTypes, screenshot);
 
     emit('EVALUATION_COMPLETE', result);
   } catch (error) {

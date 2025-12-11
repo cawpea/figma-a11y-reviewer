@@ -3,7 +3,7 @@ import type { EvaluationResult } from '@shared/types';
 /**
  * モックAPI用の評価結果データ
  *
- * 全ての評価タイプ（accessibility, writing）に対応したモックデータ。
+ * 全ての評価タイプ（accessibility）に対応したモックデータ。
  * 開発環境でバックエンドAPIなしにUI開発・テストを行うために使用します。
  */
 export const MOCK_EVALUATION_RESULT: EvaluationResult = {
@@ -39,26 +39,6 @@ export const MOCK_EVALUATION_RESULT: EvaluationResult = {
         '適切なフォーカスインジケーターが設定されています',
         'セマンティックな見出し階層が使用されています',
       ],
-    },
-    writing: {
-      issues: [
-        {
-          severity: 'medium',
-          message: 'エラーメッセージが技術的すぎます：「Error 400: Bad Request」',
-          nodeId: '123:475',
-          autoFixable: false,
-          suggestion:
-            'ユーザーフレンドリーな表現に変更してください。例：「入力内容を確認してください」',
-        },
-        {
-          severity: 'low',
-          message: 'ボタンのラベルが曖昧です：「次へ」より具体的な表現が望ましいです。',
-          nodeId: '123:476',
-          autoFixable: false,
-          suggestion: '「設定を保存」など、何が起こるかを明確にしてください',
-        },
-      ],
-      positives: ['見出しが簡潔で理解しやすいです', 'トーンとボイスが一貫しています'],
     },
   },
   suggestions: [
