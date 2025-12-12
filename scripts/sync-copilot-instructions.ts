@@ -48,8 +48,24 @@ export function extractManualSection(content: string): string | null {
     return null;
   }
 
-  const manualSection = content.substring(endMarkerIndex + AUTO_GEN_END.length).trim();
-  return manualSection || null;
+  // AUTO_GEN_END以降のコンテンツを取得
+  const afterMarker = content.substring(endMarkerIndex + AUTO_GEN_END.length).trim();
+  
+  // セクション区切り以降のコンテンツを探す
+  const sectionMatch = afterMarker.match(/---\s*\n\n## GitHub Copilot固有のガイダンス\s*\n\n(.+)/s);
+  
+  if (!sectionMatch) {
+    return null;
+  }
+  
+  const manualContent = sectionMatch[1].trim();
+  
+  // デフォルトガイダンスのみの場合はnullを返す
+  if (manualContent === 'このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。') {
+    return null;
+  }
+  
+  return manualContent || null;
 }
 
 /**
@@ -77,27 +93,8 @@ ${AUTO_GEN_START}
 ${AUTO_GEN_END}`;
 
   const manualPart = manualSection
-    ? `\n\n---\n\n## GitHub Copilot固有のガイダンス
-
-このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。
-
-${manualSection}`
-    : `\n\n---\n\n## GitHub Copilot固有のガイダンス
-
-このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。
-
-### コード提案の品質向上
-
-- TypeScript型推論を最大限活用してください
-- Preactコンポーネントでは関数コンポーネントとフックを優先してください
-- TailwindCSSのユーティリティクラスを使用し、カスタムCSSは最小限にしてください
-
-### テストコード生成
-
-- テスト名は日本語で記述してください
-- Testing Libraryのアクセシビリティクエリ（\`getByRole\`, \`getByLabelText\`など）を優先してください
-- モックは\`jest.mock()\`を使用し、実装の詳細ではなく振る舞いをテストしてください
-`;
+    ? `\n\n---\n\n## GitHub Copilot固有のガイダンス\n\n${manualSection}`
+    : `\n\n---\n\n## GitHub Copilot固有のガイダンス\n\nこのセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。`;
 
   return header + autoGenSection + footer + manualPart;
 }

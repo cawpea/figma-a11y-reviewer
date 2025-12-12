@@ -1,14 +1,12 @@
 # GitHub Copilot Instructions
 
-This file provides guidance to GitHub Copilot when working with code in this
-repository.
+This file provides guidance to GitHub Copilot when working with code in this repository.
 
 <!-- AUTO-GENERATED: START -->
 <!-- This section is automatically generated from CLAUDE.md. Do not edit manually. -->
 <!-- Run `npm run sync:copilot` to regenerate this section. -->
 
-This file provides guidance to GitHub Copilot when working with code in this
-repository.
+This file provides guidance to GitHub Copilot when working with code in this repository.
 
 > **📚 詳細なドキュメント**: このファイルはクイックリファレンスです。より詳細な情報は[`docs/`ディレクトリ](../docs/README.md)を参照してください。
 
@@ -252,8 +250,7 @@ npm run test:coverage     # カバレッジレポート
 - **カバレッジ目標**: 新規コード80%以上
 - **ユーザー視点**: アクセシビリティクエリ（`getByRole`, `getByText`）を優先
 
-**詳細**:
-[docs/development/testing-guide.md](../docs/development/testing-guide.md)
+**詳細**: [docs/development/testing-guide.md](../docs/development/testing-guide.md)
 
 ## 環境変数
 
@@ -312,27 +309,4 @@ docs/
 
 ## GitHub Copilot固有のガイダンス
 
-このセクションは手動で編集できます。GitHub
-Copilot特有の指示をここに追加してください。
-
----
-
-## GitHub Copilot固有のガイダンス
-
-このセクションは手動で編集できます。GitHub
-Copilot特有の指示をここに追加してください。
-
----
-
-### コード提案の品質向上
-
-- TypeScript型推論を最大限活用してください
-- Preactコンポーネントでは関数コンポーネントとフックを優先してください
-- TailwindCSSのユーティリティクラスを使用し、カスタムCSSは最小限にしてください
-
-### テストコード生成
-
-- テスト名は日本語で記述してください
-- Testing Libraryのアクセシビリティクエリ（`getByRole`,
-  `getByLabelText`など）を優先してください
-- モックは`jest.mock()`を使用し、実装の詳細ではなく振る舞いをテストしてください
+このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。
