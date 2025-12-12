@@ -36,7 +36,9 @@ export function convertClaudeToGitHubCopilot(claudeContent: string): string {
       'This file provides guidance to GitHub Copilot when working with code in this repository.'
     )
     // ファイル名参照を削除
-    .replace(/^# CLAUDE\.md\n\n/m, '');
+    .replace(/^# CLAUDE\.md\n\n/m, '')
+    // docs/への相対パスを.github/からの相対パスに変換
+    .replace(/\(docs\//g, '(../docs/');
 
   return converted;
 }
