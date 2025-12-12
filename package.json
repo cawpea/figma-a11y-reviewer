@@ -27,6 +27,8 @@
     "validate:docs": "tsx scripts/validate-docs.ts",
     "validate:docs:code": "tsx scripts/validate-docs-code.ts",
     "validate:docs:update": "tsx scripts/validate-docs-update.ts",
+    "validate:copilot-sync": "tsx scripts/validate-copilot-sync.ts",
+    "sync:copilot": "tsx scripts/sync-copilot-instructions.ts",
     "backend:dev": "npm run dev -w backend",
     "backend:build": "npm run build -w backend",
     "plugin:build": "npm run build -w figma-plugin",

@@ -69,8 +69,28 @@ jobs:
             echo "needs_update=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Comment on PR if docs need update
-        if: steps.check-docs.outputs.needs_update == 'true' && github.event_name == 'pull_request'
+      - name: Check GitHub Copilot Instructions sync
+        id: check-copilot-sync
+        run: |
+          echo "Running Copilot Instructions sync check..."
+
+          # 検証スクリプトを実行し、終了コードを保存
+          set +e
+          npm run validate:copilot-sync -- --verbose > /tmp/copilot-sync-check.log 2>&1
+          EXIT_CODE=$?
+          set -e
+
+          cat /tmp/copilot-sync-check.log
+
+          # 同期が必要かどうかを検出
+          if grep -q "⚠️  警告: CLAUDE.md が更新されていますが、copilot-instructions.md が更新されていません" /tmp/copilot-sync-check.log; then
+            echo "needs_sync=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_sync=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR if docs need update or sync
+        if: (steps.check-docs.outputs.needs_update == 'true' || steps.check-copilot-sync.outputs.needs_sync == 'true') && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
@@ -79,7 +99,13 @@ jobs:
               ? fs.readFileSync('/tmp/changed-files.txt', 'utf8')
               : '';
 
-            const body = `## ⚠️ ドキュメント更新の確認
+            const needsUpdate = '${{ steps.check-docs.outputs.needs_update }}' === 'true';
+            const needsSync = '${{ steps.check-copilot-sync.outputs.needs_sync }}' === 'true';
+
+            let body = '';
+
+            if (needsUpdate) {
+              body += `## ⚠️ ドキュメント更新の確認
 
             コードが変更されていますが、ドキュメントは更新されていないようです。
 
@@ -88,8 +114,26 @@ jobs:
             ### 💡 対応方法
             - **重要な変更の場合**: Claudeコマンド\`/update-docs\`を実行してドキュメントを更新してください
             - **軽微な変更や内部実装の変更の場合**: 更新不要です
+            `;
+            }
 
-            このコメントは自動生成されています。必要に応じてドキュメントを更新してください。`;
+            if (needsSync) {
+              if (body) body += '\n\n---\n\n';
+              body += `## ⚠️ GitHub Copilot Instructions の同期確認
+
+            \`CLAUDE.md\` が更新されていますが、\`.github/copilot-instructions.md\` が更新されていません。
+
+            ### 💡 対応方法
+            以下のコマンドを実行して同期してください:
+            \`\`\`bash
+            npm run sync:copilot
+            \`\`\`
+
+            または手動で \`.github/copilot-instructions.md\` を更新してください。
+            `;
+            }
+
+            body += '\n\nこのコメントは自動生成されています。必要に応じてドキュメントを更新してください。';
 
             // 既存のbotコメントを検索
             const { data: comments } = await github.rest.issues.listComments({
@@ -100,7 +144,7 @@ jobs:
 
             const botComment = comments.find(comment => 
               comment.user.type === 'Bot' && 
-              comment.body.includes('⚠️ ドキュメント更新の確認')
+              (comment.body.includes('⚠️ ドキュメント更新の確認') || comment.body.includes('⚠️ GitHub Copilot Instructions の同期確認'))
             );
 
             // 既存のコメントがあれば更新、なければ新規作成
@@ -128,11 +172,18 @@ jobs:
           echo "### ✅ Validations Completed:" >> $GITHUB_STEP_SUMMARY
           echo "- Code references (CODE_REF) validation" >> $GITHUB_STEP_SUMMARY
           echo "- Documentation update check" >> $GITHUB_STEP_SUMMARY
+          echo "- GitHub Copilot Instructions sync check" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ steps.check-docs.outputs.needs_update }}" = "true" ]; then
             echo "⚠️ **Warning**: Documentation may need updates" >> $GITHUB_STEP_SUMMARY
           else
             echo "✅ Documentation is up to date" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check-copilot-sync.outputs.needs_sync }}" = "true" ]; then
+            echo "⚠️ **Warning**: GitHub Copilot Instructions may need sync" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ GitHub Copilot Instructions is in sync" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "See job logs for detailed results." >> $GITHUB_STEP_SUMMARY

@@ -46,3 +46,7 @@ pnpm-lock.yaml
 *.map
 manifest.json
 **/documentation-guidelines.md
+
+# GitHub Copilot Instructions の手動編集セクション
+# (AUTO-GENERATED: END 以降のセクションは手動編集可能)
+.github/copilot-instructions.md
