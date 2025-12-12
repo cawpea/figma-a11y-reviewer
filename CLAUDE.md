@@ -34,7 +34,7 @@ cd figma-ui-reviewer
 # バックエンドのセットアップ
 cd backend
 npm install
-cp .env.example .env  # ANTHROPIC_API_KEYを設定
+cp .env.example .env  # オプション: 環境変数を設定（PORTなど）
 
 # Figmaプラグインのセットアップ
 cd ../figma-plugin
@@ -42,6 +42,9 @@ npm install
 cp .env.development.example .env.development  # 開発用環境変数を設定
 npm run build:dev  # 開発環境用ビルド
 ```
+
+**API Keyの設定**: Claude API
+Keyは環境変数ではなく、Figmaプラグインの初回起動時にUIから設定します。
 
 **詳細**:
 [docs/development/getting-started.md](docs/development/getting-started.md)
@@ -244,14 +247,15 @@ npm run test:coverage     # カバレッジレポート
 ### バックエンド（backend/.env）
 
 ```bash
-# 必須
-ANTHROPIC_API_KEY=***
-
-# オプション
+# オプション（開発環境用）
 PORT=3000                    # デフォルト: 3000
 NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 ```
+
+**注意**: Claude API
+Keyは環境変数ではなく、**ユーザーがFigmaプラグインのUIで設定**します。API
+Keyは各ユーザーのデバイスに`figma.clientStorage`としてローカル保存され、評価リクエスト時にバックエンドに送信されます。
 
 ### Figmaプラグイン（figma-plugin/.env.{development|production}）
 
@@ -263,6 +267,15 @@ API_BASE_URL=http://localhost:3000/api  # 開発環境
 
 **重要**:
 Figmaプラグインの環境変数はビルド時にコードに埋め込まれます。変更後は必ず`npm run build:dev`または`npm run build:prod`で再ビルドしてください。
+
+### API Keyの設定方法
+
+1. Figmaプラグインを開く
+2. 「API Key (Claude)」フィールドにAPI Keyを入力（`sk-ant-`で始まる）
+3. API
+   Keyは[Anthropic Console](https://console.anthropic.com/settings/keys)から取得可能
+4. 入力されたAPI
+   Keyはデバイスにローカル保存され、評価時にバックエンドに送信されます
 
 ## ドキュメント構造
 

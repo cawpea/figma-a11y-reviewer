@@ -32,12 +32,18 @@ export class EvaluationService {
    */
   async evaluateDesign(
     data: FigmaNodeData,
+    apiKey: string,
     stylesData?: FigmaStylesData,
     evaluationTypes?: string[],
     rootNodeId?: string,
     screenshot?: ScreenshotData
   ): Promise<EvaluationResult> {
     const startTime = Date.now();
+
+    // API Keyの検証
+    if (!apiKey) {
+      throw new Error('API Key is required');
+    }
 
     // 評価タイプが指定されていない場合は全て実行
     const typesToRun = evaluationTypes
@@ -61,6 +67,9 @@ export class EvaluationService {
         console.warn(`Unknown evaluation type: ${type}`);
         return null;
       }
+
+      // API Keyをエージェントに注入
+      agent.setApiKey(apiKey);
 
       // スクリーンショットをエージェントに注入
       if (screenshot) {

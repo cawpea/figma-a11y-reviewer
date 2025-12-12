@@ -435,6 +435,7 @@ const evaluationRequestSchema = z.object({
       type: figmaNodeTypeSchema, // 厳密な型チェック（40種類のFigmaノードタイプ）
     })
     .passthrough(), // 追加のプロパティを許可
+  apiKey: z.string().min(1, 'API Key is required'), // ユーザー提供のClaude API Key（必須）
   stylesData: z
     .object({
       variables: z.array(variableInfoSchema),
@@ -486,7 +487,13 @@ const evaluationRequestSchema = z.object({
 
 ### セキュリティ対策
 
-1. **APIキー管理**: 環境変数（`.env`）で管理、GitIgnore設定
+1. **APIキー管理**:
+   - **ユーザー提供のAPI Key**: ユーザーが各自のClaude API Keyを設定
+   - **ローカル保存**: API
+     Keyは`figma.clientStorage`にローカル保存され、サーバー側では保存されません
+   - **リクエスト時に送信**: 各評価リクエストでAPI
+     Keyが送信され、バックエンドはそのKeyでClaude APIを呼び出します
+   - **バリデーション**: `sk-ant-`形式のチェックを実装
 2. **入力バリデーション**: Zodスキーマで厳格な検証
 3. **nodeId形式検証**: ReDoS攻撃対策を含む正規表現検証
 4. **CORS設定**: 本番環境では適切なオリジン制限

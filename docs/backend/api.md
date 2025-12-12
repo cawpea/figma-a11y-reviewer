@@ -23,6 +23,24 @@ Reviewer バックエンドAPIのエンドポイント仕様を説明します�
 
 Figmaデザインを指定された評価エージェントで評価し、結果を返します。
 
+### 認証
+
+このエンドポイントでは、リクエストボディに**Claude API
+Key**を含める必要があります。API Keyは以下の要件を満たす必要があります：
+
+- **形式**: `sk-ant-`で始まる文字列
+- **取得方法**:
+  [Anthropic Console](https://console.anthropic.com/settings/keys)から取得
+- **保存場所**: Figmaプラグインでは、API
+  Keyは`figma.clientStorage`にローカル保存されます
+
+**セキュリティ考慮事項**:
+
+- API Keyはユーザーのデバイスにローカル保存され、サーバー側では保存されません
+- 各リクエストでAPI Keyが送信され、バックエンドはそのKeyを使用してClaude
+  APIを呼び出します
+- API Keyが無効な場合は`401 Unauthorized`エラーが返されます
+
 ### リクエスト
 
 #### Headers
@@ -46,6 +64,7 @@ Content-Type: application/json
     "type": FigmaNodeType,        // 厳密な型定義（40種類のFigmaノードタイプ）
     // ... その他のプロパティ（figma.utils.tsで抽出）
   },
+  "apiKey": string,               // Claude API Key（"sk-ant-"で始まる）
 
   // オプションフィールド
   "stylesData": {                 // ファイル全体のスタイル定義
@@ -135,6 +154,7 @@ APIを使用して視覚的な評価が可能になります。
 {
   "fileKey": "abc123def456",
   "nodeId": "1809:1836",
+  "apiKey": "sk-ant-...",
   "nodeData": {
     "id": "1809:1836",
     "name": "Login Screen",
@@ -314,6 +334,28 @@ APIを使用して視覚的な評価が可能になります。
 }
 ```
 
+```json
+{
+  "success": false,
+  "error": "Invalid request data",
+  "details": [
+    {
+      "path": ["apiKey"],
+      "message": "API Key is required"
+    }
+  ]
+}
+```
+
+**401 Unauthorized** - API Key認証エラー
+
+```json
+{
+  "success": false,
+  "error": "API Keyが無効です。正しいAPI Keyを入力してください。"
+}
+```
+
 **500 Internal Server Error** - サーバーエラー
 
 ```json
@@ -352,6 +394,7 @@ const evaluationRequestSchema = z.object({
       type: figmaNodeTypeSchema, // 厳密な型チェック（40種類のFigmaノードタイプ）
     })
     .passthrough(), // 追加のプロパティを許可
+  apiKey: z.string().min(1, 'API Key is required'), // Claude API Key（必須）
   stylesData: z
     .object({
       // ... スタイルデータのスキーマ

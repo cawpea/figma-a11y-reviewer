@@ -267,6 +267,7 @@ export interface EvaluationRequest {
   userId?: string;
   userContext?: string;
   screenshot?: ScreenshotData;
+  apiKey: string;
 }
 
 export interface ApiResponse<T = unknown> {
@@ -308,5 +309,26 @@ export interface SaveFeatureFlagsHandler {
 
 export interface FeatureFlagsSavedHandler {
   name: 'FEATURE_FLAGS_SAVED';
+  handler: () => void;
+}
+
+// API Keyイベント
+export interface LoadApiKeyHandler {
+  name: 'LOAD_API_KEY';
+  handler: () => void;
+}
+
+export interface ApiKeyLoadedHandler {
+  name: 'API_KEY_LOADED';
+  handler: (apiKey: string | null) => void;
+}
+
+export interface SaveApiKeyHandler {
+  name: 'SAVE_API_KEY';
+  handler: (apiKey: string) => void;
+}
+
+export interface ApiKeySavedHandler {
+  name: 'API_KEY_SAVED';
   handler: () => void;
 }

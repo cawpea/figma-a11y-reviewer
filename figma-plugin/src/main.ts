@@ -1,9 +1,13 @@
 import { emit, on, showUI } from '@create-figma-plugin/utilities';
 import type {
+  ApiKeyLoadedHandler,
+  ApiKeySavedHandler,
   EvaluationRequest,
   EvaluationResult,
   FigmaNodeData,
   FigmaStylesData,
+  LoadApiKeyHandler,
+  SaveApiKeyHandler,
   ScreenshotData,
   SelectionState,
 } from '@shared/types';
@@ -203,7 +207,15 @@ async function selectMultipleNodes(
   return false;
 }
 
-async function handleEvaluation(evaluationTypes?: string[]) {
+async function handleEvaluation(params: { selectedAgents: string[]; apiKey: string }) {
+  const { selectedAgents: evaluationTypes, apiKey } = params;
+
+  // API Key検証
+  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
+    emit('ERROR', 'API Keyが無効です。正しいAPI Keyを入力してください。');
+    return;
+  }
+
   const selection = figma.currentPage.selection;
 
   // 選択を検証
@@ -239,7 +251,13 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     const stylesData = await extractFileStyles();
 
     // バックエンドAPIに送信（スクリーンショット含む）
-    const result = await callEvaluationAPI(nodeData, stylesData, evaluationTypes, screenshot);
+    const result = await callEvaluationAPI(
+      nodeData,
+      stylesData,
+      evaluationTypes,
+      screenshot,
+      apiKey
+    );
 
     emit('EVALUATION_COMPLETE', result);
   } catch (error) {
@@ -248,6 +266,12 @@ async function handleEvaluation(evaluationTypes?: string[]) {
     // 非表示ノードエラーの特別な処理
     if (error instanceof Error && error.message.includes('非表示')) {
       emit('ERROR', error.message);
+      return;
+    }
+
+    // 401 Unauthorized エラーの処理
+    if (error instanceof Error && error.message.includes('401')) {
+      emit('ERROR', 'API Keyが無効です。正しいAPI Keyを入力してください。');
       return;
     }
 
@@ -261,7 +285,8 @@ async function callEvaluationAPI(
   nodeData: FigmaNodeData,
   stylesData: FigmaStylesData,
   evaluationTypes?: string[],
-  screenshot?: ScreenshotData | null
+  screenshot?: ScreenshotData | null,
+  apiKey?: string
 ): Promise<EvaluationResult> {
   // 機能フラグの確認
   const flags =
@@ -277,12 +302,18 @@ async function callEvaluationAPI(
     });
   }
 
+  // API Key検証（実APIの場合は必須）
+  if (!apiKey) {
+    throw new Error('API Keyが設定されていません。API Keyを入力してください。');
+  }
+
   // 既存の実APIロジック
-  const requestBody: Partial<EvaluationRequest> = {
+  const requestBody: EvaluationRequest = {
     fileKey: figma.fileKey || 'unknown',
     nodeId: nodeData.id,
     nodeData: nodeData,
     stylesData: stylesData,
+    apiKey: apiKey,
   };
 
   if (evaluationTypes) {
@@ -361,6 +392,28 @@ export default function () {
   // UIが初期選択状態をリクエストしたら送信
   on('REQUEST_INITIAL_SELECTION', () => {
     handleSelectionChange();
+  });
+
+  // API Keyハンドラー
+  const API_KEY_STORAGE_KEY = 'figma-ui-reviewer-api-key';
+
+  on<LoadApiKeyHandler>('LOAD_API_KEY', async () => {
+    try {
+      const apiKey = await figma.clientStorage.getAsync(API_KEY_STORAGE_KEY);
+      emit<ApiKeyLoadedHandler>('API_KEY_LOADED', apiKey || null);
+    } catch (e) {
+      console.error('Failed to load API key:', e);
+      emit<ApiKeyLoadedHandler>('API_KEY_LOADED', null);
+    }
+  });
+
+  on<SaveApiKeyHandler>('SAVE_API_KEY', async (apiKey: string) => {
+    try {
+      await figma.clientStorage.setAsync(API_KEY_STORAGE_KEY, apiKey);
+      emit<ApiKeySavedHandler>('API_KEY_SAVED');
+    } catch (e) {
+      console.error('Failed to save API key:', e);
+    }
   });
 
   // 機能フラグハンドラー
