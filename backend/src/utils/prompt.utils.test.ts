@@ -330,6 +330,17 @@ describe('prompt.utils', () => {
   });
 
   describe('buildColorContrastMap', () => {
+    // テスト中の警告を抑制
+    let consoleWarnSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleWarnSpy.mockRestore();
+    });
+
     it('テキスト要素が見つからないときにメッセージを返す', () => {
       const node: FigmaNodeData = {
         id: 'frame',
@@ -1590,6 +1601,17 @@ describe('prompt.utils', () => {
   });
 
   describe('階層的背景色検索（修正版）', () => {
+    // テスト中の警告を抑制
+    let consoleWarnSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      consoleWarnSpy.mockRestore();
+    });
+
     it('兄弟要素から背景色を検出する（優先度1）', () => {
       const node: FigmaNodeData = {
         id: 'root',

@@ -271,6 +271,9 @@ describe('BaseEvaluationAgent', () => {
         type: 'FRAME',
       };
 
+      // API Keyを設定
+      agent.setApiKey('test-api-key');
+
       const result = await agent.evaluate(mockData);
 
       expect(result.result.issues).toEqual([]);
