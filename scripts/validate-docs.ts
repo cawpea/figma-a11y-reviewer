@@ -63,6 +63,16 @@ function main(): void {
     hasError = true;
   }
 
+  // 3. GitHub Copilot Instructions の同期確認
+  const copilotSyncResult = runScript(
+    path.join(__dirname, 'validate-copilot-sync.ts'),
+    '3️⃣  GitHub Copilot Instructions 同期確認'
+  );
+  // 警告のみなのでhasErrorには影響しない
+  if (!copilotSyncResult && args.includes('--verbose')) {
+    console.log('ℹ️  Copilot Instructions の同期に関する警告がありました');
+  }
+
   // 結果サマリー
   console.log(`\n${'='.repeat(60)}`);
   console.log('📊 検証結果サマリー');

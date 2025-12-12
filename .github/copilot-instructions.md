@@ -1,9 +1,13 @@
-# CLAUDE.md
+# GitHub Copilot Instructions
 
-This file provides guidance to Claude Code (claude.ai/code) when working with
-code in this repository.
+<!-- AUTO-GENERATED: START -->
+<!-- This section is automatically generated from CLAUDE.md. Do not edit manually. -->
+<!-- Run `npm run sync:copilot` to regenerate this section. -->
 
-> **📚 詳細なドキュメント**: このファイルはクイックリファレンスです。より詳細な情報は[`docs/`ディレクトリ](docs/README.md)を参照してください。
+This file provides guidance to GitHub Copilot when working with code in this
+repository.
+
+> **📚 詳細なドキュメント**: このファイルはクイックリファレンスです。より詳細な情報は[`docs/`ディレクトリ](../docs/README.md)を参照してください。
 
 ## プロジェクト概要
 
@@ -20,7 +24,7 @@ TailwindCSS）とバックエンドAPI（Express.js）で構成されていま�
 - Level AAA: Level AA + **強化コントラスト（7:1 /
   4.5:1）**、視覚的プレゼンテーション（行間・テキスト幅）、テキスト画像の完全除外、強化ターゲットサイズ（44x44px）、リンク目的の厳格化、ナビゲーション構造、フォーカス可視性強化など
 
-**詳細**: [docs/architecture/overview.md](docs/architecture/overview.md)
+**詳細**: [docs/architecture/overview.md](../docs/architecture/overview.md)
 
 ## クイックスタート
 
@@ -47,7 +51,7 @@ npm run build:dev  # 開発環境用ビルド
 Keyは環境変数ではなく、Figmaプラグインの初回起動時にUIから設定します。
 
 **詳細**:
-[docs/development/getting-started.md](docs/development/getting-started.md)
+[docs/development/getting-started.md](../docs/development/getting-started.md)
 
 ### Figmaでの確認
 
@@ -58,7 +62,7 @@ Keyは環境変数ではなく、Figmaプラグインの初回起動時にUIか�
 
 ## 主要コマンド
 
-**詳細**: [docs/development/commands.md](docs/development/commands.md)
+**詳細**: [docs/development/commands.md](../docs/development/commands.md)
 
 ### バックエンド
 
@@ -108,7 +112,7 @@ scripts/               # ユーティリティスクリプト
 4. **レスポンス**: 評価結果（スコア、問題点、提案）を返却
 
 **詳細**:
-[docs/architecture/overview.md](docs/architecture/overview.md#データフロー)
+[docs/architecture/overview.md](../docs/architecture/overview.md#データフロー)
 
 ### 評価エージェントシステム
 
@@ -147,7 +151,7 @@ Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選�
 - `parseResponse()`: レスポンスのパースと構造化
 - `setScreenshot()`: スクリーンショットの設定（オプション）
 
-**新規エージェント追加**: [docs/guides/](docs/guides/)を参照
+**新規エージェント追加**: [docs/guides/](../docs/guides/)を参照
 
 ## 開発時の重要ポイント
 
@@ -158,7 +162,7 @@ Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選�
 - **AI**: Claude API (`claude-sonnet-4-20250514`)
 - **テスト**: Jest, Testing Library
 
-**詳細**: [docs/reference/tech-stack.md](docs/reference/)
+**詳細**: [docs/reference/tech-stack.md](../docs/reference/)
 
 ### デバッグ
 
@@ -175,7 +179,7 @@ Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選�
 - `NODE_ENV=development`: 開発環境モード（デバッグログ有効）
 - `DEBUG=true`: デバッグログを明示的に有効化
 
-**詳細**: [docs/development/debugging.md](docs/development/)
+**詳細**: [docs/development/debugging.md](../docs/development/)
 
 ### コンポーネント追加
 
@@ -183,7 +187,7 @@ Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選�
 2. `index.tsx`でコンポーネントを実装（TailwindCSS使用）
 3. 必要に応じて`hooks/`にカスタムフックを作成
 
-**詳細**: [docs/figma-plugin/components.md](docs/figma-plugin/)
+**詳細**: [docs/figma-plugin/components.md](../docs/figma-plugin/)
 
 ### 機能トグル
 
@@ -207,7 +211,7 @@ if (isEnabled(FeatureFlag.MOCK_API)) {
 ```
 
 **詳細**:
-[docs/figma-plugin/feature-toggles.md](docs/figma-plugin/feature-toggles.md)
+[docs/figma-plugin/feature-toggles.md](../docs/figma-plugin/feature-toggles.md)
 
 ### エージェント追加
 
@@ -218,7 +222,7 @@ if (isEnabled(FeatureFlag.MOCK_API)) {
 3. `evaluation.service.ts`の`agents`オブジェクトに追加
 4. `figma-plugin/src/constants/agents.ts`の`agentOptions`に追加
 
-**詳細**: [docs/guides/](docs/guides/)
+**詳細**: [docs/guides/](../docs/guides/)
 
 ## テスト
 
@@ -245,7 +249,8 @@ npm run test:coverage     # カバレッジレポート
 - **カバレッジ目標**: 新規コード80%以上
 - **ユーザー視点**: アクセシビリティクエリ（`getByRole`, `getByText`）を優先
 
-**詳細**: [docs/development/testing-guide.md](docs/development/testing-guide.md)
+**詳細**:
+[docs/development/testing-guide.md](../docs/development/testing-guide.md)
 
 ## 環境変数
 
@@ -296,4 +301,13 @@ docs/
 └── shared/                   # 共有型定義
 ```
 
-**ドキュメント検索**: 質問タイプ別の検索マップは[docs/README.md](docs/README.md)を参照
+**ドキュメント検索**: 質問タイプ別の検索マップは[docs/README.md](../docs/README.md)を参照
+
+<!-- AUTO-GENERATED: END -->
+
+---
+
+## GitHub Copilot固有のガイダンス
+
+このセクションは手動で編集できます。GitHub
+Copilot特有の指示をここに追加してください。

@@ -106,7 +106,7 @@ npm run test:coverage
 ### ドキュメント検証
 
 ```bash
-# 全ての検証を実行（コード参照 + 更新確認）
+# 全ての検証を実行（コード参照 + 更新確認 + Copilot同期確認）
 npm run validate:docs
 
 # コード参照（CODE_REF）の検証のみ
@@ -115,10 +115,17 @@ npm run validate:docs:code
 # ドキュメント更新確認のみ
 npm run validate:docs:update
 
+# GitHub Copilot Instructions の同期確認のみ
+npm run validate:copilot-sync
+
+# CLAUDE.md から GitHub Copilot Instructions を同期
+npm run sync:copilot
+
 # 詳細表示モード（各コマンドで使用可能）
 npm run validate:docs -- --verbose
 npm run validate:docs:code -- --verbose
 npm run validate:docs:update -- --verbose
+npm run validate:copilot-sync -- --verbose
 ```
 
 #### validate:docs:code
@@ -149,9 +156,37 @@ mainブランチとの差分をチェックし、コード変更時にドキュ�
 - ビルド成果物（`dist/`、`build/`、`coverage/`）
 - ログファイル（`logs/`、`*.log`）
 
+#### validate:copilot-sync
+
+`CLAUDE.md`が更新された際に、`.github/copilot-instructions.md`も同期されているか確認します。
+
+**検証内容**:
+
+- `CLAUDE.md`の更新を検出
+- `.github/copilot-instructions.md`の更新を確認
+- 同期が必要な場合は警告を表示（エラー終了しない）
+
+**注意**: このコマンドは警告のみを表示し、CI/CDを失敗させません。
+
+#### sync:copilot
+
+`CLAUDE.md`の内容から`.github/copilot-instructions.md`を自動生成します。
+
+**動作**:
+
+- `CLAUDE.md`の内容をGitHub Copilot向けに変換
+- 相対パスを`.github/`からの相対パスに調整
+- 既存の手動編集セクション（`AUTO-GENERATED: END`以降）を保持
+- `.github/copilot-instructions.md`を更新
+
+**使用タイミング**:
+
+- `CLAUDE.md`を更新した後
+- `validate:copilot-sync`で警告が出た時
+
 #### validate:docs
 
-上記2つの検証を統合実行します。開発中の最終チェックに使用してください。
+上記すべての検証を統合実行します。開発中の最終チェックに使用してください。
 
 ## 技術スタック概要
 
