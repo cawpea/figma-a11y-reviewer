@@ -1,7 +1,7 @@
 import { Textbox, IconButton } from '@create-figma-plugin/ui';
 import { IconPassword16, IconVisible16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useId, useState } from 'preact/hooks';
 
 import Heading from './Heading';
 
@@ -13,6 +13,10 @@ interface ApiKeyInputProps {
 
 export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
   const [showPassword, setShowPassword] = useState(false);
+  const labelId = useId();
+  const inputId = useId()
+  const errorId = useId();
+  const descriptionId = useId();
 
   const handleToggleVisibility = () => {
     setShowPassword(!showPassword);
@@ -24,6 +28,7 @@ export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
     <section>
       <div className="flex justify-between items-center">
         <Heading
+          id={labelId}
           rightContent={
             <a
               className="text-[11px] text-blue-600 underline"
@@ -41,22 +46,32 @@ export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
       <div className="flex flex-col gap-1">
         <div className="flex items-center w-full gap-1 [&>*:first-child]:flex-1">
           <Textbox
+            id={inputId}
             value={value}
             onValueInput={onChange}
             placeholder="sk-ant-api03-..."
             password={!showPassword}
+            aria-invalid={showValidationError}
+            aria-describedby={showValidationError ? errorId : descriptionId}
+            aria-labelledby={labelId}
           />
-          <IconButton onClick={handleToggleVisibility}>
+          <IconButton 
+            onClick={handleToggleVisibility}
+            aria-label={showPassword ? 'API Keyを非表示' : 'API Keyを表示'}
+            aria-controls={inputId}
+          >
             {showPassword ? <IconVisible16 /> : <IconPassword16 />}
           </IconButton>
         </div>
         {showValidationError && (
-          <p className="text-red-600 text-[10px]">
+          <p id={errorId} className="text-red-600 text-[10px]" role="alert">
             API Keyは "sk-ant-api03-" で始まる必要があります
           </p>
         )}
         {!showValidationError && (
-          <p className="text-gray-600 text-[10px]">このAPI Keyはデバイスにローカルに保存されます</p>
+          <p id={descriptionId} className="text-gray-600 text-[10px]">
+            このAPI Keyはデバイスにローカルに保存されます
+          </p>
         )}
       </div>
     </section>
