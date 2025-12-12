@@ -100,6 +100,7 @@ const evaluationRequestSchema = z.object({
   userId: z.string().optional(),
   userContext: z.string().optional(),
   screenshot: screenshotDataSchema.optional(),
+  apiKey: z.string().min(1, 'API Key is required'),
 });
 
 /**
@@ -132,6 +133,7 @@ router.post('/evaluate', async (req: Request, res: Response) => {
     // 評価実行
     const result = await evaluationService.evaluateDesign(
       validatedData.nodeData,
+      validatedData.apiKey,
       validatedData.stylesData,
       validatedData.evaluationTypes,
       validatedData.nodeId,

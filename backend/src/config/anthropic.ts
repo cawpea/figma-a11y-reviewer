@@ -1,12 +1,20 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  throw new Error('ANTHROPIC_API_KEY is not set in environment variables');
-}
+/**
+ * ユーザー提供のAPI Keyから動的にAnthropicクライアントを生成
+ * @param apiKey - ユーザーから提供されたClaude API Key（必須）
+ * @returns Anthropicクライアントインスタンス
+ * @throws API Keyが提供されていない場合はエラー
+ */
+export function createAnthropicClient(apiKey: string): Anthropic {
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY is required');
+  }
 
-export const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+  return new Anthropic({
+    apiKey,
+  });
+}
 
 export const MODEL_CONFIG = {
   default: 'claude-sonnet-4-20250514',

@@ -57,7 +57,7 @@ describe('useEvaluation', () => {
       const { result } = renderHook(() => useEvaluation());
 
       act(() => {
-        result.current.handleEvaluate(['accessibility', 'writing']);
+        result.current.handleEvaluate(['accessibility', 'writing'], 'test-api');
       });
 
       expect(mockEmit).toHaveBeenCalledWith('EVALUATE_SELECTION', ['accessibility', 'writing']);
@@ -67,7 +67,7 @@ describe('useEvaluation', () => {
       const { result } = renderHook(() => useEvaluation());
 
       act(() => {
-        result.current.handleEvaluate([]);
+        result.current.handleEvaluate([], 'test-api');
       });
 
       expect(result.current.error).toBe('評価項目を1つ以上選択してください');
@@ -105,7 +105,7 @@ describe('useEvaluation', () => {
 
       // Set initial error
       act(() => {
-        result.current.handleEvaluate([]);
+        result.current.handleEvaluate([], 'test-api');
       });
 
       expect(result.current.error).toBeTruthy();

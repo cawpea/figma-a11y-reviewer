@@ -2,8 +2,9 @@ import { Button, IconAi16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useCallback, useEffect, useState } from 'preact/hooks';
 
-import { agentOptions } from '../../constants/agents';
+import { useApiKey } from '../../hooks/useApiKey';
 import { useSelectionState } from '../../hooks/useSelectionState';
+import { ApiKeyInput } from '../ApiKeyInput';
 import ErrorDisplay from '../ErrorDisplay';
 import FeatureTogglePanel from '../FeatureTogglePanel';
 import Heading from '../Heading';
@@ -22,6 +23,7 @@ export default function Plugin() {
   const selectionState = useSelectionState();
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const { apiKey, handleApiKeyChange, isValid } = useApiKey();
   const { wcagLevel, handleWCAGLevelChange } = useWCAGLevelSelection();
 
   // WCAG基準に基づいてエージェントIDを自動決定
@@ -45,14 +47,11 @@ export default function Plugin() {
   const onEvaluate = () => {
     // 検証エラーをクリアしてから評価開始
     setValidationError(null);
-    handleEvaluate(selectedAgents);
+    handleEvaluate(selectedAgents, apiKey);
   };
 
-  // 選択されたエージェントの情報を取得
-  const selectedAgentInfo = agentOptions.find((agent) => agent.id === selectedAgents[0]);
-
   // レビュー開始ボタンの無効化条件
-  const shouldDisableButton = selectedAgents.length === 0;
+  const shouldDisableButton = selectedAgents.length === 0 || !apiKey || !isValid(apiKey);
 
   // 結果ページ表示
   if (view === 'result' && result) {
@@ -69,6 +68,9 @@ export default function Plugin() {
   // 初期ページ表示
   return (
     <div className="font-inter text-xs p-4 text-gray-800 bg-white flex flex-col gap-6">
+      {/* API設定セクション */}
+      <ApiKeyInput value={apiKey} onChange={handleApiKeyChange} isValid={isValid} />
+
       <SelectionDisplay selectionState={selectionState} />
 
       {/* WCAG基準選択セクション */}

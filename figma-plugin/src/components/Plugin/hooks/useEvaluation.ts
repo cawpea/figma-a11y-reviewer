@@ -11,7 +11,7 @@ interface UseEvaluationReturn {
   error: string;
   isLoading: boolean;
   result: EvaluationResult | null;
-  handleEvaluate: (selectedAgents: string[]) => void;
+  handleEvaluate: (selectedAgents: string[], apiKey: string) => void;
   handleIssueClick: (issue: Issue, rootNodeId?: string) => void;
 }
 
@@ -53,13 +53,18 @@ export function useEvaluation(params?: UseEvaluationParams): UseEvaluationReturn
   }, [onEvaluationComplete]);
 
   // 評価開始
-  const handleEvaluate = useCallback((selectedAgents: string[]) => {
+  const handleEvaluate = useCallback((selectedAgents: string[], apiKey: string) => {
     if (selectedAgents.length === 0) {
       setError('評価項目を1つ以上選択してください');
       return;
     }
 
-    emit('EVALUATE_SELECTION', selectedAgents);
+    if (!apiKey) {
+      setError('API Keyが設定されていません');
+      return;
+    }
+
+    emit('EVALUATE_SELECTION', { selectedAgents, apiKey });
   }, []);
 
   // Issue クリックハンドラー

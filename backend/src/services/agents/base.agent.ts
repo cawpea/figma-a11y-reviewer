@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { CategoryResult, FigmaNodeData, Issue, ScreenshotData } from '@shared/types';
 
-import { anthropic, MODEL_CONFIG } from '../../config/anthropic';
+import { createAnthropicClient, MODEL_CONFIG } from '../../config/anthropic';
 import { savePromptAndResponse } from '../../utils/debug';
 import { extractJsonFromResponse, extractNodeHierarchyPath } from '../../utils/prompt.utils';
 
@@ -14,6 +14,17 @@ export abstract class BaseEvaluationAgent {
 
   // ユーザーコンテキストを保持（UsabilityAgentで使用）
   protected userContext: string | null = null;
+
+  // ユーザー提供のAPI Keyを保持
+  protected apiKey: string | null = null;
+
+  /**
+   * API Keyを設定
+   * EvaluationServiceから呼び出される
+   */
+  setApiKey(apiKey: string): void {
+    this.apiKey = apiKey;
+  }
 
   /**
    * スクリーンショットを設定
@@ -36,6 +47,14 @@ export abstract class BaseEvaluationAgent {
    */
   protected async callClaude(prompt: string): Promise<Anthropic.Message> {
     try {
+      // API Keyが設定されていない場合はエラー
+      if (!this.apiKey) {
+        throw new Error('API Key is required but not set');
+      }
+
+      // ユーザー提供のAPI Keyから動的にクライアントを生成
+      const client = createAnthropicClient(this.apiKey);
+
       // ContentBlock配列を構築
       const contentBlocks: Anthropic.MessageParam['content'] = [];
 
@@ -73,7 +92,7 @@ export abstract class BaseEvaluationAgent {
       );
       console.log('='.repeat(80) + '\n');
 
-      const response = await anthropic.messages.create({
+      const response = await client.messages.create({
         model: MODEL_CONFIG.default,
         max_tokens: MODEL_CONFIG.maxTokens,
         temperature: MODEL_CONFIG.temperature,
@@ -102,6 +121,7 @@ export abstract class BaseEvaluationAgent {
     } finally {
       this.screenshot = null; // 呼び出し後にスクリーンショットをクリア
       this.userContext = null; // 呼び出し後にユーザーコンテキストをクリア
+      this.apiKey = null; // 呼び出し後にAPI Keyをクリア
     }
   }
 
