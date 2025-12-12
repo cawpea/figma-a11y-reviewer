@@ -162,13 +162,18 @@ Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選�
 
 ### デバッグ
 
-開発環境（`NODE_ENV=development`）では`backend/logs/`にデバッグ情報が保存されます：
+開発環境（`NODE_ENV=development`または`DEBUG=true`）では`backend/logs/`にデバッグ情報が保存されます：
 
 - `debug-*.json`: Figmaから受信したノードデータ
 - `prompts/prompt-*.json`: Claude APIリクエスト/レスポンス
 - `screenshots/screenshot-*.png`: スクリーンショット画像（Vision API用）
 
 古いログは7日後に自動削除されます。
+
+**環境変数**:
+
+- `NODE_ENV=development`: 開発環境モード（デバッグログ有効）
+- `DEBUG=true`: デバッグログを明示的に有効化
 
 **詳細**: [docs/development/debugging.md](docs/development/)
 
@@ -251,6 +256,7 @@ npm run test:coverage     # カバレッジレポート
 PORT=3000                    # デフォルト: 3000
 NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
+DEBUG=true                  # デバッグログを明示的に有効化（開発環境では不要）
 ```
 
 **注意**: Claude API

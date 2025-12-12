@@ -1,12 +1,14 @@
 # GitHub Copilot Instructions
 
-This file provides guidance to GitHub Copilot when working with code in this repository.
+This file provides guidance to GitHub Copilot when working with code in this
+repository.
 
 <!-- AUTO-GENERATED: START -->
 <!-- This section is automatically generated from CLAUDE.md. Do not edit manually. -->
 <!-- Run `npm run sync:copilot` to regenerate this section. -->
 
-This file provides guidance to GitHub Copilot when working with code in this repository.
+This file provides guidance to GitHub Copilot when working with code in this
+repository.
 
 > **📚 詳細なドキュメント**: このファイルはクイックリファレンスです。より詳細な情報は[`docs/`ディレクトリ](../docs/README.md)を参照してください。
 
@@ -167,13 +169,18 @@ Pluginでは、評価前にラジオボタンでWCAG基準（A/AA/AAA）を選�
 
 ### デバッグ
 
-開発環境（`NODE_ENV=development`）では`backend/logs/`にデバッグ情報が保存されます：
+開発環境（`NODE_ENV=development`または`DEBUG=true`）では`backend/logs/`にデバッグ情報が保存されます：
 
 - `debug-*.json`: Figmaから受信したノードデータ
 - `prompts/prompt-*.json`: Claude APIリクエスト/レスポンス
 - `screenshots/screenshot-*.png`: スクリーンショット画像（Vision API用）
 
 古いログは7日後に自動削除されます。
+
+**環境変数**:
+
+- `NODE_ENV=development`: 開発環境モード（デバッグログ有効）
+- `DEBUG=true`: デバッグログを明示的に有効化
 
 **詳細**: [docs/development/debugging.md](../docs/development/)
 
@@ -245,7 +252,8 @@ npm run test:coverage     # カバレッジレポート
 - **カバレッジ目標**: 新規コード80%以上
 - **ユーザー視点**: アクセシビリティクエリ（`getByRole`, `getByText`）を優先
 
-**詳細**: [docs/development/testing-guide.md](../docs/development/testing-guide.md)
+**詳細**:
+[docs/development/testing-guide.md](../docs/development/testing-guide.md)
 
 ## 環境変数
 
@@ -256,6 +264,7 @@ npm run test:coverage     # カバレッジレポート
 PORT=3000                    # デフォルト: 3000
 NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
+DEBUG=true                  # デバッグログを明示的に有効化（開発環境では不要）
 ```
 
 **注意**: Claude API
@@ -303,7 +312,15 @@ docs/
 
 ## GitHub Copilot固有のガイダンス
 
-このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。
+このセクションは手動で編集できます。GitHub
+Copilot特有の指示をここに追加してください。
+
+---
+
+## GitHub Copilot固有のガイダンス
+
+このセクションは手動で編集できます。GitHub
+Copilot特有の指示をここに追加してください。
 
 ---
 
@@ -316,5 +333,6 @@ docs/
 ### テストコード生成
 
 - テスト名は日本語で記述してください
-- Testing Libraryのアクセシビリティクエリ（`getByRole`, `getByLabelText`など）を優先してください
+- Testing Libraryのアクセシビリティクエリ（`getByRole`,
+  `getByLabelText`など）を優先してください
 - モックは`jest.mock()`を使用し、実装の詳細ではなく振る舞いをテストしてください

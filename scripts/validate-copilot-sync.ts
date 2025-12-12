@@ -81,9 +81,7 @@ export function validateCopilotSync(options: {
   if (verbose) {
     console.log(`📄 変更されたファイル数: ${changedFiles.length}`);
     console.log(`   CLAUDE.md: ${claudeUpdated ? '✅ 更新あり' : '変更なし'}`);
-    console.log(
-      `   copilot-instructions.md: ${copilotUpdated ? '✅ 更新あり' : '変更なし'}\n`
-    );
+    console.log(`   copilot-instructions.md: ${copilotUpdated ? '✅ 更新あり' : '変更なし'}\n`);
   }
 
   // CLAUDE.mdが更新されているが、copilot-instructions.mdが更新されていない場合は警告
@@ -122,11 +120,13 @@ export function main(): void {
   });
 
   if (result.needsSync) {
-    console.log('⚠️  警告: CLAUDE.md が更新されていますが、copilot-instructions.md が更新されていません\n');
+    console.log(
+      '⚠️  警告: CLAUDE.md が更新されていますが、copilot-instructions.md が更新されていません\n'
+    );
     console.log('📝 以下のコマンドを実行して同期してください:');
     console.log('   npm run sync:copilot\n');
     console.log('   または手動で .github/copilot-instructions.md を更新してください\n');
-    
+
     // 警告のみなので終了コード0で終了
     process.exit(0);
   }

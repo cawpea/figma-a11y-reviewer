@@ -33,7 +33,8 @@
       "Bash(npx tsc:*)",
       "Bash(test:*)",
       "Bash(npm run build:*)",
-      "WebFetch(domain:www.w3.org)"
+      "WebFetch(domain:www.w3.org)",
+      "Bash(npm run sync:copilot:*)"
     ],
     "deny": [],
     "ask": []

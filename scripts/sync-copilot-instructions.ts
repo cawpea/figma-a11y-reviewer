@@ -14,11 +14,7 @@ import * as path from 'path';
 // 設定
 const PROJECT_ROOT = path.join(__dirname, '..');
 const CLAUDE_MD_PATH = path.join(PROJECT_ROOT, 'CLAUDE.md');
-const COPILOT_INSTRUCTIONS_PATH = path.join(
-  PROJECT_ROOT,
-  '.github',
-  'copilot-instructions.md'
-);
+const COPILOT_INSTRUCTIONS_PATH = path.join(PROJECT_ROOT, '.github', 'copilot-instructions.md');
 
 // 自動生成マーカー
 const AUTO_GEN_START = '<!-- AUTO-GENERATED: START -->';
