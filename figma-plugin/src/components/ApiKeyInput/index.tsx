@@ -3,7 +3,7 @@ import { IconVisible16, IconHidden16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useId, useState } from 'preact/hooks';
 
-import Heading from './Heading';
+import Heading from '../Heading';
 
 interface ApiKeyInputProps {
   value: string;
