@@ -28,7 +28,7 @@ Figmaデザインを指定された評価エージェントで評価し、結果
 このエンドポイントでは、リクエストボディに**Claude API
 Key**を含める必要があります。API Keyは以下の要件を満たす必要があります：
 
-- **形式**: `sk-ant-api03-`で始まる文字列
+- **形式**: `sk-ant-`で始まる文字列
 - **取得方法**:
   [Anthropic Console](https://console.anthropic.com/settings/keys)から取得
 - **保存場所**: Figmaプラグインでは、API
@@ -64,7 +64,7 @@ Content-Type: application/json
     "type": FigmaNodeType,        // 厳密な型定義（40種類のFigmaノードタイプ）
     // ... その他のプロパティ（figma.utils.tsで抽出）
   },
-  "apiKey": string,               // Claude API Key（"sk-ant-api03-"で始まる）
+  "apiKey": string,               // Claude API Key（"sk-ant-"で始まる）
 
   // オプションフィールド
   "stylesData": {                 // ファイル全体のスタイル定義
@@ -154,7 +154,7 @@ APIを使用して視覚的な評価が可能になります。
 {
   "fileKey": "abc123def456",
   "nodeId": "1809:1836",
-  "apiKey": "sk-ant-api03-...",
+  "apiKey": "sk-ant-...",
   "nodeData": {
     "id": "1809:1836",
     "name": "Login Screen",

@@ -56,7 +56,7 @@ touch .env
 
 ```bash
 # 必須: Anthropic API キー
-ANTHROPIC_API_KEY=sk-ant-api03-your-api-key-here
+ANTHROPIC_API_KEY=sk-ant-your-api-key-here
 
 # オプション: サーバー設定
 PORT=3000

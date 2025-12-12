@@ -49,7 +49,7 @@ export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
             id={inputId}
             value={value}
             onValueInput={onChange}
-            placeholder="sk-ant-api03-..."
+            placeholder="sk-ant-..."
             password={!showPassword}
             aria-invalid={showValidationError}
             aria-describedby={showValidationError ? errorId : descriptionId}
@@ -65,7 +65,7 @@ export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
         </div>
         {showValidationError && (
           <p id={errorId} className="text-red-600 text-[10px]" role="alert">
-            API Keyは "sk-ant-api03-" で始まる必要があります
+            API Keyは "sk-ant-" で始まる必要があります
           </p>
         )}
         {!showValidationError && (

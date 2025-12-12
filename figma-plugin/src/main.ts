@@ -211,7 +211,7 @@ async function handleEvaluation(params: { selectedAgents: string[]; apiKey: stri
   const { selectedAgents: evaluationTypes, apiKey } = params;
 
   // API Key検証
-  if (!apiKey || !apiKey.startsWith('sk-ant-api03-')) {
+  if (!apiKey || !apiKey.startsWith('sk-ant-')) {
     emit('ERROR', 'API Keyが無効です。正しいAPI Keyを入力してください。');
     return;
   }

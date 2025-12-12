@@ -271,7 +271,7 @@ Figmaプラグインの環境変数はビルド時にコードに埋め込まれ
 ### API Keyの設定方法
 
 1. Figmaプラグインを開く
-2. 「API Key (Claude)」フィールドにAPI Keyを入力（`sk-ant-api03-`で始まる）
+2. 「API Key (Claude)」フィールドにAPI Keyを入力（`sk-ant-`で始まる）
 3. API
    Keyは[Anthropic Console](https://console.anthropic.com/settings/keys)から取得可能
 4. 入力されたAPI

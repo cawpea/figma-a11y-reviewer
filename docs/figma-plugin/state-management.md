@@ -238,7 +238,7 @@ export function useApiKey() {
    * API Keyのバリデーション
    */
   const isValid = (key: string): boolean => {
-    return key.startsWith('sk-ant-api03-');
+    return key.startsWith('sk-ant-');
   };
 
   return {
@@ -282,7 +282,7 @@ on<SaveApiKeyHandler>('SAVE_API_KEY', async (apiKey: string) => {
 
 - **セキュリティ**: API
   Keyはデバイスにローカル保存され、サーバー側では保存されません
-- **バリデーション**: `sk-ant-api03-`形式のチェックを実装
+- **バリデーション**: `sk-ant-`形式のチェックを実装
 - **エラー表示**: 無効なAPI Key入力時にリアルタイムでエラーメッセージを表示
 - **可視性制御**: パスワードの表示/非表示を切り替え可能
 

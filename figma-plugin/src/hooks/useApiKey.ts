@@ -35,7 +35,7 @@ export function useApiKey() {
    * API Keyのバリデーション
    */
   const isValid = (key: string): boolean => {
-    return key.startsWith('sk-ant-api03-') && key.length >= 200;
+    return key.startsWith('sk-ant-') && key.length >= 200;
   };
 
   return {
