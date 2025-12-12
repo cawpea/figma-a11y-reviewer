@@ -1,5 +1,5 @@
 import { Textbox, IconButton } from '@create-figma-plugin/ui';
-import { IconPassword16, IconVisible16 } from '@create-figma-plugin/ui';
+import { IconVisible16, IconHidden16 } from '@create-figma-plugin/ui';
 import { h } from 'preact';
 import { useId, useState } from 'preact/hooks';
 
@@ -60,7 +60,7 @@ export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
             aria-label={showPassword ? 'API Keyを非表示' : 'API Keyを表示'}
             aria-controls={inputId}
           >
-            {showPassword ? <IconVisible16 /> : <IconPassword16 />}
+            {showPassword ? <IconVisible16 /> : <IconHidden16 />}
           </IconButton>
         </div>
         {showValidationError && (
