@@ -79,8 +79,6 @@ export function generateCopilotInstructions(
 
   const header = `# GitHub Copilot Instructions
 
-This file provides guidance to GitHub Copilot when working with code in this repository.
-
 ${AUTO_GEN_START}
 <!-- This section is automatically generated from CLAUDE.md. Do not edit manually. -->
 <!-- Run \`npm run sync:copilot\` to regenerate this section. -->
