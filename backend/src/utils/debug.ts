@@ -8,6 +8,8 @@ import { MODEL_CONFIG } from '../config/anthropic';
 
 const logsDir = join(__dirname, '../../logs');
 
+const isDebug = false;
+
 /**
  * 統合ログ関数: 開発環境ではdebug/infoを出力、warn/errorは常に出力
  * @param level - ログレベル ('debug' | 'info' | 'warn' | 'error')
@@ -30,7 +32,7 @@ export function log(
 
   switch (level) {
     case 'debug':
-      console.debug(formattedMessage, ...args);
+      if (isDebug) console.debug(formattedMessage, ...args);
       break;
     case 'info':
       console.info(formattedMessage, ...args);

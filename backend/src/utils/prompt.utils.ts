@@ -796,7 +796,7 @@ function findBackgroundColorWithHierarchy(
       '[Hierarchical Search]'
     );
 
-    const siblingBackground = findSiblingBackgroundColor(currentParent.children, textNode, false);
+    const siblingBackground = findSiblingBackgroundColor(currentParent.children, textNode);
 
     if (siblingBackground) {
       log(
@@ -855,25 +855,21 @@ function findBackgroundColorWithHierarchy(
  * Z-orderを考慮して最も手前（topmost）の背景を優先的に検出します。
  * @param siblings - 兄弟要素の配列（前から順にz-order後ろ→前）
  * @param referenceNode - 参照テキストノード（サイズ・座標比較用）
- * @param isDebug - デバッグログを出力するかどうか（デフォルト: false）
  * @returns 検出された背景色（hex形式）、見つからない場合はundefined
  */
 function findSiblingBackgroundColor(
   siblings: FigmaNodeData[],
   referenceNode?: FigmaNodeData,
-  isDebug: boolean = false
 ): string | undefined {
   // 座標ベースの検出を試みる（テキストノードに座標情報がある場合）
   if (referenceNode?.absoluteBoundingBox) {
     const textBox = referenceNode.absoluteBoundingBox;
 
-    if (isDebug) {
-      log(
-        'debug',
-        `Text box: x=${textBox.x}, y=${textBox.y}, w=${textBox.width}, h=${textBox.height}`,
-        '[Sibling Search]'
-      );
-    }
+    log(
+      'debug',
+      `Text box: x=${textBox.x}, y=${textBox.y}, w=${textBox.width}, h=${textBox.height}`,
+      '[Sibling Search]'
+    );
 
     // Z-orderを考慮して逆順で探索（最も手前から）
     for (let i = siblings.length - 1; i >= 0; i--) {
@@ -881,27 +877,27 @@ function findSiblingBackgroundColor(
 
       // スキップ条件のデバッグログ
       if (sibling.type === 'TEXT') {
-        if (isDebug) log('debug', `Skip TEXT: ${sibling.name}`, '[Sibling Search]');
+        log('debug', `Skip TEXT: ${sibling.name}`, '[Sibling Search]');
         continue;
       }
       if (!sibling.fills || sibling.fills.length === 0) {
-        if (isDebug) log('debug', `Skip no fills: ${sibling.name}`, '[Sibling Search]');
+        log('debug', `Skip no fills: ${sibling.name}`, '[Sibling Search]');
         continue;
       }
 
       const fill = sibling.fills[0];
       if (fill.type !== 'SOLID' || !fill.color) {
-        if (isDebug) log('debug', `Skip non-SOLID fill: ${sibling.name}`, '[Sibling Search]');
+        log('debug', `Skip non-SOLID fill: ${sibling.name}`, '[Sibling Search]');
         continue;
       }
       if (fill.opacity !== undefined && fill.opacity <= 0.1) {
-        if (isDebug) log('debug', `Skip low opacity: ${sibling.name}`, '[Sibling Search]');
+        log('debug', `Skip low opacity: ${sibling.name}`, '[Sibling Search]');
         continue;
       }
 
       // サイズフィルタリング
       if (!sibling.absoluteBoundingBox) {
-        if (isDebug) log('debug', `Skip no boundingBox: ${sibling.name}`, '[Sibling Search]');
+        log('debug', `Skip no boundingBox: ${sibling.name}`, '[Sibling Search]');
         continue;
       }
 
@@ -909,17 +905,15 @@ function findSiblingBackgroundColor(
       const siblingWidth = siblingBox.width;
       const siblingHeight = siblingBox.height;
 
-      if (isDebug) {
-        log(
-          'debug',
-          `Checking: ${sibling.name} (${sibling.type}), x=${siblingBox.x}, y=${siblingBox.y}, w=${siblingWidth}, h=${siblingHeight}`,
-          '[Sibling Search]'
-        );
-      }
+      log(
+        'debug',
+        `Checking: ${sibling.name} (${sibling.type}), x=${siblingBox.x}, y=${siblingBox.y}, w=${siblingWidth}, h=${siblingHeight}`,
+        '[Sibling Search]'
+      );
 
       // 幅または高さが10px以下の要素は装飾要素としてスキップ
       if (siblingWidth <= 10 || siblingHeight <= 10) {
-        if (isDebug) log('debug', `Skip too small: ${sibling.name}`, '[Sibling Search]');
+        log('debug', `Skip too small: ${sibling.name}`, '[Sibling Search]');
         continue;
       }
 
@@ -928,25 +922,21 @@ function findSiblingBackgroundColor(
 
       // 兄弟要素の面積がテキストの10%未満の場合はスキップ
       if (siblingArea < textArea * 0.1) {
-        if (isDebug) {
-          log(
-            'debug',
-            `Skip too small area: ${sibling.name}, siblingArea=${siblingArea}, textArea=${textArea}, ratio=${siblingArea / textArea}`,
-            '[Sibling Search]'
-          );
-        }
+        log(
+          'debug',
+          `Skip too small area: ${sibling.name}, siblingArea=${siblingArea}, textArea=${textArea}, ratio=${siblingArea / textArea}`,
+          '[Sibling Search]'
+        );
         continue;
       }
 
       // 完全包含チェック
       const isContained = isFullyContainedBy(textBox, siblingBox);
-      if (isDebug) {
-        log(
-          'debug',
-          `Containment check: ${sibling.name}, isContained=${isContained}`,
-          '[Sibling Search]'
-        );
-      }
+      log(
+        'debug',
+        `Containment check: ${sibling.name}, isContained=${isContained}`,
+        '[Sibling Search]'
+      );
 
       if (isContained) {
         const bgColor = rgbToHex(fill.color.r, fill.color.g, fill.color.b);
