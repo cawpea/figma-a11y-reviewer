@@ -26,6 +26,12 @@ Figmaプラグインは**サンドボックス環境**で動作するため、�
 [main.ts] figma.clientStorage.setAsync()
 ```
 
+**永続化の実装例:**
+- エージェント選択状態（`useAgentSelection`）
+- プラットフォーム選択状態（`useAgentSelection`）
+- 機能フラグ（`FeatureFlagContext`）
+- **API Key**（`useApiKey`）← 新規追加
+
 ## 🏗️ アーキテクチャ
 
 ### データフローの全体像
@@ -39,6 +45,7 @@ Figmaプラグインは**サンドボックス環境**で動作するため、�
 │  │ ・selectedAgents                             │        │
 │  │ ・selectedPlatform                           │        │
 │  │ ・featureFlags                               │        │
+│  │ ・apiKey (NEW)                               │        │
 │  └─────────────────────────────────────────────┘        │
 │           │                           ▲                  │
 │           │ emit('LOAD_*')            │ on('*_LOADED')   │
@@ -63,6 +70,7 @@ Figmaプラグインは**サンドボックス環境**で動作するため、�
 │  │ ・'figma-ui-reviewer-selected-agents'        │         │
 │  │ ・'figma-ui-reviewer-selected-platform'      │         │
 │  │ ・'feature-flags'                            │         │
+│  │ ・'figma-ui-reviewer-api-key' (NEW)          │         │
 │  └─────────────────────────────────────────────┘         │
 │                                                            │
 └────────────────────────────────────────────────────────────┘
@@ -184,6 +192,94 @@ on('SAVE_PLATFORM_SELECTION', async (selectedPlatform: 'ios' | 'android') => {
 <!-- CODE_REF: figma-plugin/src/main.ts:292-311 -->
 
 機能フラグも同じパターンを使用します。詳細は[feature-toggles.md](./feature-toggles.md)を参照してください。
+
+### パターン3: API Key管理
+
+<!-- CODE_REF: figma-plugin/src/hooks/useApiKey.ts -->
+<!-- CODE_REF: figma-plugin/src/main.ts:397-417 -->
+
+#### UI側の実装 (useApiKey.ts)
+
+```typescript
+/**
+ * API Keyの状態管理フック
+ * figma.clientStorageへの保存/読み込みを管理
+ */
+export function useApiKey() {
+  const [apiKey, setApiKey] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    // API Keyの読み込みを要求
+    emit<LoadApiKeyHandler>('LOAD_API_KEY');
+
+    // API Keyが読み込まれたら状態を更新
+    const unsubscribe = on<ApiKeyLoadedHandler>('API_KEY_LOADED', (loadedKey: string | null) => {
+      setApiKey(loadedKey || '');
+      setIsLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  /**
+   * API Keyを保存
+   */
+  const handleApiKeyChange = (newKey: string) => {
+    setApiKey(newKey);
+    emit<SaveApiKeyHandler>('SAVE_API_KEY', newKey);
+  };
+
+  /**
+   * API Keyのバリデーション
+   */
+  const isValid = (key: string): boolean => {
+    return key.startsWith('sk-ant-api03-');
+  };
+
+  return {
+    apiKey,
+    isLoading,
+    handleApiKeyChange,
+    isValid,
+  };
+}
+```
+
+#### main.ts側の実装
+
+```typescript
+// ストレージキーの定義
+const API_KEY_STORAGE_KEY = 'figma-ui-reviewer-api-key';
+
+// 読み込みハンドラー
+on<LoadApiKeyHandler>('LOAD_API_KEY', async () => {
+  try {
+    const apiKey = await figma.clientStorage.getAsync(API_KEY_STORAGE_KEY);
+    emit<ApiKeyLoadedHandler>('API_KEY_LOADED', apiKey || null);
+  } catch (e) {
+    console.error('Failed to load API key:', e);
+    emit<ApiKeyLoadedHandler>('API_KEY_LOADED', null);
+  }
+});
+
+// 保存ハンドラー
+on<SaveApiKeyHandler>('SAVE_API_KEY', async (apiKey: string) => {
+  try {
+    await figma.clientStorage.setAsync(API_KEY_STORAGE_KEY, apiKey);
+    emit<ApiKeySavedHandler>('API_KEY_SAVED');
+  } catch (e) {
+    console.error('Failed to save API key:', e);
+  }
+});
+```
+
+#### 特徴
+
+- **セキュリティ**: API Keyはデバイスにローカル保存され、サーバー側では保存されません
+- **バリデーション**: `sk-ant-api03-`形式のチェックを実装
+- **エラー表示**: 無効なAPI Key入力時にリアルタイムでエラーメッセージを表示
+- **可視性制御**: パスワードの表示/非表示を切り替え可能
 
 ## 🔑 重要な実装ポイント
 
@@ -387,6 +483,7 @@ it('空の配列が保存されている場合も空として復元される', a
 | エージェント選択     | `useAgentSelection.ts` | `LOAD/SAVE_AGENT_SELECTION` | `figma-ui-reviewer-selected-agents`   |
 | プラットフォーム選択 | `useAgentSelection.ts` | `SAVE_PLATFORM_SELECTION`   | `figma-ui-reviewer-selected-platform` |
 | 機能フラグ           | `FeatureFlagContext/`  | `LOAD/SAVE_FEATURE_FLAGS`   | `feature-flags`                       |
+| **API Key**          | `useApiKey.ts`         | `LOAD/SAVE_API_KEY`         | `figma-ui-reviewer-api-key`           |
 
 ### 新しい状態を追加する場合
 
