@@ -50,21 +50,24 @@ export function extractManualSection(content: string): string | null {
 
   // AUTO_GEN_END以降のコンテンツを取得
   const afterMarker = content.substring(endMarkerIndex + AUTO_GEN_END.length).trim();
-  
+
   // セクション区切り以降のコンテンツを探す
   const sectionMatch = afterMarker.match(/---\s*\n\n## GitHub Copilot固有のガイダンス\s*\n\n(.+)/s);
-  
+
   if (!sectionMatch) {
     return null;
   }
-  
+
   const manualContent = sectionMatch[1].trim();
-  
+
   // デフォルトガイダンスのみの場合はnullを返す
-  if (manualContent === 'このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。') {
+  if (
+    manualContent ===
+    'このセクションは手動で編集できます。GitHub Copilot特有の指示をここに追加してください。'
+  ) {
     return null;
   }
-  
+
   return manualContent || null;
 }
 
