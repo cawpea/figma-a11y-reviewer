@@ -25,15 +25,20 @@ Figmaデザインを指定された評価エージェントで評価し、結果
 
 ### 認証
 
-このエンドポイントでは、リクエストボディに**Claude API Key**を含める必要があります。API Keyは以下の要件を満たす必要があります：
+このエンドポイントでは、リクエストボディに**Claude API
+Key**を含める必要があります。API Keyは以下の要件を満たす必要があります：
 
 - **形式**: `sk-ant-api03-`で始まる文字列
-- **取得方法**: [Anthropic Console](https://console.anthropic.com/settings/keys)から取得
-- **保存場所**: Figmaプラグインでは、API Keyは`figma.clientStorage`にローカル保存されます
+- **取得方法**:
+  [Anthropic Console](https://console.anthropic.com/settings/keys)から取得
+- **保存場所**: Figmaプラグインでは、API
+  Keyは`figma.clientStorage`にローカル保存されます
 
 **セキュリティ考慮事項**:
+
 - API Keyはユーザーのデバイスにローカル保存され、サーバー側では保存されません
-- 各リクエストでAPI Keyが送信され、バックエンドはそのKeyを使用してClaude APIを呼び出します
+- 各リクエストでAPI Keyが送信され、バックエンドはそのKeyを使用してClaude
+  APIを呼び出します
 - API Keyが無効な場合は`401 Unauthorized`エラーが返されます
 
 ### リクエスト

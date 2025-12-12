@@ -43,8 +43,7 @@ cp .env.development.example .env.development  # 開発用環境変数を設定
 npm run build:dev  # 開発環境用ビルド
 ```
 
-**API Keyの設定**:
-Claude API
+**API Keyの設定**: Claude API
 Keyは環境変数ではなく、Figmaプラグインの初回起動時にUIから設定します。
 
 **詳細**:
@@ -273,9 +272,10 @@ Figmaプラグインの環境変数はビルド時にコードに埋め込まれ
 
 1. Figmaプラグインを開く
 2. 「API Key (Claude)」フィールドにAPI Keyを入力（`sk-ant-api03-`で始まる）
-3. API Keyは[Anthropic
-   Console](https://console.anthropic.com/settings/keys)から取得可能
-4. 入力されたAPI Keyはデバイスにローカル保存され、評価時にバックエンドに送信されます
+3. API
+   Keyは[Anthropic Console](https://console.anthropic.com/settings/keys)から取得可能
+4. 入力されたAPI
+   Keyはデバイスにローカル保存され、評価時にバックエンドに送信されます
 
 ## ドキュメント構造
 

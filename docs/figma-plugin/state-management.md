@@ -27,6 +27,7 @@ Figmaプラグインは**サンドボックス環境**で動作するため、�
 ```
 
 **永続化の実装例:**
+
 - エージェント選択状態（`useAgentSelection`）
 - プラットフォーム選択状態（`useAgentSelection`）
 - 機能フラグ（`FeatureFlagContext`）
@@ -214,10 +215,13 @@ export function useApiKey() {
     emit<LoadApiKeyHandler>('LOAD_API_KEY');
 
     // API Keyが読み込まれたら状態を更新
-    const unsubscribe = on<ApiKeyLoadedHandler>('API_KEY_LOADED', (loadedKey: string | null) => {
-      setApiKey(loadedKey || '');
-      setIsLoading(false);
-    });
+    const unsubscribe = on<ApiKeyLoadedHandler>(
+      'API_KEY_LOADED',
+      (loadedKey: string | null) => {
+        setApiKey(loadedKey || '');
+        setIsLoading(false);
+      }
+    );
 
     return unsubscribe;
   }, []);
@@ -276,7 +280,8 @@ on<SaveApiKeyHandler>('SAVE_API_KEY', async (apiKey: string) => {
 
 #### 特徴
 
-- **セキュリティ**: API Keyはデバイスにローカル保存され、サーバー側では保存されません
+- **セキュリティ**: API
+  Keyはデバイスにローカル保存され、サーバー側では保存されません
 - **バリデーション**: `sk-ant-api03-`形式のチェックを実装
 - **エラー表示**: 無効なAPI Key入力時にリアルタイムでエラーメッセージを表示
 - **可視性制御**: パスワードの表示/非表示を切り替え可能

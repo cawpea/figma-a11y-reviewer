@@ -859,7 +859,7 @@ function findBackgroundColorWithHierarchy(
  */
 function findSiblingBackgroundColor(
   siblings: FigmaNodeData[],
-  referenceNode?: FigmaNodeData,
+  referenceNode?: FigmaNodeData
 ): string | undefined {
   // 座標ベースの検出を試みる（テキストノードに座標情報がある場合）
   if (referenceNode?.absoluteBoundingBox) {

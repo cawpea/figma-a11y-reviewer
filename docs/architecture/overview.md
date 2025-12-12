@@ -489,8 +489,10 @@ const evaluationRequestSchema = z.object({
 
 1. **APIキー管理**:
    - **ユーザー提供のAPI Key**: ユーザーが各自のClaude API Keyを設定
-   - **ローカル保存**: API Keyは`figma.clientStorage`にローカル保存され、サーバー側では保存されません
-   - **リクエスト時に送信**: 各評価リクエストでAPI Keyが送信され、バックエンドはそのKeyでClaude APIを呼び出します
+   - **ローカル保存**: API
+     Keyは`figma.clientStorage`にローカル保存され、サーバー側では保存されません
+   - **リクエスト時に送信**: 各評価リクエストでAPI
+     Keyが送信され、バックエンドはそのKeyでClaude APIを呼び出します
    - **バリデーション**: `sk-ant-api03-`形式のチェックを実装
 2. **入力バリデーション**: Zodスキーマで厳格な検証
 3. **nodeId形式検証**: ReDoS攻撃対策を含む正規表現検証
