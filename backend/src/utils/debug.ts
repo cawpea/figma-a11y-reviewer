@@ -8,7 +8,7 @@ import { MODEL_CONFIG } from '../config/anthropic';
 
 const logsDir = join(__dirname, '../../logs');
 
-const isDebug = false;
+const isDebug = process.env.DEBUG === 'true' || process.env.NODE_ENV === 'development';
 
 /**
  * 統合ログ関数: 開発環境ではdebug/infoを出力、warn/errorは常に出力
