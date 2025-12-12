@@ -24,7 +24,7 @@ describe('EvaluationService', () => {
     };
 
     it('デフォルトですべてのエージェントを評価する', async () => {
-      const result = await service.evaluateDesign(mockData);
+      const result = await service.evaluateDesign(mockData, 'test-api-key');
 
       expect(result.categories).toHaveProperty('accessibility-a');
       expect(result.categories).toHaveProperty('accessibility-aa');
@@ -36,27 +36,31 @@ describe('EvaluationService', () => {
     });
 
     it('指定されたタイプのみを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, undefined, ['accessibility-aa']);
+      const result = await service.evaluateDesign(mockData, 'test-api-key', undefined, [
+        'accessibility-aa',
+      ]);
 
       expect(result.categories).toHaveProperty('accessibility-aa');
       expect(Object.keys(result.categories).length).toBe(1);
     });
 
     it('単一の指定されたタイプのみを評価する', async () => {
-      const result = await service.evaluateDesign(mockData, undefined, ['accessibility-a']);
+      const result = await service.evaluateDesign(mockData, 'test-api-key', undefined, [
+        'accessibility-a',
+      ]);
 
       expect(result.categories).toHaveProperty('accessibility-a');
       expect(Object.keys(result.categories).length).toBe(1);
     });
 
     it('有効な評価タイプが提供されていないときにエラーをスローする', async () => {
-      await expect(service.evaluateDesign(mockData, undefined, ['invalid'])).rejects.toThrow(
-        'No valid evaluation types provided'
-      );
+      await expect(
+        service.evaluateDesign(mockData, 'test-api-key', undefined, ['invalid'])
+      ).rejects.toThrow('No valid evaluation types provided');
     });
 
     it('提案を重要度でソートする', async () => {
-      const result = await service.evaluateDesign(mockData);
+      const result = await service.evaluateDesign(mockData, 'test-api-key');
 
       if (result.suggestions.length > 1) {
         const severityOrder = { high: 0, medium: 1, low: 2 };
@@ -70,7 +74,7 @@ describe('EvaluationService', () => {
     });
 
     it('提案にカテゴリを含む', async () => {
-      const result = await service.evaluateDesign(mockData);
+      const result = await service.evaluateDesign(mockData, 'test-api-key');
 
       result.suggestions.forEach((suggestion) => {
         expect(suggestion).toHaveProperty('category');
@@ -79,7 +83,7 @@ describe('EvaluationService', () => {
     });
 
     it('使用量とコストを計算する', async () => {
-      const result = await service.evaluateDesign(mockData);
+      const result = await service.evaluateDesign(mockData, 'test-api-key');
 
       expect(result.metadata.usage).toHaveProperty('totalInputTokens');
       expect(result.metadata.usage).toHaveProperty('totalOutputTokens');
@@ -91,13 +95,19 @@ describe('EvaluationService', () => {
 
     it('指定された場合にカスタムrootNodeIdを使用する', async () => {
       const customRootId = 'custom-root-123';
-      const result = await service.evaluateDesign(mockData, undefined, undefined, customRootId);
+      const result = await service.evaluateDesign(
+        mockData,
+        'test-api-key',
+        undefined,
+        undefined,
+        customRootId
+      );
 
       expect(result.metadata.rootNodeId).toBe(customRootId);
     });
 
     it('評価期間を追跡する', async () => {
-      const result = await service.evaluateDesign(mockData);
+      const result = await service.evaluateDesign(mockData, 'test-api-key');
 
       expect(result.metadata.duration).toBeGreaterThanOrEqual(0);
       expect(typeof result.metadata.duration).toBe('number');
@@ -132,13 +142,13 @@ describe('EvaluationService', () => {
         ],
       };
 
-      const result = await service.evaluateDesign(complexData);
+      const result = await service.evaluateDesign(complexData, 'test-api-key');
 
       expect(Object.keys(result.categories).length).toBeGreaterThan(0);
     });
 
     it('無効な評価タイプをフィルタリングする', async () => {
-      const result = await service.evaluateDesign(mockData, undefined, [
+      const result = await service.evaluateDesign(mockData, 'test-api-key', undefined, [
         'accessibility-aaa',
         'invalid',
       ]);
@@ -149,7 +159,7 @@ describe('EvaluationService', () => {
     });
 
     it('空の評価タイプ配列を処理する', async () => {
-      await expect(service.evaluateDesign(mockData, undefined, [])).rejects.toThrow(
+      await expect(service.evaluateDesign(mockData, 'test-api-key', undefined, [])).rejects.toThrow(
         'No valid evaluation types provided'
       );
     });

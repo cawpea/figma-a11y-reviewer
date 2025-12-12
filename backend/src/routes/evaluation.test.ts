@@ -17,16 +17,6 @@ describe('POST /api/evaluate', () => {
     app.use('/api', evaluationRouter);
   });
 
-  const validRequestBody = {
-    fileKey: 'test-file-key',
-    nodeId: '1:2',
-    nodeData: {
-      id: '1:2',
-      name: 'Test Frame',
-      type: 'FRAME' as const,
-    },
-  };
-
   describe('バリデーション', () => {
     it('必須フィールドが欠けている場合は400エラーを返す', async () => {
       const response = await request(app).post('/api/evaluate').send({

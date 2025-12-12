@@ -14,7 +14,7 @@ interface ApiKeyInputProps {
 export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
   const [showPassword, setShowPassword] = useState(false);
   const labelId = useId();
-  const inputId = useId()
+  const inputId = useId();
   const errorId = useId();
   const descriptionId = useId();
 
@@ -55,7 +55,7 @@ export function ApiKeyInput({ value, onChange, isValid }: ApiKeyInputProps) {
             aria-describedby={showValidationError ? errorId : descriptionId}
             aria-labelledby={labelId}
           />
-          <IconButton 
+          <IconButton
             onClick={handleToggleVisibility}
             aria-label={showPassword ? 'API Keyを非表示' : 'API Keyを表示'}
             aria-controls={inputId}
