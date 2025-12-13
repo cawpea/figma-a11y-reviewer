@@ -81,10 +81,12 @@ APIキーは秘密情報です。Gitにコミットしないでください（`.
 ### 1.3 TypeScriptのビルド（オプション）
 
 ```bash
-npm run build:dev
+npm run build
 ```
 
-このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルしますが、開発時は不要です（`npm run dev`がts-nodeで直接実行します）。
+このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルします。開発時は不要ですが（`npm run dev`がtsxで直接実行します）、本番デプロイ時には必須です。
+
+**注意**: Firebase Functions デプロイのため、`backend/dist/`はGitに含まれます（`.gitignore`で特別に許可）。
 
 ### 1.4 開発サーバーの起動
 

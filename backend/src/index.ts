@@ -23,17 +23,13 @@ const PORT = process.env.PORT || 3000;
 app.use(
   cors({
     origin: (origin, callback) => {
-      const allowedOrigins = [
-        'https://www.figma.com',
-        'http://localhost:3000',
-      ];
+      const allowedOrigins = ['https://www.figma.com', 'http://localhost:3000'];
 
       // origin が undefined, null, 'null' の場合は許可
       // （Figmaプラグインやプリフライトリクエストの場合）
       if (!origin || origin === 'null') {
         callback(null, true);
-      }
-      else if (allowedOrigins.includes(origin)) {
+      } else if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
