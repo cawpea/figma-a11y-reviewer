@@ -515,7 +515,7 @@ if (process.env.NODE_ENV === 'development') {
 
 #### 本番環境（Firebase Cloud Functions v2）
 
-<!-- CODE_REF: backend/src/index.ts:73-82 -->
+<!-- CODE_REF: backend/src/index.ts:70-78 -->
 
 本番環境では、Firebase Functions v2の`onRequest`でラップしてデプロイします：
 
