@@ -254,10 +254,11 @@ npm run test:coverage     # カバレッジレポート
 ```bash
 # オプション（開発環境用）
 PORT=3000                    # デフォルト: 3000
-NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 DEBUG=true                  # デバッグログを明示的に有効化（開発環境では不要）
 ```
+
+**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy:prod`コマンドは`production`）。
 
 **注意**: Claude API
 Keyは環境変数ではなく、**ユーザーがFigmaプラグインのUIで設定**します。API

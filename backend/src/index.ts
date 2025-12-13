@@ -40,7 +40,7 @@ app.use('/api', evaluationRoutes);
 // エラーハンドラー
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'development') {
   // サーバー起動
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
