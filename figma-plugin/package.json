@@ -27,8 +27,8 @@
     "typescript": ">=4"
   },
   "scripts": {
-    "build:dev": "npm run build:css && cross-env NODE_ENV=development npm run build:js",
-    "build:prod": "npm run build:css && cross-env NODE_ENV=production npm run build:js",
+    "build:dev": "tsx ../scripts/copy-shared.ts figma-plugin && npm run build:css && cross-env NODE_ENV=development npm run build:js",
+    "build:prod": "tsx ../scripts/copy-shared.ts figma-plugin && npm run build:css && cross-env NODE_ENV=production npm run build:js",
     "build:css": "tailwindcss --input ./src/input.css --output ./src/output.css",
     "build:js": "build-figma-plugin --typecheck --minify",
     "watch": "npm run build:css && concurrently npm:watch:css npm:watch:js",

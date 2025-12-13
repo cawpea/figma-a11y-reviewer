@@ -13,22 +13,20 @@ const evaluation_1 = __importDefault(require("./routes/evaluation"));
 const debug_1 = require("./utils/debug");
 // 環境変数を読み込む
 dotenv_1.default.config();
-// ★ デバッグ: 環境変数の読み込み確認
-console.log('========== Environment Variables Check ==========');
-console.log('PORT:', process.env.PORT);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('=================================================');
+if (process.env.NODE_ENV === 'development') {
+    console.log('========== Environment Variables Check ==========');
+    console.log('PORT:', process.env.PORT);
+    console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('=================================================');
+}
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 // FigmaプラグインからのCORSリクエストに対応
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
-        const allowedOrigins = [
-            'https://www.figma.com',
-            'http://localhost:3000',
-        ];
-        // origin が undefined, null, 'null' の場合は許可
-        // （Figmaプラグインやプリフライトリクエストの場合）
+        const allowedOrigins = process.env.NODE_ENV === 'production'
+            ? ['https://www.figma.com']
+            : ['https://www.figma.com', 'http://localhost:3000'];
         if (!origin || origin === 'null') {
             callback(null, true);
         }
@@ -36,6 +34,7 @@ app.use((0, cors_1.default)({
             callback(null, true);
         }
         else {
+            console.warn(`CORS blocked origin: ${origin}`);
             callback(new Error('Not allowed by CORS'));
         }
     },
