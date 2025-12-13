@@ -82,13 +82,14 @@ Reviewerは、**Figmaプラグイン**（フロントエンド）と**Express.js
 
 ### バックエンド（API）
 
-| 技術              | 用途              | 選定理由                                  |
-| ----------------- | ----------------- | ----------------------------------------- |
-| **Express.js**    | Webフレームワーク | シンプル、Node.jsのデファクトスタンダード |
-| **TypeScript**    | 型安全性          | フロントエンドと共通の型定義を共有        |
-| **Anthropic SDK** | Claude API連携    | 公式SDK、型サポート                       |
-| **Zod**           | バリデーション    | 型安全なスキーマバリデーション            |
-| **dotenv**        | 環境変数管理      | APIキーなどの秘密情報管理                 |
+| 技術                      | 用途              | 選定理由                                  |
+| ------------------------- | ----------------- | ----------------------------------------- |
+| **Express.js**            | Webフレームワーク | シンプル、Node.jsのデファクトスタンダード |
+| **TypeScript**            | 型安全性          | フロントエンドと共通の型定義を共有        |
+| **Anthropic SDK**         | Claude API連携    | 公式SDK、型サポート                       |
+| **Zod**                   | バリデーション    | 型安全なスキーマバリデーション            |
+| **dotenv**                | 環境変数管理      | APIキーなどの秘密情報管理                 |
+| **Firebase Functions v2** | デプロイ基盤      | サーバーレス、スケーラブル                |
 
 ### 共通
 
@@ -482,6 +483,221 @@ const evaluationRequestSchema = z.object({
   }
 }
 ```
+
+## デプロイメント構成
+
+### 開発環境とデプロイ環境
+
+Figma A11y
+Reviewerのバックエンドは、開発環境とデプロイ環境で異なる実行方式を採用しています。
+
+#### 開発環境（ローカル）
+
+<!-- CODE_REF: backend/src/index.ts:62-71 -->
+
+開発環境では、Expressアプリを直接起動します：
+
+```typescript
+if (process.env.NODE_ENV === 'development') {
+  // サーバー起動
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📊 API endpoint: http://localhost:${PORT}/api/evaluate`);
+    console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
+  });
+
+  cleanupOldDebugFiles();
+}
+```
+
+**起動コマンド**: `npm run dev` →
+`NODE_ENV=development tsx --env-file=.env src/index.ts`
+
+#### 本番環境（Firebase Cloud Functions v2）
+
+<!-- CODE_REF: backend/src/index.ts:70-78 -->
+
+本番環境では、Firebase Functions v2の`onRequest`でラップしてデプロイします：
+
+```typescript
+// Cloud Functions用エクスポート
+export const api = onRequest(
+  {
+    region: 'asia-northeast1', // 東京リージョン
+    timeoutSeconds: 300,
+    memory: '1GiB',
+    invoker: 'public', // 未認証アクセスを許可（Figmaプラグインからのアクセスに必要）
+  },
+  app
+);
+```
+
+**デプロイコマンド**: `npm run deploy` →
+`NODE_ENV=production npm run build && firebase deploy --only functions`
+
+### ビルド成果物の管理
+
+**重要**: Firebase
+Functionsのデプロイには、コンパイル済みのJavaScriptファイル（`dist/`）が必要です。
+
+<!-- CODE_REF: .gitignore:1-4 -->
+
+通常、`dist/`ディレクトリはビルド成果物としてGitに含めませんが、Firebase
+Functionsデプロイのため`backend/dist/`のみ例外的にGitに含めます：
+
+```gitignore
+node_modules/
+# Exclude dist/ globally, but allow backend/dist/ for Firebase Functions deployment
+figma-plugin/dist/
+shared/dist/
+```
+
+**理由**:
+
+- Firebase
+  Functionsはデプロイ時に`source`ディレクトリ（ここでは`backend/`）をそのままアップロードします
+- ビルドステップを事前に実行し、コンパイル済みファイルをリポジトリに含める必要があります
+- CI/CDでビルドする方法もありますが、現在はシンプルにGit管理しています
+
+### デプロイ設定ファイル
+
+#### `.firebaserc`
+
+<!-- CODE_REF: .firebaserc:1-5 -->
+
+Firebaseプロジェクトを指定：
+
+```json
+{
+  "projects": {
+    "default": "figma-accessibility-reviewer"
+  }
+}
+```
+
+#### `firebase.json`
+
+<!-- CODE_REF: firebase.json:1-11 -->
+
+Firebase Functionsの設定：
+
+```json
+{
+  "functions": [
+    {
+      "source": "backend",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": ["node_modules", ".git", "*.local"],
+      "predeploy": []
+    }
+  ]
+}
+```
+
+#### `backend/.gcloudignore`
+
+<!-- CODE_REF: backend/.gcloudignore:16-40 -->
+
+デプロイ時に除外するファイルを指定：
+
+```gitignore
+# Node.js dependencies:
+node_modules/
+
+# TypeScript source files (we only need the compiled dist/)
+src/
+*.ts
+tsconfig.json
+tsconfig.test.json
+
+# Test files
+*.test.js
+jest.config.js
+coverage/
+
+# Environment files
+.env
+.env.local
+.env.example
+
+# Logs
+logs/
+*.log
+debug-*.json
+
+# Development files
+.DS_Store
+```
+
+**重要**:
+TypeScriptソースファイル（`src/`）はデプロイから除外され、コンパイル済みの`dist/`のみがアップロードされます。
+
+### 環境変数の管理
+
+#### 開発環境
+
+`backend/.env`ファイルで管理（Gitには含めない）：
+
+```bash
+# オプション: ローカル開発時のポート設定
+PORT=3000
+
+# オプション: デバッグログを明示的に有効化
+DEBUG=true
+```
+
+**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm
+scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
+
+#### 本番環境（Cloud Functions）
+
+Cloud Functionsでは、環境変数は以下の方法で設定します：
+
+1. **Firebase Consoleから設定**（推奨）:
+   - Firebase Console > Functions > 設定 > 環境変数
+   - 秘密情報（API Keyなど）は表示されません
+
+2. **Firebase CLIで設定**:
+   ```bash
+   firebase functions:config:set someservice.key="THE API KEY"
+   ```
+
+**注意**: Figma A11y Reviewerでは、Claude API
+KeyをユーザーがFigmaプラグインで設定するため、バックエンドの環境変数としてAPI
+Keyを保存する必要はありません。
+
+### デプロイフロー
+
+```bash
+# 1. ローカルでビルド
+cd backend
+npm run build
+
+# 2. Firebaseにログイン（初回のみ）
+firebase login
+
+# 3. デプロイ
+npm run deploy
+```
+
+**デプロイされるURL**:
+`https://asia-northeast1-figma-accessibility-reviewer.cloudfunctions.net/api`
+
+このURLが`figma-plugin/.env.production`の`API_BASE_URL`に設定されます。
+
+### スケーリングと制限
+
+Firebase Functions v2の設定：
+
+- **リージョン**: `asia-northeast1`（東京）
+- **タイムアウト**: 300秒（5分）
+- **メモリ**: 1GiB
+- **同時実行数**: デフォルト（1000）
+- **アクセス制御**: `public`（未認証アクセス許可）
+
+**注意**: Claude
+APIの応答時間は通常20-40秒ですが、複数エージェントを並列実行するため、十分なタイムアウトを設定しています。
 
 ## セキュリティとパフォーマンス
 

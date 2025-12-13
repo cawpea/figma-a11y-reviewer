@@ -65,9 +65,15 @@ Keyは環境変数ではなく、Figmaプラグインの初回起動時にUIか�
 ```bash
 cd backend
 npm run dev          # 開発サーバー起動（ホットリロード）
-npm run build:dev    # 開発環境用ビルド
+npm run build        # ビルド（本番デプロイ用）
+npm run deploy       # 本番環境デプロイ（Firebase Cloud Functions）
 npm test             # テスト実行
 ```
+
+**デプロイ準備**:
+
+- Firebase CLI インストール: `npm install -g firebase-tools`
+- ログイン: `firebase login`
 
 ### Figmaプラグイン
 
@@ -93,10 +99,14 @@ npm run validate:docs:update # ドキュメント更新確認のみ
 
 ```
 figma-plugin/          # Figmaプラグイン（Preact + TailwindCSS）
-backend/               # バックエンドAPI（Express.js）
+backend/               # バックエンドAPI（Express.js + Firebase Functions）
+  ├── dist/            # ビルド成果物（Firebase デプロイ用、Gitに含む）
+  └── src/             # TypeScriptソースコード
 shared/                # 共有型定義
 docs/                  # ドキュメント
 scripts/               # ユーティリティスクリプト
+firebase.json          # Firebase Functions設定
+.firebaserc            # Firebaseプロジェクト指定
 ```
 
 ### データフロー
@@ -254,10 +264,12 @@ npm run test:coverage     # カバレッジレポート
 ```bash
 # オプション（開発環境用）
 PORT=3000                    # デフォルト: 3000
-NODE_ENV=development         # 本番では production
 CORS_ORIGIN=*               # 本番では適切なオリジンを設定
 DEBUG=true                  # デバッグログを明示的に有効化（開発環境では不要）
 ```
+
+**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm
+scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
 
 **注意**: Claude API
 Keyは環境変数ではなく、**ユーザーがFigmaプラグインのUIで設定**します。API

@@ -1,0 +1,11 @@
+{
+  "functions": [
+    {
+      "source": "backend",
+      "codebase": "default",
+      "disallowLegacyRuntimeConfig": true,
+      "ignore": ["node_modules", ".git", "*.local"],
+      "predeploy": []
+    }
+  ]
+}

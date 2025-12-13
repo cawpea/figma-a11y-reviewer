@@ -20,11 +20,22 @@ npm run type-check
 
 ```bash
 # ビルド
-npm run build:dev
+npm run build
 
-# 本番環境起動
+# 本番環境起動（ローカル）
 npm start
+
+# 本番環境デプロイ（Cloud Functions）
+npm run deploy
 ```
+
+**注意**:
+
+- `deploy`コマンドは`NODE_ENV=production`を設定してビルドし、Firebase Cloud
+  Functionsにデプロイします
+- Firebase CLI（`firebase-tools`）のグローバルインストールが必要です:
+  `npm install -g firebase-tools`
+- デプロイ前に`firebase login`でログインしてください
 
 ### テスト
 

@@ -45,11 +45,11 @@ npm install
 
 ### 1.2 環境変数の設定
 
-`.env`ファイルを作成し、必要な環境変数を設定します：
+`.env.example`をコピーして`.env`ファイルを作成します：
 
 ```bash
-# backend/.env を作成
-touch .env
+# backend/.env.example を .env にコピー
+cp .env.example .env
 ```
 
 `.env`ファイルに以下を記述：
@@ -60,11 +60,13 @@ ANTHROPIC_API_KEY=sk-ant-your-api-key-here
 
 # オプション: サーバー設定
 PORT=3000
-NODE_ENV=development
 
 # オプション: CORS設定（開発環境では * でOK）
 CORS_ORIGIN=*
 ```
+
+**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm
+scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
 
 #### Anthropic APIキーの取得方法
 
@@ -79,10 +81,13 @@ APIキーは秘密情報です。Gitにコミットしないでください（`.
 ### 1.3 TypeScriptのビルド（オプション）
 
 ```bash
-npm run build:dev
+npm run build
 ```
 
-このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルしますが、開発時は不要です（`npm run dev`がts-nodeで直接実行します）。
+このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルします。開発時は不要ですが（`npm run dev`がtsxで直接実行します）、本番デプロイ時には必須です。
+
+**注意**: Firebase
+Functions デプロイのため、`backend/dist/`はGitに含まれます（`.gitignore`で特別に許可）。
 
 ### 1.4 開発サーバーの起動
 
@@ -404,12 +409,12 @@ figma-ui-reviewer/
 
 ### バックエンド（backend/.env）
 
-| 変数名              | 必須 | デフォルト値  | 説明                                 |
-| ------------------- | ---- | ------------- | ------------------------------------ |
-| `ANTHROPIC_API_KEY` | ✅   | -             | Anthropic APIキー                    |
-| `PORT`              | ❌   | `3000`        | サーバーポート                       |
-| `NODE_ENV`          | ❌   | `development` | 環境（`development` / `production`） |
-| `CORS_ORIGIN`       | ❌   | `*`           | CORS許可オリジン（本番では制限推奨） |
+| 変数名              | 必須 | デフォルト値 | 説明                                                                          |
+| ------------------- | ---- | ------------ | ----------------------------------------------------------------------------- |
+| `ANTHROPIC_API_KEY` | ✅   | -            | Anthropic APIキー                                                             |
+| `PORT`              | ❌   | `3000`       | サーバーポート                                                                |
+| `NODE_ENV`          | ❌   | -            | npm scriptsで自動設定（.envでの設定不要、dev→development、deploy→production） |
+| `CORS_ORIGIN`       | ❌   | `*`          | CORS許可オリジン（本番では制限推奨）                                          |
 
 ### Figmaプラグイン（figma-plugin/.env.{development|production}）
 
