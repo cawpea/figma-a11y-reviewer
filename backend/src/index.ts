@@ -10,7 +10,7 @@ import { cleanupOldDebugFiles } from './utils/debug';
 // 環境変数を読み込む
 dotenv.config();
 
-if (process.env.NODE_ENV === 'development' || process.env.DEBUG === 'true') {
+if (process.env.NODE_ENV === 'development') {
   console.log('========== Environment Variables Check ==========');
   console.log('PORT:', process.env.PORT);
   console.log('NODE_ENV:', process.env.NODE_ENV);
