@@ -1,6 +1,7 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
+import { onRequest } from 'firebase-functions/v2/https';
 
 import { errorHandler } from './middleware/error-handler';
 import evaluationRoutes from './routes/evaluation';
@@ -39,11 +40,23 @@ app.use('/api', evaluationRoutes);
 // エラーハンドラー
 app.use(errorHandler);
 
-// サーバー起動
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 API endpoint: http://localhost:${PORT}/api/evaluate`);
-  console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  // サーバー起動
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📊 API endpoint: http://localhost:${PORT}/api/evaluate`);
+    console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
+  });
 
-cleanupOldDebugFiles();
+  cleanupOldDebugFiles();
+}
+
+// Cloud Functions用エクスポート
+export const api = onRequest(
+  {
+    region: 'asia-northeast1', // 東京リージョン
+    timeoutSeconds: 300,
+    memory: '1GiB',
+  },
+  app
+);

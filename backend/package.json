@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/backend/src/index.js",
   "scripts": {
     "dev": "tsx --env-file=.env src/index.ts",
     "build": "tsc",
@@ -26,6 +26,8 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "firebase-admin": "^13.6.0",
+    "firebase-functions": "^7.0.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -42,5 +44,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": "22"
   }
 }
