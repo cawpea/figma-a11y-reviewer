@@ -7,15 +7,9 @@
       "ignore": [
         "node_modules",
         ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local",
-        "logs",
-        "src",
-        "*.test.ts",
-        "tsconfig.test.json",
-        "jest.config.js"
-      ]
+        "*.local"
+      ],
+      "predeploy": []
     }
   ]
 }
