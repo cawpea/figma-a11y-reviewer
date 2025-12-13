@@ -31,8 +31,10 @@ npm run deploy
 
 **注意**:
 
-- `deploy`コマンドは`NODE_ENV=production`を設定してビルドし、Firebase Cloud Functionsにデプロイします
-- Firebase CLI（`firebase-tools`）のグローバルインストールが必要です: `npm install -g firebase-tools`
+- `deploy`コマンドは`NODE_ENV=production`を設定してビルドし、Firebase Cloud
+  Functionsにデプロイします
+- Firebase CLI（`firebase-tools`）のグローバルインストールが必要です:
+  `npm install -g firebase-tools`
 - デプロイ前に`firebase login`でログインしてください
 
 ### テスト

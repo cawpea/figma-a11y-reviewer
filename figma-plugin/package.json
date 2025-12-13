@@ -49,9 +49,18 @@
     "editorType": [
       "figma"
     ],
-    "id": "figma-ui-reviewer",
-    "name": "Figma UI Reviewer",
+    "id": "figma-a11y-reviewer",
+    "name": "Figma Accessibility Reviewer",
     "main": "src/main.ts",
-    "ui": "src/ui.tsx"
+    "ui": "src/ui.tsx",
+    "networkAccess": {
+      "allowedDomains": [
+        "https://api-hnsrn2w4iq-an.a.run.app"
+      ],
+      "devAllowedDomains": [
+        "http://localhost:3000"
+      ],
+      "reasoning": "This plugin evaluates Figma designs for accessibility compliance using an external AI API service."
+    }
   }
 }

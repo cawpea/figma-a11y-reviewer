@@ -65,7 +65,8 @@ PORT=3000
 CORS_ORIGIN=*
 ```
 
-**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
+**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm
+scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
 
 #### Anthropic APIキーの取得方法
 
@@ -405,12 +406,12 @@ figma-ui-reviewer/
 
 ### バックエンド（backend/.env）
 
-| 変数名              | 必須 | デフォルト値  | 説明                                                               |
-| ------------------- | ---- | ------------- | ------------------------------------------------------------------ |
-| `ANTHROPIC_API_KEY` | ✅   | -             | Anthropic APIキー                                                  |
-| `PORT`              | ❌   | `3000`        | サーバーポート                                                     |
-| `NODE_ENV`          | ❌   | -             | npm scriptsで自動設定（.envでの設定不要、dev→development、deploy→production） |
-| `CORS_ORIGIN`       | ❌   | `*`           | CORS許可オリジン（本番では制限推奨）                               |
+| 変数名              | 必須 | デフォルト値 | 説明                                                                          |
+| ------------------- | ---- | ------------ | ----------------------------------------------------------------------------- |
+| `ANTHROPIC_API_KEY` | ✅   | -            | Anthropic APIキー                                                             |
+| `PORT`              | ❌   | `3000`       | サーバーポート                                                                |
+| `NODE_ENV`          | ❌   | -            | npm scriptsで自動設定（.envでの設定不要、dev→development、deploy→production） |
+| `CORS_ORIGIN`       | ❌   | `*`          | CORS許可オリジン（本番では制限推奨）                                          |
 
 ### Figmaプラグイン（figma-plugin/.env.{development|production}）
 
