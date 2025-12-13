@@ -488,7 +488,8 @@ const evaluationRequestSchema = z.object({
 
 ### 開発環境とデプロイ環境
 
-Figma A11y Reviewerのバックエンドは、開発環境とデプロイ環境で異なる実行方式を採用しています。
+Figma A11y
+Reviewerのバックエンドは、開発環境とデプロイ環境で異なる実行方式を採用しています。
 
 #### 開発環境（ローカル）
 
@@ -509,7 +510,8 @@ if (process.env.NODE_ENV === 'development') {
 }
 ```
 
-**起動コマンド**: `npm run dev` → `NODE_ENV=development tsx --env-file=.env src/index.ts`
+**起動コマンド**: `npm run dev` →
+`NODE_ENV=development tsx --env-file=.env src/index.ts`
 
 #### 本番環境（Firebase Cloud Functions v2）
 
@@ -530,15 +532,18 @@ export const api = onRequest(
 );
 ```
 
-**デプロイコマンド**: `npm run deploy` → `NODE_ENV=production npm run build && firebase deploy --only functions`
+**デプロイコマンド**: `npm run deploy` →
+`NODE_ENV=production npm run build && firebase deploy --only functions`
 
 ### ビルド成果物の管理
 
-**重要**: Firebase Functionsのデプロイには、コンパイル済みのJavaScriptファイル（`dist/`）が必要です。
+**重要**: Firebase
+Functionsのデプロイには、コンパイル済みのJavaScriptファイル（`dist/`）が必要です。
 
 <!-- CODE_REF: .gitignore:1-4 -->
 
-通常、`dist/`ディレクトリはビルド成果物としてGitに含めませんが、Firebase Functionsデプロイのため`backend/dist/`のみ例外的にGitに含めます：
+通常、`dist/`ディレクトリはビルド成果物としてGitに含めませんが、Firebase
+Functionsデプロイのため`backend/dist/`のみ例外的にGitに含めます：
 
 ```gitignore
 node_modules/
@@ -548,7 +553,9 @@ shared/dist/
 ```
 
 **理由**:
-- Firebase Functionsはデプロイ時に`source`ディレクトリ（ここでは`backend/`）をそのままアップロードします
+
+- Firebase
+  Functionsはデプロイ時に`source`ディレクトリ（ここでは`backend/`）をそのままアップロードします
 - ビルドステップを事前に実行し、コンパイル済みファイルをリポジトリに含める必要があります
 - CI/CDでビルドする方法もありますが、現在はシンプルにGit管理しています
 
@@ -623,7 +630,8 @@ debug-*.json
 .DS_Store
 ```
 
-**重要**: TypeScriptソースファイル（`src/`）はデプロイから除外され、コンパイル済みの`dist/`のみがアップロードされます。
+**重要**:
+TypeScriptソースファイル（`src/`）はデプロイから除外され、コンパイル済みの`dist/`のみがアップロードされます。
 
 ### 環境変数の管理
 
@@ -639,7 +647,8 @@ PORT=3000
 DEBUG=true
 ```
 
-**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
+**注意**: `NODE_ENV`は`.env`ファイルで設定する必要はありません。npm
+scriptsで自動的に設定されます（`dev`コマンドは`development`、`deploy`コマンドは`production`）。
 
 #### 本番環境（Cloud Functions）
 
@@ -654,7 +663,9 @@ Cloud Functionsでは、環境変数は以下の方法で設定します：
    firebase functions:config:set someservice.key="THE API KEY"
    ```
 
-**注意**: Figma A11y Reviewerでは、Claude API KeyをユーザーがFigmaプラグインで設定するため、バックエンドの環境変数としてAPI Keyを保存する必要はありません。
+**注意**: Figma A11y Reviewerでは、Claude API
+KeyをユーザーがFigmaプラグインで設定するため、バックエンドの環境変数としてAPI
+Keyを保存する必要はありません。
 
 ### デプロイフロー
 
@@ -670,7 +681,8 @@ firebase login
 npm run deploy
 ```
 
-**デプロイされるURL**: `https://asia-northeast1-figma-accessibility-reviewer.cloudfunctions.net/api`
+**デプロイされるURL**:
+`https://asia-northeast1-figma-accessibility-reviewer.cloudfunctions.net/api`
 
 このURLが`figma-plugin/.env.production`の`API_BASE_URL`に設定されます。
 
@@ -684,7 +696,8 @@ Firebase Functions v2の設定：
 - **同時実行数**: デフォルト（1000）
 - **アクセス制御**: `public`（未認証アクセス許可）
 
-**注意**: Claude APIの応答時間は通常20-40秒ですが、複数エージェントを並列実行するため、十分なタイムアウトを設定しています。
+**注意**: Claude
+APIの応答時間は通常20-40秒ですが、複数エージェントを並列実行するため、十分なタイムアウトを設定しています。
 
 ## セキュリティとパフォーマンス
 

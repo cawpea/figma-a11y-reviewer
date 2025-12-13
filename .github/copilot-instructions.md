@@ -4,7 +4,8 @@
 <!-- This section is automatically generated from CLAUDE.md. Do not edit manually. -->
 <!-- Run `npm run sync:copilot` to regenerate this section. -->
 
-This file provides guidance to GitHub Copilot when working with code in this repository.
+This file provides guidance to GitHub Copilot when working with code in this
+repository.
 
 > **📚 詳細なドキュメント**: このファイルはクイックリファレンスです。より詳細な情報は[`docs/`ディレクトリ](../docs/README.md)を参照してください。
 
@@ -74,6 +75,7 @@ npm test             # テスト実行
 ```
 
 **デプロイ準備**:
+
 - Firebase CLI インストール: `npm install -g firebase-tools`
 - ログイン: `firebase login`
 
@@ -257,7 +259,8 @@ npm run test:coverage     # カバレッジレポート
 - **カバレッジ目標**: 新規コード80%以上
 - **ユーザー視点**: アクセシビリティクエリ（`getByRole`, `getByText`）を優先
 
-**詳細**: [docs/development/testing-guide.md](../docs/development/testing-guide.md)
+**詳細**:
+[docs/development/testing-guide.md](../docs/development/testing-guide.md)
 
 ## 環境変数
 

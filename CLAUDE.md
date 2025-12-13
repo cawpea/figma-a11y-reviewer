@@ -71,6 +71,7 @@ npm test             # テスト実行
 ```
 
 **デプロイ準備**:
+
 - Firebase CLI インストール: `npm install -g firebase-tools`
 - ログイン: `firebase login`
 

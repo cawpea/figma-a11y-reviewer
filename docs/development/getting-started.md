@@ -86,7 +86,8 @@ npm run build
 
 このコマンドは`dist/`ディレクトリにJavaScriptをコンパイルします。開発時は不要ですが（`npm run dev`がtsxで直接実行します）、本番デプロイ時には必須です。
 
-**注意**: Firebase Functions デプロイのため、`backend/dist/`はGitに含まれます（`.gitignore`で特別に許可）。
+**注意**: Firebase
+Functions デプロイのため、`backend/dist/`はGitに含まれます（`.gitignore`で特別に許可）。
 
 ### 1.4 開発サーバーの起動
 
