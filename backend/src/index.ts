@@ -10,11 +10,12 @@ import { cleanupOldDebugFiles } from './utils/debug';
 // 環境変数を読み込む
 dotenv.config();
 
-// ★ デバッグ: 環境変数の読み込み確認
-console.log('========== Environment Variables Check ==========');
-console.log('PORT:', process.env.PORT);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('=================================================');
+if (process.env.NODE_ENV === 'development' || process.env.DEBUG === 'true') {
+  console.log('========== Environment Variables Check ==========');
+  console.log('PORT:', process.env.PORT);
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  console.log('=================================================');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
