@@ -5,7 +5,7 @@
       "codebase": "default",
       "disallowLegacyRuntimeConfig": true,
       "ignore": ["node_modules", ".git", "*.local"],
-      "predeploy": []
+      "predeploy": ["npm --prefix backend run build"]
     }
   ]
 }

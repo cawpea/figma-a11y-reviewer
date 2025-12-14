@@ -538,16 +538,16 @@ export const api = onRequest(
 ### ビルド成果物の管理
 
 **重要**: Firebase
-Functionsのデプロイには、コンパイル済みのJavaScriptファイル（`dist/`）が必要です。
+Functionsはデプロイ時に自動的にTypeScriptファイルをビルドします。
 
 <!-- CODE_REF: .gitignore:1-4 -->
 
-通常、`dist/`ディレクトリはビルド成果物としてGitに含めませんが、Firebase
-Functionsデプロイのため`backend/dist/`のみ例外的にGitに含めます：
+すべての`dist/`ディレクトリはGitから除外されます：
 
 ```gitignore
 node_modules/
-# Exclude dist/ globally, but allow backend/dist/ for Firebase Functions deployment
+# Exclude dist/ globally
+backend/dist/
 figma-plugin/dist/
 shared/dist/
 ```
@@ -555,9 +555,9 @@ shared/dist/
 **理由**:
 
 - Firebase
-  Functionsはデプロイ時に`source`ディレクトリ（ここでは`backend/`）をそのままアップロードします
-- ビルドステップを事前に実行し、コンパイル済みファイルをリポジトリに含める必要があります
-- CI/CDでビルドする方法もありますが、現在はシンプルにGit管理しています
+  Functionsはデプロイ時に`source`ディレクトリ（ここでは`backend/`）のTypeScriptファイルを自動的にビルドします
+- ビルド成果物をGitに含める必要がなくなり、リポジトリがクリーンに保たれます
+- CI/CDでの自動デプロイが簡素化されます
 
 ### デプロイ設定ファイル
 
@@ -594,44 +594,6 @@ Firebase Functionsの設定：
   ]
 }
 ```
-
-#### `backend/.gcloudignore`
-
-<!-- CODE_REF: backend/.gcloudignore:16-40 -->
-
-デプロイ時に除外するファイルを指定：
-
-```gitignore
-# Node.js dependencies:
-node_modules/
-
-# TypeScript source files (we only need the compiled dist/)
-src/
-*.ts
-tsconfig.json
-tsconfig.test.json
-
-# Test files
-*.test.js
-jest.config.js
-coverage/
-
-# Environment files
-.env
-.env.local
-.env.example
-
-# Logs
-logs/
-*.log
-debug-*.json
-
-# Development files
-.DS_Store
-```
-
-**重要**:
-TypeScriptソースファイル（`src/`）はデプロイから除外され、コンパイル済みの`dist/`のみがアップロードされます。
 
 ### 環境変数の管理
 

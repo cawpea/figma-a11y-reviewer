@@ -29,14 +29,17 @@
     "validate:docs:update": "tsx scripts/validate-docs-update.ts",
     "validate:copilot-sync": "tsx scripts/validate-copilot-sync.ts",
     "sync:copilot": "tsx scripts/sync-copilot-instructions.ts",
+    "copy:shared": "tsx scripts/copy-shared.ts",
+    "watch:shared": "tsx scripts/copy-shared.ts figma-plugin --watch",
     "backend:dev": "npm run dev -w backend",
     "backend:build": "npm run build -w backend",
     "plugin:build": "npm run build -w figma-plugin",
-    "plugin:watch": "npm run watch -w figma-plugin"
+    "plugin:watch": "concurrently \"npm run watch:shared\" \"npm run watch -w figma-plugin\""
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "@types/node": "^24.10.1",
+    "concurrently": "^9.1.2",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
     "eslint": "^9.17.0",

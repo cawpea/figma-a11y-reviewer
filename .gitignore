@@ -1,7 +1,12 @@
 node_modules/
-# Exclude dist/ globally, but allow backend/dist/ for Firebase Functions deployment
+# Exclude dist/ globally
+backend/dist/
 figma-plugin/dist/
 shared/dist/
+
+# Copied shared directories (build-time artifacts)
+backend/src/shared/
+figma-plugin/src/shared/
 
 .env
 .env.local
