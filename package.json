@@ -30,7 +30,7 @@
     "validate:copilot-sync": "tsx scripts/validate-copilot-sync.ts",
     "sync:copilot": "tsx scripts/sync-copilot-instructions.ts",
     "copy:shared": "tsx scripts/copy-shared.ts",
-    "watch:shared": "tsx scripts/watch-shared.ts",
+    "watch:shared": "tsx scripts/copy-shared.ts figma-plugin --watch",
     "backend:dev": "npm run dev -w backend",
     "backend:build": "npm run build -w backend",
     "plugin:build": "npm run build -w figma-plugin",
