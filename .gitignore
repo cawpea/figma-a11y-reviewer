@@ -1,5 +1,6 @@
 node_modules/
-# Exclude dist/ globally, but allow backend/dist/ for Firebase Functions deployment
+# Exclude dist/ globally
+backend/dist/
 figma-plugin/dist/
 shared/dist/
 

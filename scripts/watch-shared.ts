@@ -67,16 +67,12 @@ function main(): void {
 
   // ファイル変更を監視
   try {
-    fs.watch(
-      SHARED_SRC,
-      { recursive: true },
-      (eventType: string, filename: string | null) => {
-        if (filename) {
-          console.log(`   📝 ${eventType}: ${filename}`);
-          debouncedCopy();
-        }
+    fs.watch(SHARED_SRC, { recursive: true }, (eventType: string, filename: string | null) => {
+      if (filename) {
+        console.log(`   📝 ${eventType}: ${filename}`);
+        debouncedCopy();
       }
-    );
+    });
   } catch (error) {
     console.error('\n❌ Error setting up file watcher:', error);
     process.exit(1);
