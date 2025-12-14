@@ -595,44 +595,6 @@ Firebase Functionsの設定：
 }
 ```
 
-#### `backend/.gcloudignore`
-
-<!-- CODE_REF: backend/.gcloudignore:16-40 -->
-
-デプロイ時に除外するファイルを指定：
-
-```gitignore
-# Node.js dependencies:
-node_modules/
-
-# TypeScript source files (we only need the compiled dist/)
-src/
-*.ts
-tsconfig.json
-tsconfig.test.json
-
-# Test files
-*.test.js
-jest.config.js
-coverage/
-
-# Environment files
-.env
-.env.local
-.env.example
-
-# Logs
-logs/
-*.log
-debug-*.json
-
-# Development files
-.DS_Store
-```
-
-**重要**:
-TypeScriptソースファイル（`src/`）はデプロイから除外され、コンパイル済みの`dist/`のみがアップロードされます。
-
 ### 環境変数の管理
 
 #### 開発環境
