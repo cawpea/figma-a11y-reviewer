@@ -160,7 +160,7 @@ function main(): void {
     try {
       copySharedToProject(project as TargetProject);
       console.log('\n✨ Done!\n');
-    } catch (error) {
+    } catch {
       console.error('\n❌ Copy failed\n');
       process.exit(1);
     }
