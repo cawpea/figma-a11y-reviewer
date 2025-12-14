@@ -100,7 +100,6 @@ npm run validate:docs:update # ドキュメント更新確認のみ
 ```
 figma-plugin/          # Figmaプラグイン（Preact + TailwindCSS）
 backend/               # バックエンドAPI（Express.js + Firebase Functions）
-  ├── dist/            # ビルド成果物（Firebase デプロイ用、Gitに含む）
   └── src/             # TypeScriptソースコード
 shared/                # 共有型定義
 docs/                  # ドキュメント
