@@ -147,12 +147,8 @@ describe('copy-shared', () => {
 
       copySharedToProject('backend');
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining(`Source: ${SHARED_SRC}`)
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining(`Target: ${targetDir}`)
-      );
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining(`Source: ${SHARED_SRC}`));
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining(`Target: ${targetDir}`));
 
       consoleSpy.mockRestore();
     });
